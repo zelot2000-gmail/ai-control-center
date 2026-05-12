@@ -3385,5 +3385,208 @@
       "rollback_required": false,
       "rollback_plan": null
     }
+  },
+  "d703418b-22a0-4de6-a9b9-65279b668fc8": {
+    "task_id": "d703418b-22a0-4de6-a9b9-65279b668fc8",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "programmer",
+      "rag-curator",
+      "qa",
+      "manager"
+    ],
+    "skills": [
+      "programmer",
+      "rag-ingest",
+      "qa-verify",
+      "mobile-command",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T15:26:42.362345+00:00",
+    "updated_at": "2026-05-12T15:29:18.117760+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/d703418b-22a0-4de6-a9b9-65279b668fc8.prompt.md",
+      "agents": [
+        "programmer",
+        "rag-curator",
+        "qa",
+        "manager"
+      ],
+      "skills": [
+        "programmer",
+        "rag-ingest",
+        "qa-verify",
+        "mobile-command",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T15:29:16.166094+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": "1be06514-2c88-48da-8000-af97869c5fcb",
+      "agent_run_status": "completed_prompt_ready",
+      "agent_run_mode": "prompt_only"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "programmer",
+      "rag-curator",
+      "qa",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T15:26:42.362404+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:16.234362+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:16.349685+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:16.496974+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.500443+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ จาก 10 queries"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.587932+00:00",
+        "agent": "programmer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.668381+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.752389+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun 1be06514-2c88-48da-8000-af97869c5fcb queued (mode=prompt_only)"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.801445+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.853931+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.895295+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=prompt_only"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:17.978256+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_completed",
+        "message": "สำเร็จ status=completed_prompt_ready"
+      },
+      {
+        "timestamp": "2026-05-12T15:29:18.078571+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "selected_workflow": "wiki-ingest-workflow",
+      "reason_for_mode": "Wiki/knowledge lookup task: RAG search from docs/wiki"
+    },
+    "accountability": {
+      "owner_agent": "programmer",
+      "responsible_agents": [
+        "programmer",
+        "rag-curator",
+        "qa",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }
