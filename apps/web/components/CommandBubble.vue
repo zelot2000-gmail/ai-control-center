@@ -68,6 +68,12 @@
             <div class="task-detail" v-if="meta.skills?.length">
               <span class="dl">Skills:</span> {{ meta.skills.join(', ') }}
             </div>
+            <!-- RAG Wiki badge -->
+            <div class="task-detail rag-info" v-if="meta.rag_results_count > 0">
+              <span class="rag-badge">📚 LLM Wiki</span>
+              <span class="rag-count">{{ meta.rag_results_count }} results</span>
+              <span class="rag-path" v-if="meta.rag_top_path">· {{ meta.rag_top_path }}</span>
+            </div>
             <div class="task-detail attach-info" v-if="meta.attachments_count > 0">
               <span class="dl">Files:</span> 📎 {{ meta.attachments_count }} ไฟล์แนบ
             </div>
@@ -435,6 +441,15 @@ const fmtTime   = (ts) => {
 .task-detail { font-size: 0.78rem; color: #374151; margin-bottom: 3px; word-break: break-all; }
 .task-detail code { font-family: monospace; color: #065f46; font-size: 0.75rem; }
 .dl { font-weight: 600; color: #6b7280; }
+
+.rag-info { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.rag-badge {
+  font-size: 0.67rem; font-weight: 700;
+  background: #dbeafe; color: #1d4ed8;
+  padding: 1px 6px; border-radius: 999px;
+}
+.rag-count { font-size: 0.72rem; color: #1d4ed8; font-weight: 600; }
+.rag-path  { font-size: 0.68rem; color: #6b7280; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
 
 .report-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .verify-badge {

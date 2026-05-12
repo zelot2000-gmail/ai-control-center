@@ -316,6 +316,9 @@ function buildTaskMeta(task) {
     // Attachments
     attachments_count: task.attachments?.length || 0,
     attachments: task.attachments || [],
+    // RAG
+    rag_results_count: task.result?.rag_results_count ?? 0,
+    rag_top_path: task.result?.rag_top_path || null,
   }
 }
 

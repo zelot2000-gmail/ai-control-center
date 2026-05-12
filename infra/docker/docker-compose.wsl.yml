@@ -179,6 +179,7 @@ services:
       - HERMES_CLI_PATH=${HERMES_CLI_PATH:-}
       - AGENTUNIVERSE_CLI_PATH=${AGENTUNIVERSE_CLI_PATH:-}
       - MOBILE_GATEWAY_URL=${MOBILE_GATEWAY_URL:-http://mobile-gateway:8088}
+      - RAG_API_URL=${RAG_API_URL:-http://rag-api:8090}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ../../data:/app/data

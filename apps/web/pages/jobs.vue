@@ -80,6 +80,9 @@
         </div>
         <div class="tags" v-if="task.skills?.length">
           <span class="tag tag-skill" v-for="s in task.skills" :key="s">{{ s }}</span>
+          <span v-if="task.result?.rag_results_count > 0" class="tag tag-rag">
+            📚 LLM Wiki · {{ task.result.rag_results_count }} results
+          </span>
         </div>
 
         <!-- Attachment list -->
@@ -730,6 +733,7 @@ onMounted(loadTasks)
 .tag  { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
 .tag-agent { background: #1e3a5f; color: #93c5fd; }
 .tag-skill { background: #1a2e1a; color: #86efac; }
+.tag-rag   { background: #1e3a5f; color: #60a5fa; font-weight: 600; }
 
 .attach-box {
   background: #0d1b2e; border: 1px solid #1e3a5f;

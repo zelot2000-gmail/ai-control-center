@@ -24,6 +24,7 @@ app.add_middleware(
 HERMES_CLI_PATH = os.getenv("HERMES_CLI_PATH", "")
 AGENTUNIVERSE_CLI_PATH = os.getenv("AGENTUNIVERSE_CLI_PATH", "")
 MOBILE_GATEWAY_URL = os.getenv("MOBILE_GATEWAY_URL", "http://mobile-gateway:8088")
+RAG_API_URL = os.getenv("RAG_API_URL", "http://rag-api:8090")
 EXPORTS_DIR = Path("/app/data/exports")
 AGENTS_MD_PATH = Path("/app/AGENTS.md")
 SKILLS_INDEX_PATH = Path("/app/core/skills/index.json")
@@ -236,6 +237,22 @@ async def _push_result(task_id: str, result: dict) -> None:
             )
     except Exception as e:
         logger.warning("Failed to push result for %s: %s", task_id, e)
+
+
+async def _rag_wiki_search(query: str, limit: int = 5) -> Tuple[list, Optional[str]]:
+    """Search docs/wiki via RAG API. Returns (results, error_message)."""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{RAG_API_URL}/search/wiki",
+                json={"query": query, "limit": limit},
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("results", []), None
+            return [], f"HTTP {resp.status_code}"
+    except Exception as e:
+        return [], str(e)
 
 
 def load_skill_context(skill_names: List[str]) -> Tuple[str, List[str]]:
@@ -504,7 +521,7 @@ def _read_attachment_context(attachment: dict, max_chars: int = 3000) -> Tuple[s
     return (f"(unsupported file type — {attachment.get('content_type', 'unknown')})", False)
 
 
-def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path:
+def _export_prompt(task: dict, skills_context: str, warnings: List[str], rag_results: Optional[List[dict]] = None) -> Path:
     EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
     task_id = task.get("task_id", "unknown")
     export_path = EXPORTS_DIR / f"{task_id}.prompt.md"
@@ -529,26 +546,35 @@ def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path
 
     rag_section = ""
     if any(s in skills for s in ("llm-wiki", "rag-ingest")):
-        rag_section = """\n## RAG Lookup Plan
+        rag_section = "\n## RAG Lookup Plan\n"
+        rag_section += "- ใช้ RAG Search Results ด้านล่างก่อนตอบ\n"
+        rag_section += "- ถ้ามี ADR/SOP ภายใน ให้เชื่อ internal wiki ก่อน generic knowledge\n"
+        rag_section += "- เวลา final report ให้ cite path เช่น: `docs/wiki/mcp/serena-mcp.md`\n"
+        rag_section += "- ถ้า RAG results ไม่พอ ให้บอกว่าข้อมูลใน wiki ยังไม่พอ\n"
 
-**ก่อนตอบคำถาม domain knowledge ต้องทำก่อนเสมอ:**
-
-1. `POST http://rag-api:8090/search/wiki` — `{"query": "...", "limit": 5}` ค้นหาใน docs/wiki
-2. อ่านผลลัพธ์ที่ได้ — ดู title, path, snippet, heading_path
-3. ใช้ internal SOP/ADR ก่อน general knowledge เสมอ
-4. อ้างอิง wiki path ใน final report เสมอ
-
-**Endpoints:**
-- Search Wiki: `POST http://rag-api:8090/search/wiki`
-- Ingest Wiki: `POST http://rag-api:8090/ingest/wiki`
-- Ingest Report: `GET http://rag-api:8090/ingest/reports/latest`
-- Collections: `GET http://rag-api:8090/collections`
-
-**กฎ:**
-- ✅ Search docs/wiki ก่อนตอบ
-- ✅ Prefer internal SOP/ADR over generic knowledge
-- ✅ Cite wiki path ใน final report
-- ❌ ห้ามตอบจาก general knowledge ถ้า wiki มีคำตอบแล้ว"""
+        rag_section += "\n## RAG Search Results\n"
+        if not rag_results:
+            rag_section += "\n> ⚠️ ไม่พบผลลัพธ์ที่เกี่ยวข้อง — wiki อาจยังไม่ได้ ingest หรือ rag-api ไม่ตอบสนอง\n"
+        else:
+            for i, r in enumerate(rag_results, 1):
+                title = r.get("title", "Untitled")
+                path = r.get("path", "?")
+                category = r.get("category", "?")
+                heading = r.get("heading_path", "")
+                score = r.get("score", 0)
+                tags = r.get("tags", [])
+                snippet = r.get("snippet", "")
+                rag_section += f"\n### {i}. {title}\n"
+                rag_section += f"- path: `{path}`\n"
+                rag_section += f"- category: {category}\n"
+                if heading:
+                    rag_section += f"- heading: {heading}\n"
+                rag_section += f"- score: {score:.3f}\n"
+                if tags:
+                    tags_str = ", ".join(tags) if isinstance(tags, list) else str(tags)
+                    rag_section += f"- tags: {tags_str}\n"
+                if snippet:
+                    rag_section += f"- snippet:\n{snippet}\n"
 
     serena_section = ""
     if "serena-mcp" in skills:
@@ -814,6 +840,45 @@ async def process_task(req: TaskRequest):
     if AGENTUNIVERSE_CLI_PATH:
         logger.info("agentUniverse CLI adapter not yet implemented — using export fallback")
 
+    # ── 3.5. RAG Wiki Lookup ─────────────────────────────────────────────────
+    rag_results: Optional[List[dict]] = None
+    if any(s in task["skills"] for s in ("llm-wiki", "rag-ingest")):
+        await _push_progress(req.task_id, current_step="ค้นหา LLM Wiki ผ่าน RAG...")
+        await _push_agent_activity(
+            req.task_id,
+            current_agent="rag-curator", working_agent="rag-curator",
+            current_step="ค้นหา LLM Wiki จาก docs/wiki ผ่าน RAG",
+            active_agents=agents_list,
+            event_agent="rag-curator", event_role="worker",
+            event_action="rag_lookup_started",
+            event_message="กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG",
+        )
+        query = (
+            task.get("inputs", {}).get("optimized_text")
+            or task.get("inputs", {}).get("text", "")
+        ).strip()
+        rag_results, rag_error = await _rag_wiki_search(query)
+        if rag_error:
+            warnings.append(f"RAG search failed: {rag_error}")
+            logger.warning("RAG search failed for task %s: %s", req.task_id, rag_error)
+            await _push_agent_activity(
+                req.task_id,
+                event_agent="rag-curator", event_role="worker",
+                event_action="rag_lookup_failed",
+                event_message=f"ค้น LLM Wiki ไม่สำเร็จ: {rag_error}",
+            )
+            rag_results = []
+        else:
+            if not rag_results:
+                warnings.append("No relevant wiki results found")
+            await _push_agent_activity(
+                req.task_id,
+                event_agent="rag-curator", event_role="worker",
+                event_action="rag_lookup_completed",
+                event_message=f"ค้น LLM Wiki สำเร็จ พบ {len(rag_results)} รายการ",
+            )
+        logger.info("RAG lookup: %d results for task %s", len(rag_results), req.task_id)
+
     # ── 4. Build context ─────────────────────────────────────────────────────
     await _push_progress(req.task_id, progress=60)
     await _push_agent_activity(
@@ -836,7 +901,7 @@ async def process_task(req: TaskRequest):
         event_message="Worker กำลังสร้าง Prompt สำหรับ Agent",
     )
     try:
-        export_path = _export_prompt(task, skills_context, warnings)
+        export_path = _export_prompt(task, skills_context, warnings, rag_results=rag_results)
     except Exception as e:
         logger.error("Export prompt failed: %s", e)
         await _push_progress(req.task_id, status="failed", current_step="เกิดข้อผิดพลาด")
@@ -864,6 +929,8 @@ async def process_task(req: TaskRequest):
         "warnings": warnings,
         "bridge": bridge,
         "processed_at": processed_at,
+        "rag_results_count": len(rag_results) if rag_results is not None else 0,
+        "rag_top_path": rag_results[0].get("path", "") if rag_results else "",
     }
 
     # ── 6. Done ──────────────────────────────────────────────────────────────

@@ -2289,5 +2289,134 @@
       "rollback_required": false,
       "rollback_plan": null
     }
+  },
+  "89bf11cb-13d1-434a-a447-cb07aeb464fc": {
+    "task_id": "89bf11cb-13d1-434a-a447-cb07aeb464fc",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "สวัสดี แชท",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "สวัสดี แชท",
+      "optimized_text": "สวัสดี แชท"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T12:11:19.046428+00:00",
+    "updated_at": "2026-05-12T12:11:19.469528+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/89bf11cb-13d1-434a-a447-cb07aeb464fc.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T12:11:19.088077+00:00",
+      "rag_results_count": 0,
+      "rag_top_path": ""
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T12:11:19.046444+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T12:11:19.163284+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T12:11:19.281177+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T12:11:19.347137+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T12:11:19.395159+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T12:11:19.446548+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": null,
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }

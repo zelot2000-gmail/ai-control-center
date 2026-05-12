@@ -84,6 +84,18 @@ def _assess_risk(text: str, target: str, environment: str) -> int:
     return 1
 
 
+# Supported command sources: dashboard | mobile | chatgpt | chatgpt-mobile | webhook | manual | activepieces
+_VALID_SOURCES = {
+    "dashboard", "mobile", "chatgpt", "chatgpt-mobile",
+    "webhook", "manual", "activepieces", "unknown",
+}
+
+_WIKI_KEYWORDS = [
+    "llm wiki", "wiki", "docs/wiki", "sop", "adr",
+    "knowledge base", "knowledge", "ความรู้", "เอกสารระบบ",
+    "serena mcp ต่างจาก rag", "ต่างจาก rag",
+]
+
 _CODE_INTEL_KEYWORDS = [
     "serena", "code intelligence", "refactor", "impact analysis",
     "code review", "วิเคราะห์ code", "serena mcp",
@@ -101,6 +113,10 @@ def _select_agents(text: str) -> List[str]:
         agents.append("observer")
     if any(k in text_lower for k in ["ingest", "document", "rag", "search", "เอกสาร"]):
         agents.append("rag-curator")
+    # Wiki/knowledge lookup → rag-curator + manager
+    if any(k in text_lower for k in _WIKI_KEYWORDS):
+        if "rag-curator" not in agents:
+            agents.append("rag-curator")
     if any(k in text_lower for k in ["research", "ทดลอง", "poc", "r&d"]):
         agents.append("research")
     if any(k in text_lower for k in ["security", "secret", "permission"]):
@@ -111,7 +127,8 @@ def _select_agents(text: str) -> List[str]:
     if any(k in text_lower for k in _CODE_INTEL_KEYWORDS):
         if "programmer" not in agents:
             agents.append("programmer")
-        agents.append("qa")
+        if "qa" not in agents:
+            agents.append("qa")
     return list(set(agents))
 
 
@@ -129,8 +146,13 @@ def _select_skills(agents: List[str], text: str = "") -> List[str]:
         "designer": "design-system",
     }
     skills = [skill_map[a] for a in agents if a in skill_map]
+    text_lower = text.lower()
+    # Add llm-wiki when wiki/knowledge keywords present
+    if any(k in text_lower for k in _WIKI_KEYWORDS):
+        if "llm-wiki" not in skills:
+            skills.append("llm-wiki")
     # Add serena-mcp when code intelligence keywords present
-    if any(k in text.lower() for k in _CODE_INTEL_KEYWORDS):
+    if any(k in text_lower for k in _CODE_INTEL_KEYWORDS):
         if "serena-mcp" not in skills:
             skills.append("serena-mcp")
     return skills
@@ -173,9 +195,15 @@ _WORKFLOW_MAP = {
     "impact analysis": "code-intelligence-workflow",
     "code review": "code-intelligence-workflow",
     "วิเคราะห์ code": "code-intelligence-workflow",
-    # wiki
+    # wiki / knowledge lookup
+    "llm wiki": "wiki-ingest-workflow",
     "wiki": "wiki-ingest-workflow",
     "ingest wiki": "wiki-ingest-workflow",
+    "docs/wiki": "wiki-ingest-workflow",
+    "sop": "wiki-ingest-workflow",
+    "adr": "wiki-ingest-workflow",
+    "ความรู้": "wiki-ingest-workflow",
+    "เอกสารระบบ": "wiki-ingest-workflow",
 }
 
 
@@ -186,10 +214,20 @@ def _classify_execution(text: str, risk: int) -> dict:
         autonomy = 5 if risk == 5 else 4
         reason = f"Risk level {risk} requires hybrid mode with approval"
     elif any(k in t for k in _CODE_INTEL_KEYWORDS):
-        # Code intelligence keywords always force hybrid + code-intelligence-workflow
+        # Code intelligence always forces hybrid + code-intelligence-workflow
         mode = "hybrid"
         autonomy = 3
         reason = "Code intelligence task: Serena MCP + impact analysis required"
+    elif any(k in t for k in _WIKI_KEYWORDS):
+        # Wiki/knowledge lookup — workflow if simple, hybrid if analysis needed
+        if any(k in t for k in _AGENT_KEYWORDS):
+            mode = "hybrid"
+            autonomy = 3
+            reason = "Wiki knowledge task with analysis: RAG lookup + agent reasoning"
+        else:
+            mode = "workflow"
+            autonomy = 2
+            reason = "Wiki/knowledge lookup task: RAG search from docs/wiki"
     elif any(k in t for k in _HYBRID_KEYWORDS):
         mode = "hybrid"
         autonomy = 4 if "production" in t else 3
