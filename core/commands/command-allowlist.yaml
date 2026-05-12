@@ -1,0 +1,171 @@
+version: "0.1.0"
+workspace: /workspace
+
+allowed_commands:
+  - pattern: "ls"
+    description: List directory contents
+    risk_level: 1
+
+  - pattern: "ls -la"
+    description: List directory with details
+    risk_level: 1
+
+  - pattern: "pwd"
+    description: Print working directory
+    risk_level: 1
+
+  - pattern: "cat"
+    description: Read file contents (workspace only)
+    risk_level: 1
+    path_restriction: workspace_only
+
+  - pattern: "head"
+    description: Read first N lines of file
+    risk_level: 1
+
+  - pattern: "tail"
+    description: Read last N lines of file
+    risk_level: 1
+
+  - pattern: "grep"
+    description: Search in files
+    risk_level: 1
+
+  - pattern: "find"
+    description: Find files (workspace only)
+    risk_level: 1
+    path_restriction: workspace_only
+
+  - pattern: "echo"
+    description: Print text
+    risk_level: 1
+
+  - pattern: "wc"
+    description: Word/line count
+    risk_level: 1
+
+  - pattern: "diff"
+    description: Compare files
+    risk_level: 1
+
+  - pattern: "mkdir"
+    description: Create directory (workspace only)
+    risk_level: 2
+    path_restriction: workspace_only
+
+  - pattern: "touch"
+    description: Create empty file (workspace only)
+    risk_level: 2
+    path_restriction: workspace_only
+
+  - pattern: "cp"
+    description: Copy file (workspace only)
+    risk_level: 2
+    path_restriction: workspace_only
+
+  - pattern: "mv"
+    description: Move file (workspace only)
+    risk_level: 2
+    path_restriction: workspace_only
+
+  - pattern: "python3"
+    description: Run Python script (workspace only)
+    risk_level: 2
+    path_restriction: workspace_only
+
+  - pattern: "pip install"
+    description: Install Python package
+    risk_level: 2
+
+  - pattern: "docker ps"
+    description: List containers
+    risk_level: 1
+
+  - pattern: "docker logs"
+    description: View container logs
+    risk_level: 1
+
+  - pattern: "docker stats --no-stream"
+    description: View container resource usage
+    risk_level: 1
+
+  - pattern: "docker inspect"
+    description: Inspect container
+    risk_level: 1
+
+  - pattern: "docker compose up"
+    description: Start services
+    risk_level: 3
+
+  - pattern: "docker compose down"
+    description: Stop services
+    risk_level: 3
+
+  - pattern: "docker compose build"
+    description: Build images
+    risk_level: 2
+
+  - pattern: "docker compose logs"
+    description: View compose logs
+    risk_level: 1
+
+  - pattern: "curl"
+    description: HTTP request (localhost only)
+    risk_level: 1
+    host_restriction: localhost_only
+
+  - pattern: "git status"
+    description: Git status
+    risk_level: 1
+
+  - pattern: "git log"
+    description: Git log
+    risk_level: 1
+
+  - pattern: "git diff"
+    description: Git diff
+    risk_level: 1
+
+blocked_patterns:
+  - "rm -rf /"
+  - "rm -rf *"
+  - "rm -rf ~"
+  - "mkfs"
+  - "dd if="
+  - "shutdown"
+  - "reboot"
+  - "halt"
+  - "DROP DATABASE"
+  - "DROP TABLE"
+  - "DELETE FROM"
+  - "docker volume rm"
+  - "docker system prune"
+  - "chmod -R 777"
+  - "chmod 777 /"
+  - "chown -R root"
+  - "iptables -F"
+  - "firewall-cmd --complete-reload"
+  - "passwd root"
+  - "userdel"
+  - "groupdel"
+  - "mount"
+  - "umount"
+  - "fdisk"
+  - "parted"
+  - "wget http"
+  - "curl -o /etc"
+  - "> /dev/sd"
+
+path_restrictions:
+  workspace_only:
+    allowed_prefix: /workspace
+    blocked_prefixes:
+      - /etc
+      - /root
+      - /home
+      - /usr
+      - /bin
+      - /sbin
+      - /boot
+      - /sys
+      - /proc

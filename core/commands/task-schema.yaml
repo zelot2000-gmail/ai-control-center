@@ -1,0 +1,180 @@
+task_packet:
+  task_id:
+    type: string
+    format: uuid
+    required: true
+    description: Unique task identifier (UUID v4)
+
+  source:
+    type: string
+    required: true
+    enum: [chatgpt-mobile, webhook, dashboard, manual, system]
+    description: Origin of the task
+
+  user:
+    type: string
+    required: true
+    description: Username or identifier of the requester
+
+  intent:
+    type: string
+    required: true
+    description: Normalized intent extracted from user text
+
+  target:
+    type: string
+    required: false
+    description: Target system or service name
+
+  risk:
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 5
+    description: Risk level (1=read-only, 5=destructive)
+
+  agents:
+    type: array
+    items:
+      type: string
+    required: true
+    description: List of agent IDs to involve
+
+  skills:
+    type: array
+    items:
+      type: string
+    required: true
+    description: List of skill IDs to use
+
+  inputs:
+    type: object
+    required: true
+    description: Input data for the task (text, files, params)
+
+  constraints:
+    type: object
+    required: false
+    description: Constraints (environment, mode, time limit)
+    properties:
+      environment:
+        type: string
+        enum: [wsl, staging, production]
+      mode:
+        type: string
+        enum: [plan-only, dry-run, execute]
+      timeout_seconds:
+        type: integer
+
+  workflow:
+    type: array
+    items:
+      type: string
+    required: false
+    description: Ordered list of workflow steps
+
+  required_output:
+    type: string
+    required: false
+    description: Expected output format or content
+
+  created_at:
+    type: string
+    format: datetime
+    required: true
+
+  status:
+    type: string
+    required: true
+    enum: [pending, approved, in_progress, completed, failed, cancelled, waiting_approval]
+
+  execution:
+    type: object
+    required: true
+    description: Execution mode and autonomy configuration
+    properties:
+      mode:
+        type: string
+        required: true
+        enum: [workflow, agent, hybrid]
+        description: |
+          workflow = predefined steps, predictable, high reliability
+          agent    = dynamic tool usage, open-ended reasoning
+          hybrid   = workflow structure with agent decision points
+      autonomy_level:
+        type: integer
+        required: true
+        minimum: 0
+        maximum: 5
+        description: |
+          0 = read-only
+          1 = suggest / plan-only
+          2 = execute safe predefined workflow
+          3 = agent can edit dev files
+          4 = staging action, requires approval
+          5 = production/destructive, requires explicit approval
+      selected_workflow:
+        type: string
+        required: false
+        description: Workflow ID from core/workflows/index.json (required if mode=workflow or hybrid)
+      reason_for_mode:
+        type: string
+        required: true
+        description: Justification for the chosen execution mode
+
+  accountability:
+    type: object
+    required: true
+    description: Full accountability chain for the task
+    properties:
+      owner_agent:
+        type: string
+        required: true
+        description: Primary responsible agent
+      responsible_agents:
+        type: array
+        items:
+          type: string
+        description: All agents involved
+      approver:
+        type: string
+        required: false
+      approval_required:
+        type: boolean
+        required: true
+      approval_phrase:
+        type: string
+        required: false
+        enum: [CONFIRM STAGING, CONFIRM DEPLOY, CONFIRM DANGEROUS]
+      decision_log:
+        type: array
+        items:
+          type: string
+        description: LLM reasoning steps recorded
+      tool_usage_log:
+        type: array
+        items:
+          type: string
+        description: Every tool called (tool_name:action)
+      command_validation_log:
+        type: array
+        items:
+          type: string
+        description: RTK-validated commands
+      verification_log:
+        type: array
+        items:
+          type: string
+        description: Verification steps performed
+      error_log:
+        type: array
+        items:
+          type: string
+        description: Errors encountered during execution
+      rollback_required:
+        type: boolean
+        required: true
+      rollback_plan:
+        type: string
+        required: false
+        description: How to reverse the action if needed

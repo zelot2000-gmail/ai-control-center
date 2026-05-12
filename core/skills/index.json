@@ -1,0 +1,129 @@
+{
+  "version": "0.1.0",
+  "skills": [
+    {
+      "id": "mobile-command",
+      "name": "Mobile Command",
+      "description": "รับและแปลง command จากมือถือ / ChatGPT เป็น Task Packet",
+      "file": "core/skills/mobile-command/SKILL.md",
+      "agents": ["manager"],
+      "risk_level": 1
+    },
+    {
+      "id": "token-optimizer",
+      "name": "Thai Token Optimizer (TTO)",
+      "description": "ลด token, normalize ภาษาไทย, clean context, summarize",
+      "file": "core/skills/token-optimizer/SKILL.md",
+      "agents": ["manager", "worker"],
+      "risk_level": 1
+    },
+    {
+      "id": "rtk-command",
+      "name": "RTK Safe Command",
+      "description": "วางแผน validate และรัน shell command แบบปลอดภัยผ่าน allowlist",
+      "file": "core/skills/rtk-command/SKILL.md",
+      "agents": ["devops", "administrator"],
+      "risk_level": 3
+    },
+    {
+      "id": "rag-ingest",
+      "name": "RAG Ingest",
+      "description": "นำ document เข้า Qdrant vector DB พร้อม chunking และ embedding",
+      "file": "core/skills/rag-ingest/SKILL.md",
+      "agents": ["rag-curator"],
+      "risk_level": 2
+    },
+    {
+      "id": "docker-deploy",
+      "name": "Docker Deploy",
+      "description": "build, deploy, rollback Docker services ตาม compose profile",
+      "file": "core/skills/docker-deploy/SKILL.md",
+      "agents": ["devops"],
+      "risk_level": 3
+    },
+    {
+      "id": "cwp-server-admin",
+      "name": "CWP Server Admin",
+      "description": "จัดการ AlmaLinux 8, CWP, SSL, reverse proxy, firewall, backup",
+      "file": "core/skills/cwp-server-admin/SKILL.md",
+      "agents": ["administrator"],
+      "risk_level": 4
+    },
+    {
+      "id": "programmer",
+      "name": "Programmer",
+      "description": "เขียนโค้ด แก้ bug พัฒนา API frontend backend refactor test",
+      "file": "core/skills/programmer/SKILL.md",
+      "agents": ["programmer"],
+      "risk_level": 2
+    },
+    {
+      "id": "design-system",
+      "name": "Design System",
+      "description": "UI/UX mobile-first dashboard design tokens components Storybook Penpot",
+      "file": "core/skills/design-system/SKILL.md",
+      "agents": ["designer"],
+      "risk_level": 2
+    },
+    {
+      "id": "qa-verify",
+      "name": "QA Verify",
+      "description": "ทดสอบ verify regression checklist acceptance criteria",
+      "file": "core/skills/qa-verify/SKILL.md",
+      "agents": ["qa"],
+      "risk_level": 1
+    },
+    {
+      "id": "security-check",
+      "name": "Security Check",
+      "description": "ตรวจ secrets permission env network exposure command safety",
+      "file": "core/skills/security-check/SKILL.md",
+      "agents": ["security"],
+      "risk_level": 1
+    },
+    {
+      "id": "observer-monitor",
+      "name": "Observer Monitor",
+      "description": "health logs uptime alerts docker status summary",
+      "file": "core/skills/observer-monitor/SKILL.md",
+      "agents": ["observer"],
+      "risk_level": 1
+    },
+    {
+      "id": "research-development",
+      "name": "R&D",
+      "description": "วิจัยเครื่องมือใหม่ PoC benchmark TDR compatibility check",
+      "file": "core/skills/research-development/SKILL.md",
+      "agents": ["research"],
+      "risk_level": 2
+    },
+    {
+      "id": "browser-devtools",
+      "name": "Browser DevTools (Chrome DevTools MCP)",
+      "description": "ใช้เมื่อต้องตรวจหน้าเว็บจริงผ่าน Chrome DevTools MCP เช่น UI, responsive, console, network, screenshot, Lighthouse, performance, browser automation และ QA flow",
+      "file": "core/skills/browser-devtools/SKILL.md",
+      "agents": ["designer", "qa", "observer", "research", "security"],
+      "risk_level": 1,
+      "environment": ["local", "dev", "staging"],
+      "notes": "ห้ามใช้กับ production account จริง ห้ามเปิดหน้าที่มี secret"
+    },
+    {
+      "id": "llm-wiki",
+      "name": "LLM Wiki Knowledge Base",
+      "description": "อ่าน ค้นหา และเพิ่มเอกสารใน docs/wiki/ เพื่อเป็น knowledge base กลาง รองรับ RAG ingest",
+      "file": "core/skills/llm-wiki/SKILL.md",
+      "agents": ["rag-curator", "manager", "programmer", "observer", "research"],
+      "risk_level": 1
+    },
+    {
+      "id": "serena-mcp",
+      "name": "Serena MCP — Code Intelligence",
+      "description": "Code Intelligence Layer: semantic navigation, symbol search, impact analysis, refactor assist ลด token ในงาน coding",
+      "file": "core/skills/serena-mcp/SKILL.md",
+      "agents": ["programmer", "qa", "security", "research", "manager"],
+      "risk_level": 1,
+      "environment": ["local", "dev", "staging"],
+      "notes": "ใช้ก่อนอ่านไฟล์จำนวนมาก ห้าม deploy ผ่าน Serena ห้ามรัน destructive command"
+    }
+  ]
+}

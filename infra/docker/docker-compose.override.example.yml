@@ -1,0 +1,16 @@
+# docker-compose.override.yml example
+# Copy to docker-compose.override.yml and customize
+# This file is gitignored
+
+services:
+  rag-api:
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  mobile-gateway:
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  rtk-bridge:
+    environment:
+      - RTK_ALLOW_RUN_COMMAND=true

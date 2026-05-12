@@ -1,0 +1,242 @@
+{
+  "version": "1.0.0",
+  "description": "Workflow Registry — predefined execution paths for ai-control-center",
+  "philosophy": "Workflow-first. Agent-when-needed. Hybrid by design. Accountability always.",
+  "workflows": [
+    {
+      "id": "rag-ingest-workflow",
+      "name": "RAG Ingest Workflow",
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "file": "core/workflows/rag-ingest-workflow.md",
+      "trigger_keywords": ["ingest", "document", "เอกสาร", "index", "upload"],
+      "responsible_agents": ["rag-curator", "observer"],
+      "risk_level": 2,
+      "approval_required": false,
+      "steps": [
+        "validate_files",
+        "normalize_text",
+        "chunk_documents",
+        "create_embeddings",
+        "upsert_qdrant",
+        "verify_search",
+        "write_ingest_report"
+      ]
+    },
+    {
+      "id": "docker-health-check-workflow",
+      "name": "Docker Health Check Workflow",
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "file": "core/workflows/docker-health-check-workflow.md",
+      "trigger_keywords": ["health", "ตรวจ service", "docker ps", "status", "healthcheck"],
+      "responsible_agents": ["observer", "devops"],
+      "risk_level": 1,
+      "approval_required": false,
+      "steps": [
+        "docker_ps",
+        "docker_compose_config",
+        "curl_health_endpoints",
+        "docker_logs_tail",
+        "summarize_status",
+        "report_failed_services"
+      ]
+    },
+    {
+      "id": "browser-qa-workflow",
+      "name": "Browser QA Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 2,
+      "file": "core/workflows/browser-qa-workflow.md",
+      "trigger_keywords": ["browser qa", "ui test", "devtools", "responsive", "dashboard test"],
+      "responsible_agents": ["qa", "designer", "observer"],
+      "risk_level": 1,
+      "approval_required": false,
+      "steps": [
+        "open_page",
+        "check_console",
+        "check_network",
+        "test_main_pages",
+        "test_responsive",
+        "run_interaction_test",
+        "summarize_ui_issues",
+        "create_fix_recommendation"
+      ]
+    },
+    {
+      "id": "backup-workflow",
+      "name": "Backup Workflow",
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "file": "core/workflows/backup-workflow.md",
+      "trigger_keywords": ["backup", "สำรอง", "dump"],
+      "responsible_agents": ["administrator", "observer"],
+      "risk_level": 2,
+      "approval_required": false,
+      "steps": [
+        "create_timestamp",
+        "backup_postgres",
+        "backup_documents",
+        "backup_core",
+        "backup_research_docs",
+        "verify_backup_files",
+        "write_backup_report"
+      ]
+    },
+    {
+      "id": "prod-readiness-workflow",
+      "name": "Production Readiness Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 2,
+      "file": "core/workflows/prod-readiness-workflow.md",
+      "trigger_keywords": ["prod readiness", "production ready", "cwp", "almalinux", "pre-deploy check"],
+      "responsible_agents": ["devops", "security", "administrator", "qa"],
+      "risk_level": 2,
+      "approval_required": false,
+      "steps": [
+        "check_compose_prod",
+        "verify_no_public_db_ports",
+        "verify_localhost_bindings",
+        "check_env_example",
+        "check_backup_script",
+        "check_reverse_proxy_notes",
+        "security_review",
+        "final_readiness_report"
+      ]
+    },
+    {
+      "id": "deployment-workflow",
+      "name": "Deployment Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 4,
+      "file": "core/workflows/deployment-workflow.md",
+      "trigger_keywords": ["deploy", "staging", "production deploy", "up -d", "release"],
+      "responsible_agents": ["devops", "qa", "security", "observer"],
+      "risk_level": 3,
+      "approval_required": true,
+      "approval_phrase": "CONFIRM STAGING",
+      "steps": [
+        "check_git_status",
+        "check_branch",
+        "compose_config",
+        "backup_if_required",
+        "build",
+        "up",
+        "health_check",
+        "log_check",
+        "rollback_if_failed",
+        "deployment_report"
+      ]
+    },
+    {
+      "id": "security-review-workflow",
+      "name": "Security Review Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 1,
+      "file": "core/workflows/security-review-workflow.md",
+      "trigger_keywords": ["security", "secret", "leak", "scan", "permission", "exposure"],
+      "responsible_agents": ["security", "observer"],
+      "risk_level": 1,
+      "approval_required": false,
+      "steps": [
+        "scan_env_exposure",
+        "check_secret_patterns",
+        "check_docker_ports",
+        "check_rtk_allowlist",
+        "check_api_auth",
+        "check_browser_secret_leak",
+        "security_report"
+      ]
+    },
+    {
+      "id": "rag-evaluation-workflow",
+      "name": "RAG Evaluation Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 2,
+      "file": "core/workflows/rag-evaluation-workflow.md",
+      "trigger_keywords": ["rag quality", "search quality", "retrieval", "embedding eval", "chunk quality"],
+      "responsible_agents": ["rag-curator", "research", "observer"],
+      "risk_level": 1,
+      "approval_required": false,
+      "steps": [
+        "prepare_eval_questions",
+        "run_search",
+        "inspect_sources",
+        "score_relevance",
+        "detect_bad_chunks",
+        "recommend_chunking_or_embedding_fix",
+        "rag_quality_report"
+      ]
+    },
+    {
+      "id": "log-review-workflow",
+      "name": "Log Review Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 1,
+      "file": "core/workflows/log-review-workflow.md",
+      "trigger_keywords": ["log", "error log", "ตรวจ log", "debug log", "tail log"],
+      "responsible_agents": ["observer", "devops"],
+      "risk_level": 1,
+      "approval_required": false,
+      "steps": [
+        "collect_logs",
+        "run_tto_log_summarization",
+        "classify_errors",
+        "identify_root_cause_candidates",
+        "suggest_next_checks",
+        "observer_report"
+      ]
+    },
+    {
+      "id": "wiki-ingest-workflow",
+      "name": "Wiki Ingest Workflow",
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "file": "core/workflows/wiki-ingest-workflow.md",
+      "trigger_keywords": ["wiki", "ingest wiki", "เพิ่ม wiki", "อัพเดท wiki", "knowledge base", "llm wiki"],
+      "responsible_agents": ["rag-curator", "observer"],
+      "risk_level": 2,
+      "approval_required": false,
+      "steps": [
+        "validate_wiki_files",
+        "copy_to_documents",
+        "normalize_wiki_text",
+        "ingest_to_qdrant",
+        "verify_search",
+        "write_ingest_report"
+      ]
+    },
+    {
+      "id": "code-intelligence-workflow",
+      "name": "Code Intelligence Workflow",
+      "mode": "hybrid",
+      "autonomy_level": 3,
+      "file": "core/workflows/code-intelligence-workflow.md",
+      "trigger_keywords": ["refactor", "code review", "impact analysis", "วิเคราะห์ code", "serena", "symbol search", "find references", "code intelligence"],
+      "responsible_agents": ["programmer", "qa", "security", "manager"],
+      "risk_level": 2,
+      "approval_required": false,
+      "steps": [
+        "identify_task_intent",
+        "query_serena_symbols",
+        "collect_relevant_context",
+        "impact_analysis",
+        "plan_changes",
+        "apply_changes",
+        "run_tests_lint",
+        "report_changes"
+      ]
+    }
+  ],
+  "execution_mode_rules": {
+    "workflow": "งาน predictable, ขั้นตอนชัด, ต้องการ reliability สูง",
+    "agent": "งาน open-ended, step คาดเดายาก, ต้องวิเคราะห์ feedback",
+    "hybrid": "มี workflow หลักชัด แต่บางจุดต้องให้ agent วิเคราะห์"
+  },
+  "classifier_rules": {
+    "workflow_keywords": ["health", "ตรวจ service", "docker ps", "backup", "ingest", "verify", "readiness", "lint", "test", "wiki", "knowledge base"],
+    "agent_keywords": ["วิเคราะห์", "debug", "root cause", "ออกแบบ", "เปรียบเทียบ", "research", "r&d", "investigate"],
+    "hybrid_keywords_extended": ["refactor", "code review", "impact analysis", "serena", "code intelligence", "deploy", "restart", "production", "staging", "ssl", "firewall", "database"],
+    "hybrid_keywords": ["deploy", "restart", "production", "staging", "ssl", "firewall", "database"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ai-control-center",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Team Operating System — Docker-first, WSL-ready, AlmaLinux 8 / CWP production-ready",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

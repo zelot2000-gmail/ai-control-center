@@ -1,0 +1,233 @@
+# Production compose for AlmaLinux 8 + CWP
+# CWP handles SSL and reverse proxy on host
+# All services bind to 127.0.0.1 only
+# DB/Redis/Qdrant have NO public ports
+
+networks:
+  ai_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  hf_cache:
+
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - ai_net
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "50m"
+      max-file: "5"
+
+services:
+
+  # ─── Databases (NO public ports in production) ────────────────────────────
+
+  postgres:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: aicc-postgres
+    profiles: [core]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aicc}
+      POSTGRES_USER: ${POSTGRES_USER:-aicc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # NO ports — internal only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aicc_user} -d ${POSTGRES_DB:-aicc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: aicc-redis
+    profiles: [core]
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    # NO ports — internal only
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    <<: *common
+    image: qdrant/qdrant:v1.9.2
+    container_name: aicc-qdrant
+    profiles: [core]
+    volumes:
+      - qdrant_data:/qdrant/storage
+    # NO ports — internal only
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Core Services (bind 127.0.0.1 only) ─────────────────────────────────
+
+  mobile-gateway:
+    <<: *common
+    image: aicc/mobile-gateway:${APP_VERSION:-latest}
+    container_name: aicc-mobile-gateway
+    profiles: [core]
+    environment:
+      - ENVIRONMENT=production
+      - TTO_URL=http://tto-api:8091
+      - MOBILE_GATEWAY_SECRET=${MOBILE_GATEWAY_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    volumes:
+      - /opt/aicc/data:/app/data
+    ports:
+      - "127.0.0.1:8088:8088"
+    depends_on:
+      tto-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8088/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  rag-api:
+    <<: *common
+    image: aicc/rag-api:${APP_VERSION:-latest}
+    container_name: aicc-rag-api
+    profiles: [core]
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-aicc_docs}
+      - RAG_EMBEDDING_MODEL=${RAG_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    volumes:
+      - /opt/aicc/data:/app/data
+      - hf_cache:/app/.cache/huggingface
+    ports:
+      - "127.0.0.1:8090:8090"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8090/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  tto-api:
+    <<: *common
+    image: aicc/tto-api:${APP_VERSION:-latest}
+    container_name: aicc-tto-api
+    profiles: [core]
+    environment:
+      - TTO_MAX_INPUT_LENGTH=${TTO_MAX_INPUT_LENGTH:-32000}
+      - TTO_CLI_PATH=${TTO_CLI_PATH:-}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    ports:
+      - "127.0.0.1:8091:8091"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8091/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  rtk-bridge:
+    <<: *common
+    image: aicc/rtk-bridge:${APP_VERSION:-latest}
+    container_name: aicc-rtk-bridge
+    profiles: [core]
+    environment:
+      - RTK_ALLOW_RUN_COMMAND=false
+      - RTK_WORKSPACE=/workspace
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    volumes:
+      - /opt/aicc/data:/workspace
+    ports:
+      - "127.0.0.1:8092:8092"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8092/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    <<: *common
+    image: aicc/worker:${APP_VERSION:-latest}
+    container_name: aicc-worker
+    profiles: [core]
+    environment:
+      - HERMES_CLI_PATH=${HERMES_CLI_PATH:-}
+      - AGENTUNIVERSE_CLI_PATH=${AGENTUNIVERSE_CLI_PATH:-}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    volumes:
+      - /opt/aicc/data:/app/data
+      - /opt/aicc/core:/app/core:ro
+      - /opt/aicc/AGENTS.md:/app/AGENTS.md:ro
+    ports:
+      - "127.0.0.1:8095:8095"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8095/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  webhook-gateway:
+    <<: *common
+    image: aicc/webhook-gateway:${APP_VERSION:-latest}
+    container_name: aicc-webhook-gateway
+    profiles: [core]
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    ports:
+      - "127.0.0.1:8093:8093"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8093/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  observer:
+    <<: *common
+    image: aicc/observer:${APP_VERSION:-latest}
+    container_name: aicc-observer
+    profiles: [core]
+    environment:
+      - MOBILE_GATEWAY_URL=http://mobile-gateway:8088
+      - RAG_API_URL=http://rag-api:8090
+      - TTO_API_URL=http://tto-api:8091
+      - RTK_BRIDGE_URL=http://rtk-bridge:8092
+      - WEBHOOK_GATEWAY_URL=http://webhook-gateway:8093
+      - WORKER_URL=http://worker:8095
+      - QDRANT_URL=http://qdrant:6333
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    ports:
+      - "127.0.0.1:8094:8094"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8094/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  web-dashboard:
+    <<: *common
+    image: aicc/web-dashboard:${APP_VERSION:-latest}
+    container_name: aicc-web-dashboard
+    profiles: [core]
+    ports:
+      - "127.0.0.1:3000:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

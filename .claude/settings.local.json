@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(wsl -d AlmaLinux-8 -- bash -c 'curl -s -o /dev/null -w \"%{http_code}\" -X POST http://localhost:8088/tasks/nonexistent/save-report -H \"Content-Type: application/json\" -d \"{\\\\\"report\\\\\":\\\\\"test\\\\\"}\" 2>&1')"
+    ]
+  }
+}

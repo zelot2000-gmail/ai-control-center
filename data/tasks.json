@@ -1,0 +1,2115 @@
+{
+  "0a0eceb9-93c0-45fe-a3a4-b9f2d93f66f2": {
+    "task_id": "0a0eceb9-93c0-45fe-a3a4-b9f2d93f66f2",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ทดสอบ",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ทดสอบ",
+      "optimized_text": "ทดสอบ"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T15:39:14.787010+00:00",
+    "status": "exported",
+    "updated_at": "2026-05-11T16:29:39.434801+00:00",
+    "result": {
+      "export_path": "/app/data/exports/0a0eceb9-93c0-45fe-a3a4-b9f2d93f66f2.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T16:29:39.337882+00:00"
+    }
+  },
+  "c2f64616-3c3a-4a58-af0b-e5e10450888d": {
+    "task_id": "c2f64616-3c3a-4a58-af0b-e5e10450888d",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T15:53:07.103481+00:00",
+    "status": "exported",
+    "updated_at": "2026-05-11T16:29:02.658233+00:00",
+    "result": {
+      "export_path": "/app/data/exports/c2f64616-3c3a-4a58-af0b-e5e10450888d.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T16:29:02.560581+00:00"
+    }
+  },
+  "ef00a66e-925f-4568-966f-251ba9e92db7": {
+    "task_id": "ef00a66e-925f-4568-966f-251ba9e92db7",
+    "source": "chatgpt-mobile",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "dev",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T15:57:18.329896+00:00",
+    "status": "exported",
+    "updated_at": "2026-05-11T16:28:05.317795+00:00",
+    "result": {
+      "export_path": "/app/data/exports/ef00a66e-925f-4568-966f-251ba9e92db7.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T16:28:05.178286+00:00"
+    }
+  },
+  "a5d27b6a-3261-46f2-bac5-3bc409c7595c": {
+    "task_id": "a5d27b6a-3261-46f2-bac5-3bc409c7595c",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health",
+      "optimized_text": "ตรวจ health"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T16:53:15.164402+00:00",
+    "status": "exported",
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    },
+    "updated_at": "2026-05-11T17:22:48.593419+00:00",
+    "result": {
+      "export_path": "/app/data/exports/a5d27b6a-3261-46f2-bac5-3bc409c7595c.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T17:22:48.495264+00:00"
+    }
+  },
+  "2c5f275b-0729-4fe6-bb76-3e65e7e0c1fd": {
+    "task_id": "2c5f275b-0729-4fe6-bb76-3e65e7e0c1fd",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "[Attachment task]",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "[Attachment task]",
+      "optimized_text": "[Attachment task]"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [
+      {
+        "file_id": "c75c024c-aea0-486b-a30c-b71bb4f9f410",
+        "filename": "เคส ที่ต้องแก้ไข.pdf",
+        "safe_filename": "________________.pdf",
+        "content_type": "application/pdf",
+        "size": 1092903,
+        "stored_path": "/app/data/uploads/c75c024c-aea0-486b-a30c-b71bb4f9f410_________________.pdf"
+      }
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T17:21:21.526707+00:00",
+    "status": "exported",
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": null,
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    },
+    "updated_at": "2026-05-11T17:22:41.959235+00:00",
+    "result": {
+      "export_path": "/app/data/exports/2c5f275b-0729-4fe6-bb76-3e65e7e0c1fd.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T17:22:41.862516+00:00"
+    }
+  },
+  "00be68ab-e5f4-4581-86b0-6f5c78db6d41": {
+    "task_id": "00be68ab-e5f4-4581-86b0-6f5c78db6d41",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T17:21:48.474688+00:00",
+    "status": "exported",
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    },
+    "updated_at": "2026-05-11T17:22:54.183787+00:00",
+    "result": {
+      "export_path": "/app/data/exports/00be68ab-e5f4-4581-86b0-6f5c78db6d41.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T17:22:54.059637+00:00"
+    }
+  },
+  "16ff1560-0198-4c18-b9c6-d14d77ab2a88": {
+    "task_id": "16ff1560-0198-4c18-b9c6-d14d77ab2a88",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "สรุป jobs ล่าสุด",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "สรุป jobs ล่าสุด",
+      "optimized_text": "สรุป jobs ล่าสุด"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-11T17:21:58.090461+00:00",
+    "status": "exported",
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": null,
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    },
+    "updated_at": "2026-05-11T17:22:26.834253+00:00",
+    "result": {
+      "export_path": "/app/data/exports/16ff1560-0198-4c18-b9c6-d14d77ab2a88.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-11T17:22:26.724017+00:00"
+    }
+  },
+  "8bfc379f-819e-4e5e-87b4-71f41bc612a4": {
+    "task_id": "8bfc379f-819e-4e5e-87b4-71f41bc612a4",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:15:46.575942+00:00",
+    "updated_at": "2026-05-12T01:15:46.932373+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/8bfc379f-819e-4e5e-87b4-71f41bc612a4.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:15:46.605781+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "observer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:15:46.575970+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:15:46.664512+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:15:46.743587+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T01:15:46.801892+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:15:46.838344+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:15:46.897866+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "beb2eda3-7dcb-4d06-8e9a-3f9f2d692e57": {
+    "task_id": "beb2eda3-7dcb-4d06-8e9a-3f9f2d692e57",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "สรุป jobs ล่าสุด",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "สรุป jobs ล่าสุด",
+      "optimized_text": "สรุป jobs ล่าสุด"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:16:37.953525+00:00",
+    "updated_at": "2026-05-12T01:16:38.293991+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/beb2eda3-7dcb-4d06-8e9a-3f9f2d692e57.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:16:37.977025+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:16:37.953541+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:16:38.030192+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:16:38.118454+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T01:16:38.175012+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:16:38.225654+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:16:38.271543+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": null,
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "12fefcae-d344-432b-a0e9-bf53acbf6922": {
+    "task_id": "12fefcae-d344-432b-a0e9-bf53acbf6922",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "สรุป logs ล่าสุดของระบบ",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "สรุป logs ล่าสุดของระบบ",
+      "optimized_text": "สรุป logs ล่าสุดของระบบ"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:17:13.423435+00:00",
+    "updated_at": "2026-05-12T01:17:13.756344+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/12fefcae-d344-432b-a0e9-bf53acbf6922.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:17:13.453859+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "observer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:17:13.423448+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:13.500491+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:13.584003+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:13.634290+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:13.670565+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:13.726667+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "log-review-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "6e1cadcc-8101-43c7-bc8d-c3edc7475652": {
+    "task_id": "6e1cadcc-8101-43c7-bc8d-c3edc7475652",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "เพิ่มเอกสารใน data/documents เข้า RAG",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "rag-curator",
+      "manager"
+    ],
+    "skills": [
+      "rag-ingest",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "เพิ่มเอกสารใน data/documents เข้า RAG",
+      "optimized_text": "เพิ่มเอกสารใน data/documents เข้า RAG"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:17:31.567689+00:00",
+    "updated_at": "2026-05-12T01:17:31.891140+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/6e1cadcc-8101-43c7-bc8d-c3edc7475652.prompt.md",
+      "agents": [
+        "rag-curator",
+        "manager"
+      ],
+      "skills": [
+        "rag-ingest",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:17:31.594464+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "rag-curator",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:17:31.567716+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:31.636516+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:31.712851+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:31.772230+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:31.815547+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:31.870224+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "rag-ingest-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "rag-curator",
+      "responsible_agents": [
+        "rag-curator",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "be62f444-9010-453f-ba4e-bf3f5ded554f": {
+    "task_id": "be62f444-9010-453f-ba4e-bf3f5ded554f",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "พร้อมทำงานยัง",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "พร้อมทำงานยัง",
+      "optimized_text": "พร้อมทำงานยัง"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:17:56.242618+00:00",
+    "updated_at": "2026-05-12T01:17:56.553159+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/be62f444-9010-453f-ba4e-bf3f5ded554f.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:17:56.268397+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:17:56.242651+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:56.304917+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:56.399347+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:56.450152+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:56.489531+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:17:56.533164+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": null,
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "242f1ab4-933a-480a-826d-414271e7c229": {
+    "task_id": "242f1ab4-933a-480a-826d-414271e7c229",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:20:25.083252+00:00",
+    "updated_at": "2026-05-12T01:20:25.421945+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/242f1ab4-933a-480a-826d-414271e7c229.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:20:25.107763+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "observer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:20:25.083267+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:20:25.147194+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:20:25.245383+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T01:20:25.302544+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:20:25.342037+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:20:25.400417+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "37f73c9c-2e3d-4d85-a7e5-a74cb57eb5b9": {
+    "task_id": "37f73c9c-2e3d-4d85-a7e5-a74cb57eb5b9",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "เพิ่มเอกสารใน data/documents เข้า RAG",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "rag-curator",
+      "manager"
+    ],
+    "skills": [
+      "rag-ingest",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "เพิ่มเอกสารใน data/documents เข้า RAG",
+      "optimized_text": "เพิ่มเอกสารใน data/documents เข้า RAG"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T01:22:04.521877+00:00",
+    "updated_at": "2026-05-12T01:22:04.869842+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/37f73c9c-2e3d-4d85-a7e5-a74cb57eb5b9.prompt.md",
+      "agents": [
+        "rag-curator",
+        "manager"
+      ],
+      "skills": [
+        "rag-ingest",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T01:22:04.551183+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "rag-curator",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T01:22:04.521891+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T01:22:04.601161+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T01:22:04.679778+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T01:22:04.736631+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:22:04.777875+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T01:22:04.847717+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "rag-ingest-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "rag-curator",
+      "responsible_agents": [
+        "rag-curator",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "9c5dd9a3-12bd-4dd7-bb6b-fc54d62f28d6": {
+    "task_id": "9c5dd9a3-12bd-4dd7-bb6b-fc54d62f28d6",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T04:59:36.815125+00:00",
+    "updated_at": "2026-05-12T05:02:25.380987+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/9c5dd9a3-12bd-4dd7-bb6b-fc54d62f28d6.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T04:59:36.855129+00:00",
+      "final_report": "# Task: 9c5dd9a3-12bd-4dd7-bb6b-fc54d62f28d6\n\n## Intent\nตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- observer\n- manager\n\n## Skills\n- observer-monitor\n- mobile-command\n\n## Context\nText: ตรวจ health ระบบทั้งหมด โหมด plan-only\nOptimized Text: ตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: workflow\n- **Autonomy Level**: 1\n- **Reason**: Predictable task with defined steps\n- **Selected Workflow**: docker-health-check-workflow\n\n### Workflow Steps\n1. docker_ps\n2. docker_compose_config\n3. curl_health_endpoints\n4. docker_logs_tail\n5. summarize_status\n6. report_failed_services\n\n### Workflow Definition\n---\nid: docker-health-check-workflow\nmode: workflow\nautonomy_level: 1\nrisk_level: 1\napproval_required: false\nresponsible_agents: [observer, devops]\n---\n\n# Docker Health Check Workflow\n\n## วัตถุประสงค์\nตรวจสถานะ Docker stack ทั้งหมดอย่างเป็นระบบ read-only เท่านั้น\n\n## เมื่อใช้ Workflow Mode\nงาน read-only ขั้นตอนชัด ทำซ้ำได้ ไม่มี side effect → Workflow เหมาะที่สุด\n\n## Steps\n\n### Step 1: docker_ps\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml ps\n```\n- ตรวจ STATUS ของทุก container\n- Flag: `unhealthy`, `exited`, `restarting`\n\n### Step 2: docker_compose_config\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml config --quiet\n```\n- ตรวจ YAML syntax valid\n- **Fail condition**: YAML error → report ทันที\n\n### Step 3: curl_health_endpoints\n```bash\nfor port in 8088 8090 8091 8092 8093 8094 8095; do\n  curl -sf http://127.0.0.1:$port/health || echo \"FAIL :$port\"\ndone\n```\n- ตรวจ HTTP 200 ทุก service\n- บันทึก latency ms\n\n### Step 4: docker_logs_tail\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml logs --tail=20\n```\n- ดู 20 บรรทัดล่าสุดของทุก service\n- Flag: `ERROR`, `CRITICAL`, `exception`, `traceback`\n\n### Step 5: summarize_status\n- รวม: containers UP/DOWN, health endpoints OK/FAIL, log errors\n- สร้าง status object: `{ overall, up_count, down_count, errors }`\n\n### Step 6: report_failed_services\n- ถ้ามี failed services → ระบุ service + error message\n- แนะนำ: `docker compose logs {service}` สำหรับ debug ต่อ\n- ถ้าทุกอย่าง OK → ระบุ \"All services healthy\"\n\n## Accountability Log\n```yaml\nowner_agent: observer\ntool_usage_log: [docker-ps, docker-config, curl-health, docker-logs]\nverification_log: [http-health-check]\nrollback_plan: N/A — read-only workflow\n```\n\n\n## Accountability\n- Owner: observer\n- Agents: observer, manager\n- Approval required: False\n- Rollback plan: None\n\n## Observer Health Plan\n- Check mobile-gateway: http://mobile-gateway:8088/health\n- Check rag-api: http://rag-api:8090/health\n- Check tto-api: http://tto-api:8091/health\n- Check rtk-bridge: http://rtk-bridge:8092/health\n- Check webhook-gateway: http://webhook-gateway:8093/health\n- Check observer: http://observer:8094/health\n- Check worker: http://worker:8095/health\n- Check qdrant: http://qdrant:6333/healthz\n\n## Skills Context\n### observer-monitor\n# Skill: Observer Monitor\n\n## วัตถุประสงค์\nhealth logs uptime alerts docker status summary\n\n## Monitoring Commands\n```bash\n# Docker status\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"\n\n# Resource usage\ndocker stats --no-stream\n\n# Disk\ndf -h /\n\n# Memory\nfree -h\n```\n\n## Health Check Endpoints\n- mobile-gateway: GET :8088/health\n- rag-api: GET :8090/health\n- tto-api: GET :8091/health\n- rtk-bridge: GET :8092/health\n- webhook-gateway: GET :8093/health\n- observer: GET :8094/health\n- worker: GET :8095/health\n- qdrant: GET :6333/healthz\n\n## Alert Thresholds\n- Service down > 30s → CRITICAL\n- CPU > 90% for 5min → WARNING\n- Memory > 85% → WARNING\n- Disk > 90% → CRITICAL\n- Postgres conn fail → CRITICAL\n- Redis conn fail → CRITICAL\n\n## Log Levels to Watch\n- ERROR → immediate attention\n- WARNING → monitor\n- INFO → normal\n\n## Observer Report Format\n```json\n{\n  \"timestamp\": \"2024-01-01T10:00:00Z\",\n  \"services\": {\n    \"mobile-gateway\": {\"status\": \"up\", \"latency_ms\": 45},\n    \"rag-api\": {\"status\": \"up\", \"latency_ms\": 120}\n  },\n  \"databases\": {\n    \"postgres\": \"ok\",\n    \"redis\": \"ok\",\n    \"qdrant\": \"ok\"\n  },\n  \"alerts\": []\n}\n```\n\n\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n",
+      "report_agent": "hermes",
+      "report_saved_at": "2026-05-12T05:02:25.380968+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "observer",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T04:59:36.815165+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:36.937910+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:37.033070+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:37.182379+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:37.227066+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:37.284264+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T04:59:52.622373+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T05:02:25.380983+00:00",
+        "agent": "hermes",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก hermes แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "observer",
+      "responsible_agents": [
+        "observer",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "9e380231-42a1-466f-96ff-e38ba4108408": {
+    "task_id": "9e380231-42a1-466f-96ff-e38ba4108408",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T05:00:18.783779+00:00",
+    "updated_at": "2026-05-12T05:01:47.769803+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/9e380231-42a1-466f-96ff-e38ba4108408.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T05:00:18.814857+00:00",
+      "final_report": "# Task: 9e380231-42a1-466f-96ff-e38ba4108408\n\n## Intent\nตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- observer\n- manager\n\n## Skills\n- observer-monitor\n- mobile-command\n\n## Context\nText: ตรวจ health ระบบทั้งหมด โหมด plan-only\nOptimized Text: ตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: workflow\n- **Autonomy Level**: 1\n- **Reason**: Predictable task with defined steps\n- **Selected Workflow**: docker-health-check-workflow\n\n### Workflow Steps\n1. docker_ps\n2. docker_compose_config\n3. curl_health_endpoints\n4. docker_logs_tail\n5. summarize_status\n6. report_failed_services\n\n### Workflow Definition\n---\nid: docker-health-check-workflow\nmode: workflow\nautonomy_level: 1\nrisk_level: 1\napproval_required: false\nresponsible_agents: [observer, devops]\n---\n\n# Docker Health Check Workflow\n\n## วัตถุประสงค์\nตรวจสถานะ Docker stack ทั้งหมดอย่างเป็นระบบ read-only เท่านั้น\n\n## เมื่อใช้ Workflow Mode\nงาน read-only ขั้นตอนชัด ทำซ้ำได้ ไม่มี side effect → Workflow เหมาะที่สุด\n\n## Steps\n\n### Step 1: docker_ps\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml ps\n```\n- ตรวจ STATUS ของทุก container\n- Flag: `unhealthy`, `exited`, `restarting`\n\n### Step 2: docker_compose_config\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml config --quiet\n```\n- ตรวจ YAML syntax valid\n- **Fail condition**: YAML error → report ทันที\n\n### Step 3: curl_health_endpoints\n```bash\nfor port in 8088 8090 8091 8092 8093 8094 8095; do\n  curl -sf http://127.0.0.1:$port/health || echo \"FAIL :$port\"\ndone\n```\n- ตรวจ HTTP 200 ทุก service\n- บันทึก latency ms\n\n### Step 4: docker_logs_tail\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml logs --tail=20\n```\n- ดู 20 บรรทัดล่าสุดของทุก service\n- Flag: `ERROR`, `CRITICAL`, `exception`, `traceback`\n\n### Step 5: summarize_status\n- รวม: containers UP/DOWN, health endpoints OK/FAIL, log errors\n- สร้าง status object: `{ overall, up_count, down_count, errors }`\n\n### Step 6: report_failed_services\n- ถ้ามี failed services → ระบุ service + error message\n- แนะนำ: `docker compose logs {service}` สำหรับ debug ต่อ\n- ถ้าทุกอย่าง OK → ระบุ \"All services healthy\"\n\n## Accountability Log\n```yaml\nowner_agent: observer\ntool_usage_log: [docker-ps, docker-config, curl-health, docker-logs]\nverification_log: [http-health-check]\nrollback_plan: N/A — read-only workflow\n```\n\n\n## Accountability\n- Owner: observer\n- Agents: observer, manager\n- Approval required: False\n- Rollback plan: None\n\n## Observer Health Plan\n- Check mobile-gateway: http://mobile-gateway:8088/health\n- Check rag-api: http://rag-api:8090/health\n- Check tto-api: http://tto-api:8091/health\n- Check rtk-bridge: http://rtk-bridge:8092/health\n- Check webhook-gateway: http://webhook-gateway:8093/health\n- Check observer: http://observer:8094/health\n- Check worker: http://worker:8095/health\n- Check qdrant: http://qdrant:6333/healthz\n\n## Skills Context\n### observer-monitor\n# Skill: Observer Monitor\n\n## วัตถุประสงค์\nhealth logs uptime alerts docker status summary\n\n## Monitoring Commands\n```bash\n# Docker status\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"\n\n# Resource usage\ndocker stats --no-stream\n\n# Disk\ndf -h /\n\n# Memory\nfree -h\n```\n\n## Health Check Endpoints\n- mobile-gateway: GET :8088/health\n- rag-api: GET :8090/health\n- tto-api: GET :8091/health\n- rtk-bridge: GET :8092/health\n- webhook-gateway: GET :8093/health\n- observer: GET :8094/health\n- worker: GET :8095/health\n- qdrant: GET :6333/healthz\n\n## Alert Thresholds\n- Service down > 30s → CRITICAL\n- CPU > 90% for 5min → WARNING\n- Memory > 85% → WARNING\n- Disk > 90% → CRITICAL\n- Postgres conn fail → CRITICAL\n- Redis conn fail → CRITICAL\n\n## Log Levels to Watch\n- ERROR → immediate attention\n- WARNING → monitor\n- INFO → normal\n\n## Observer Report Format\n```json\n{\n  \"timestamp\": \"2024-01-01T10:00:00Z\",\n  \"services\": {\n    \"mobile-gateway\": {\"status\": \"up\", \"latency_ms\": 45},\n    \"rag-api\": {\"status\": \"up\", \"latency_ms\": 120}\n  },\n  \"databases\": {\n    \"postgres\": \"ok\",\n    \"redis\": \"ok\",\n    \"qdrant\": \"ok\"\n  },\n  \"alerts\": []\n}\n```\n\n\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n",
+      "report_agent": "claude",
+      "report_saved_at": "2026-05-12T05:01:47.769782+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "observer",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T05:00:18.783803+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:18.878378+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:19.031187+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:19.112336+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:19.179106+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:19.283873+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T05:00:33.714822+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T05:01:47.769798+00:00",
+        "agent": "claude",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก claude แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "observer",
+      "responsible_agents": [
+        "observer",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "80c9253f-683a-41a5-9f2a-490fd8a6c6e1": {
+    "task_id": "80c9253f-683a-41a5-9f2a-490fd8a6c6e1",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ปรับ logo นี้ให้ คมชัด สวยงาม",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ปรับ logo นี้ให้ คมชัด สวยงาม",
+      "optimized_text": "ปรับ logo นี้ให้ คมชัด สวยงาม"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [
+      {
+        "file_id": "4622571d-54e9-4702-a24a-338a5a5f7728",
+        "filename": "logo.png",
+        "safe_filename": "logo.png",
+        "content_type": "image/png",
+        "size": 65381,
+        "stored_path": "/app/data/uploads/4622571d-54e9-4702-a24a-338a5a5f7728_logo.png"
+      }
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T05:09:08.341884+00:00",
+    "updated_at": "2026-05-12T05:10:09.586053+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/80c9253f-683a-41a5-9f2a-490fd8a6c6e1.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T05:09:08.370184+00:00",
+      "final_report": "# Task: 80c9253f-683a-41a5-9f2a-490fd8a6c6e1\n\n## Intent\nปรับ logo นี้ให้ คมชัด สวยงาม\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- observer\n- manager\n\n## Skills\n- observer-monitor\n- mobile-command\n\n## Context\nText: ปรับ logo นี้ให้ คมชัด สวยงาม\nOptimized Text: ปรับ logo นี้ให้ คมชัด สวยงาม\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: workflow\n- **Autonomy Level**: 1\n- **Reason**: Predictable task with defined steps\n- **Selected Workflow**: log-review-workflow\n\n### Workflow Steps\n1. collect_logs\n2. run_tto_log_summarization\n3. classify_errors\n4. identify_root_cause_candidates\n5. suggest_next_checks\n6. observer_report\n\n### Workflow Definition\n---\nid: log-review-workflow\nmode: hybrid\nautonomy_level: 1\nrisk_level: 1\napproval_required: false\nresponsible_agents: [observer, devops]\n---\n\n# Log Review Workflow\n\n## วัตถุประสงค์\nรวบรวม วิเคราะห์ และสรุป logs จาก Docker services อย่างเป็นระบบ\n\n## Steps\n\n### Step 1: collect_logs [workflow]\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml logs --tail=100 > /tmp/aicc-logs.txt\n```\n- เก็บ logs 100 บรรทัดล่าสุดทุก service\n- บันทึก timestamp ที่ collect\n\n### Step 2: run_tto_log_summarization [workflow]\n```http\nPOST http://127.0.0.1:8091/optimize\n{\n  \"text\": \"{logs_content}\",\n  \"mode\": \"summarize\"\n}\n```\n- ส่ง logs ผ่าน TTO API เพื่อ summarize\n- ถ้า TTO ไม่พร้อม → ใช้ grep pattern แทน\n\n### Step 3: classify_errors [workflow]\ngrep patterns:\n```bash\ngrep -E \"ERROR|CRITICAL|exception|traceback|Traceback\" /tmp/aicc-logs.txt\ngrep -E \"connection refused|timeout|unhealthy\" /tmp/aicc-logs.txt\ngrep -E \"OOM|kill|out of memory\" /tmp/aicc-logs.txt\n```\nจัดหมวด:\n- `application_error` — Python exception, FastAPI error\n- `connection_error` — service ต่อกันไม่ได้\n- `system_error` — OOM, disk full, permission\n\n### Step 4: identify_root_cause_candidates [hybrid → agent]\nAgent วิเคราะห์:\n- Error pattern ซ้ำ: เกิดบ่อยแค่ไหน ช่วงเวลาใด\n- Correlation: service A error → service B error\n- Timeline: error เริ่มหลังจาก event ใด\n\n### Step 5: suggest_next_checks [hybrid → agent]\nถ้า application_error → แนะนำ: ดู stack trace เต็ม + ตรวจ requirements.txt\nถ้า connection_error → แนะนำ: ตรวจ `docker compose ps` + network\nถ้า system_error → แนะนำ: `docker stats` + disk usage\n\n### Step 6: observer_report\n```yaml\nlog_review:\n  timestamp: \"...\"\n  services_reviewed: []\n  total_errors: 0\n  critical_errors: 0\n  application_errors: 0\n  connection_errors: 0\n  system_errors: 0\n  root_cause_candidates: []\n  recommended_actions: []\n  status: clean | warnings | critical\n```\n\n## Accountability Log\n```yaml\nowner_agent: observer\ntool_usage_log: [docker-compose-logs, tto-api/optimize, grep]\nverification_log: [error-pattern-check]\nrollback_plan: N/A — read-only log review\n```\n\n\n## Accountability\n- Owner: observer\n- Agents: observer, manager\n- Approval required: False\n- Rollback plan: None\n\n## Observer Health Plan\n- Check mobile-gateway: http://mobile-gateway:8088/health\n- Check rag-api: http://rag-api:8090/health\n- Check tto-api: http://tto-api:8091/health\n- Check rtk-bridge: http://rtk-bridge:8092/health\n- Check webhook-gateway: http://webhook-gateway:8093/health\n- Check observer: http://observer:8094/health\n- Check worker: http://worker:8095/health\n- Check qdrant: http://qdrant:6333/healthz\n\n## Skills Context\n### observer-monitor\n# Skill: Observer Monitor\n\n## วัตถุประสงค์\nhealth logs uptime alerts docker status summary\n\n## Monitoring Commands\n```bash\n# Docker status\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"\n\n# Resource usage\ndocker stats --no-stream\n\n# Disk\ndf -h /\n\n# Memory\nfree -h\n```\n\n## Health Check Endpoints\n- mobile-gateway: GET :8088/health\n- rag-api: GET :8090/health\n- tto-api: GET :8091/health\n- rtk-bridge: GET :8092/health\n- webhook-gateway: GET :8093/health\n- observer: GET :8094/health\n- worker: GET :8095/health\n- qdrant: GET :6333/healthz\n\n## Alert Thresholds\n- Service down > 30s → CRITICAL\n- CPU > 90% for 5min → WARNING\n- Memory > 85% → WARNING\n- Disk > 90% → CRITICAL\n- Postgres conn fail → CRITICAL\n- Redis conn fail → CRITICAL\n\n## Log Levels to Watch\n- ERROR → immediate attention\n- WARNING → monitor\n- INFO → normal\n\n## Observer Report Format\n```json\n{\n  \"timestamp\": \"2024-01-01T10:00:00Z\",\n  \"services\": {\n    \"mobile-gateway\": {\"status\": \"up\", \"latency_ms\": 45},\n    \"rag-api\": {\"status\": \"up\", \"latency_ms\": 120}\n  },\n  \"databases\": {\n    \"postgres\": \"ok\",\n    \"redis\": \"ok\",\n    \"qdrant\": \"ok\"\n  },\n  \"alerts\": []\n}\n```\n\n\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n\n## Attachments\n\n- **logo.png** | image/png | 65381 bytes | `/app/data/uploads/4622571d-54e9-4702-a24a-338a5a5f7728_logo.png`\n\n## Attachment Context\n\n### logo.png\n```\n(binary file — image/png — cannot read as text)\n```\n",
+      "report_agent": "agentuniverse",
+      "report_saved_at": "2026-05-12T05:10:09.586033+00:00"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "observer",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T05:09:08.341913+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:08.411941+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:08.500250+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:08.559151+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:08.605589+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:08.665971+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T05:09:13.107219+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T05:10:09.586048+00:00",
+        "agent": "agentuniverse",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก agentuniverse แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "log-review-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "observer",
+      "responsible_agents": [
+        "observer",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "f51c6f73-9fdd-4601-b569-fd79dc3bf156": {
+    "task_id": "f51c6f73-9fdd-4601-b569-fd79dc3bf156",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "observer",
+      "manager"
+    ],
+    "skills": [
+      "observer-monitor",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T05:53:27.125944+00:00",
+    "updated_at": "2026-05-12T05:54:00.665173+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/f51c6f73-9fdd-4601-b569-fd79dc3bf156.prompt.md",
+      "agents": [
+        "observer",
+        "manager"
+      ],
+      "skills": [
+        "observer-monitor",
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T05:53:27.190965+00:00",
+      "final_report": "# Task: f51c6f73-9fdd-4601-b569-fd79dc3bf156\n\n## Intent\nตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- observer\n- manager\n\n## Skills\n- observer-monitor\n- mobile-command\n\n## Context\nText: ตรวจ health ระบบทั้งหมด โหมด plan-only\nOptimized Text: ตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: workflow\n- **Autonomy Level**: 1\n- **Reason**: Predictable task with defined steps\n- **Selected Workflow**: docker-health-check-workflow\n\n### Workflow Steps\n1. docker_ps\n2. docker_compose_config\n3. curl_health_endpoints\n4. docker_logs_tail\n5. summarize_status\n6. report_failed_services\n\n### Workflow Definition\n---\nid: docker-health-check-workflow\nmode: workflow\nautonomy_level: 1\nrisk_level: 1\napproval_required: false\nresponsible_agents: [observer, devops]\n---\n\n# Docker Health Check Workflow\n\n## วัตถุประสงค์\nตรวจสถานะ Docker stack ทั้งหมดอย่างเป็นระบบ read-only เท่านั้น\n\n## เมื่อใช้ Workflow Mode\nงาน read-only ขั้นตอนชัด ทำซ้ำได้ ไม่มี side effect → Workflow เหมาะที่สุด\n\n## Steps\n\n### Step 1: docker_ps\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml ps\n```\n- ตรวจ STATUS ของทุก container\n- Flag: `unhealthy`, `exited`, `restarting`\n\n### Step 2: docker_compose_config\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml config --quiet\n```\n- ตรวจ YAML syntax valid\n- **Fail condition**: YAML error → report ทันที\n\n### Step 3: curl_health_endpoints\n```bash\nfor port in 8088 8090 8091 8092 8093 8094 8095; do\n  curl -sf http://127.0.0.1:$port/health || echo \"FAIL :$port\"\ndone\n```\n- ตรวจ HTTP 200 ทุก service\n- บันทึก latency ms\n\n### Step 4: docker_logs_tail\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml logs --tail=20\n```\n- ดู 20 บรรทัดล่าสุดของทุก service\n- Flag: `ERROR`, `CRITICAL`, `exception`, `traceback`\n\n### Step 5: summarize_status\n- รวม: containers UP/DOWN, health endpoints OK/FAIL, log errors\n- สร้าง status object: `{ overall, up_count, down_count, errors }`\n\n### Step 6: report_failed_services\n- ถ้ามี failed services → ระบุ service + error message\n- แนะนำ: `docker compose logs {service}` สำหรับ debug ต่อ\n- ถ้าทุกอย่าง OK → ระบุ \"All services healthy\"\n\n## Accountability Log\n```yaml\nowner_agent: observer\ntool_usage_log: [docker-ps, docker-config, curl-health, docker-logs]\nverification_log: [http-health-check]\nrollback_plan: N/A — read-only workflow\n```\n\n\n## Accountability\n- Owner: observer\n- Agents: observer, manager\n- Approval required: False\n- Rollback plan: None\n\n## Observer Health Plan\n- Check mobile-gateway: http://mobile-gateway:8088/health\n- Check rag-api: http://rag-api:8090/health\n- Check tto-api: http://tto-api:8091/health\n- Check rtk-bridge: http://rtk-bridge:8092/health\n- Check webhook-gateway: http://webhook-gateway:8093/health\n- Check observer: http://observer:8094/health\n- Check worker: http://worker:8095/health\n- Check qdrant: http://qdrant:6333/healthz\n\n## Skills Context\n### observer-monitor\n# Skill: Observer Monitor\n\n## วัตถุประสงค์\nhealth logs uptime alerts docker status summary\n\n## Monitoring Commands\n```bash\n# Docker status\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"\n\n# Resource usage\ndocker stats --no-stream\n\n# Disk\ndf -h /\n\n# Memory\nfree -h\n```\n\n## Health Check Endpoints\n- mobile-gateway: GET :8088/health\n- rag-api: GET :8090/health\n- tto-api: GET :8091/health\n- rtk-bridge: GET :8092/health\n- webhook-gateway: GET :8093/health\n- observer: GET :8094/health\n- worker: GET :8095/health\n- qdrant: GET :6333/healthz\n\n## Alert Thresholds\n- Service down > 30s → CRITICAL\n- CPU > 90% for 5min → WARNING\n- Memory > 85% → WARNING\n- Disk > 90% → CRITICAL\n- Postgres conn fail → CRITICAL\n- Redis conn fail → CRITICAL\n\n## Log Levels to Watch\n- ERROR → immediate attention\n- WARNING → monitor\n- INFO → normal\n\n## Observer Report Format\n```json\n{\n  \"timestamp\": \"2024-01-01T10:00:00Z\",\n  \"services\": {\n    \"mobile-gateway\": {\"status\": \"up\", \"latency_ms\": 45},\n    \"rag-api\": {\"status\": \"up\", \"latency_ms\": 120}\n  },\n  \"databases\": {\n    \"postgres\": \"ok\",\n    \"redis\": \"ok\",\n    \"qdrant\": \"ok\"\n  },\n  \"alerts\": []\n}\n```\n\n\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n",
+      "report_source": "hermes",
+      "report_saved_at": "2026-05-12T05:54:00.665145+00:00",
+      "verification_status": "pass",
+      "issues_found": [],
+      "recommendations": [],
+      "next_actions": []
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "observer",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T05:53:27.126006+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:27.459996+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:27.555386+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:27.620959+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:27.674188+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:27.752105+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T05:53:29.674280+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T05:54:00.665168+00:00",
+        "agent": "hermes",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก hermes แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "observer",
+      "responsible_agents": [
+        "observer",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "61e198e2-4dc0-4f11-9838-6efe82cada10": {
+    "task_id": "61e198e2-4dc0-4f11-9838-6efe82cada10",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T06:18:11.558223+00:00",
+    "updated_at": "2026-05-12T06:19:38.361974+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/61e198e2-4dc0-4f11-9838-6efe82cada10.prompt.md",
+      "agents": [
+        "manager",
+        "observer"
+      ],
+      "skills": [
+        "mobile-command",
+        "observer-monitor"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T06:18:11.597279+00:00",
+      "final_report": "# Task: 61e198e2-4dc0-4f11-9838-6efe82cada10\n\n## Intent\nตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- manager\n- observer\n\n## Skills\n- mobile-command\n- observer-monitor\n\n## Context\nText: ตรวจ health ระบบทั้งหมด โหมด plan-only\nOptimized Text: ตรวจ health ระบบทั้งหมด โหมด plan-only\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: workflow\n- **Autonomy Level**: 1\n- **Reason**: Predictable task with defined steps\n- **Selected Workflow**: docker-health-check-workflow\n\n### Workflow Steps\n1. docker_ps\n2. docker_compose_config\n3. curl_health_endpoints\n4. docker_logs_tail\n5. summarize_status\n6. report_failed_services\n\n### Workflow Definition\n---\nid: docker-health-check-workflow\nmode: workflow\nautonomy_level: 1\nrisk_level: 1\napproval_required: false\nresponsible_agents: [observer, devops]\n---\n\n# Docker Health Check Workflow\n\n## วัตถุประสงค์\nตรวจสถานะ Docker stack ทั้งหมดอย่างเป็นระบบ read-only เท่านั้น\n\n## เมื่อใช้ Workflow Mode\nงาน read-only ขั้นตอนชัด ทำซ้ำได้ ไม่มี side effect → Workflow เหมาะที่สุด\n\n## Steps\n\n### Step 1: docker_ps\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml ps\n```\n- ตรวจ STATUS ของทุก container\n- Flag: `unhealthy`, `exited`, `restarting`\n\n### Step 2: docker_compose_config\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml config --quiet\n```\n- ตรวจ YAML syntax valid\n- **Fail condition**: YAML error → report ทันที\n\n### Step 3: curl_health_endpoints\n```bash\nfor port in 8088 8090 8091 8092 8093 8094 8095; do\n  curl -sf http://127.0.0.1:$port/health || echo \"FAIL :$port\"\ndone\n```\n- ตรวจ HTTP 200 ทุก service\n- บันทึก latency ms\n\n### Step 4: docker_logs_tail\n```bash\ndocker compose --env-file .env -f infra/docker/docker-compose.wsl.yml logs --tail=20\n```\n- ดู 20 บรรทัดล่าสุดของทุก service\n- Flag: `ERROR`, `CRITICAL`, `exception`, `traceback`\n\n### Step 5: summarize_status\n- รวม: containers UP/DOWN, health endpoints OK/FAIL, log errors\n- สร้าง status object: `{ overall, up_count, down_count, errors }`\n\n### Step 6: report_failed_services\n- ถ้ามี failed services → ระบุ service + error message\n- แนะนำ: `docker compose logs {service}` สำหรับ debug ต่อ\n- ถ้าทุกอย่าง OK → ระบุ \"All services healthy\"\n\n## Accountability Log\n```yaml\nowner_agent: observer\ntool_usage_log: [docker-ps, docker-config, curl-health, docker-logs]\nverification_log: [http-health-check]\nrollback_plan: N/A — read-only workflow\n```\n\n\n## Accountability\n- Owner: manager\n- Agents: manager, observer\n- Approval required: False\n- Rollback plan: None\n\n## Observer Health Plan\n- Check mobile-gateway: http://mobile-gateway:8088/health\n- Check rag-api: http://rag-api:8090/health\n- Check tto-api: http://tto-api:8091/health\n- Check rtk-bridge: http://rtk-bridge:8092/health\n- Check webhook-gateway: http://webhook-gateway:8093/health\n- Check observer: http://observer:8094/health\n- Check worker: http://worker:8095/health\n- Check qdrant: http://qdrant:6333/healthz\n\n## Skills Context\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n### observer-monitor\n# Skill: Observer Monitor\n\n## วัตถุประสงค์\nhealth logs uptime alerts docker status summary\n\n## Monitoring Commands\n```bash\n# Docker status\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"\n\n# Resource usage\ndocker stats --no-stream\n\n# Disk\ndf -h /\n\n# Memory\nfree -h\n```\n\n## Health Check Endpoints\n- mobile-gateway: GET :8088/health\n- rag-api: GET :8090/health\n- tto-api: GET :8091/health\n- rtk-bridge: GET :8092/health\n- webhook-gateway: GET :8093/health\n- observer: GET :8094/health\n- worker: GET :8095/health\n- qdrant: GET :6333/healthz\n\n## Alert Thresholds\n- Service down > 30s → CRITICAL\n- CPU > 90% for 5min → WARNING\n- Memory > 85% → WARNING\n- Disk > 90% → CRITICAL\n- Postgres conn fail → CRITICAL\n- Redis conn fail → CRITICAL\n\n## Log Levels to Watch\n- ERROR → immediate attention\n- WARNING → monitor\n- INFO → normal\n\n## Observer Report Format\n```json\n{\n  \"timestamp\": \"2024-01-01T10:00:00Z\",\n  \"services\": {\n    \"mobile-gateway\": {\"status\": \"up\", \"latency_ms\": 45},\n    \"rag-api\": {\"status\": \"up\", \"latency_ms\": 120}\n  },\n  \"databases\": {\n    \"postgres\": \"ok\",\n    \"redis\": \"ok\",\n    \"qdrant\": \"ok\"\n  },\n  \"alerts\": []\n}\n```\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n",
+      "report_source": "claude",
+      "report_saved_at": "2026-05-12T06:19:38.361948+00:00",
+      "verification_status": "pass",
+      "issues_found": [],
+      "recommendations": [],
+      "next_actions": []
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "observer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T06:18:11.558245+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:11.641375+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:11.726061+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "prepare_health_check",
+        "message": "Observer กำลังเตรียมตรวจ health service"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:11.795211+00:00",
+        "agent": "observer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:11.844421+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:11.906857+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T06:18:40.334375+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T06:19:38.361969+00:00",
+        "agent": "claude",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก claude แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  }
+}
