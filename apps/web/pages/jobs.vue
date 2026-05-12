@@ -89,10 +89,23 @@
 
         <!-- Final report preview (completed) -->
         <div class="report-preview" v-if="task.status === 'completed' && task.result?.final_report">
-          <div class="report-label">✅ Report by {{ task.result.report_source || 'agent' }}</div>
+          <div class="report-label-row">
+            <span class="report-label">Report by {{ task.result.report_source || 'agent' }}</span>
+            <span
+              v-if="task.result.verification_status"
+              class="verify-badge"
+              :class="`vbadge-${task.result.verification_status}`"
+            >{{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}</span>
+          </div>
           <div class="report-snippet">
             {{ task.result.final_report.slice(0, 120) }}{{ task.result.final_report.length > 120 ? '…' : '' }}
           </div>
+        </div>
+        <!-- Verification badge only (no report text yet) -->
+        <div class="verify-only" v-else-if="task.status === 'completed' && task.result?.verification_status">
+          <span class="verify-badge" :class="`vbadge-${task.result.verification_status}`">
+            {{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}
+          </span>
         </div>
 
         <!-- Warnings -->
@@ -385,6 +398,48 @@ const sortedTasks = computed(() =>
   [...tasks.value].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
 )
 
+// ── Report template + validation ─────────────────────────────────────────
+const REPORT_TEMPLATE = `## Final Report
+
+### Summary
+สรุปผลการทำงาน
+
+### Services Checked
+- Mobile Gateway:
+- RAG API:
+- TTO API:
+- RTK Bridge:
+- Webhook Gateway:
+- Observer:
+- Worker:
+- Qdrant:
+- Postgres:
+- Redis:
+- Web Dashboard:
+
+### Issues Found
+- ไม่มี / ระบุปัญหาที่พบ
+
+### Commands Used
+- docker compose ps
+- docker compose config --quiet
+- curl health endpoints
+- docker logs tail
+
+### Recommendations
+- ข้อเสนอแนะถัดไป
+
+### Verification Status
+PASS / WARNING / FAIL`
+
+function validateReport(report) {
+  const warns = []
+  if (report.includes('สรุปผลการทำงาน')) warns.push('กรุณากรอก Summary ให้ครบก่อน')
+  if (!report.includes('Services Checked'))   warns.push('ไม่มีส่วน Services Checked')
+  if (report.includes('PASS / WARNING / FAIL')) warns.push('กรุณาระบุ Verification Status เป็น PASS, WARNING หรือ FAIL')
+  return warns
+}
+
 // ── Fetch tasks ───────────────────────────────────────────────────────────
 async function loadTasks() {
   loading.value = true
@@ -443,11 +498,26 @@ async function runAgent(taskId) {
 
 // ── Save Report (agent_running → completed) ───────────────────────────────
 function openSaveReport(taskId) {
-  saveModal.value = { open: true, taskId, report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' }
+  saveModal.value = {
+    open: true, taskId,
+    report: REPORT_TEMPLATE,
+    report_source: 'claude', report_summary: '', verification_status: '',
+    loading: false, error: '',
+  }
+  fetch(`${API}/tasks/${taskId}/agent-activity`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event: { agent: 'user', role: 'user', action: 'report_template_opened', message: 'เปิด Save Report modal' } }),
+  }).catch(() => {})
 }
 
 async function submitSaveReport() {
   if (!saveModal.value.report.trim()) return
+  const warns = validateReport(saveModal.value.report)
+  if (warns.length > 0) {
+    const ok = confirm(`⚠️ รายการที่ยังไม่ครบ:\n${warns.map(w => '• ' + w).join('\n')}\n\nต้องการบันทึกต่อไปหรือไม่?`)
+    if (!ok) return
+  }
   saveModal.value.loading = true
   saveModal.value.error = ''
   try {
@@ -496,7 +566,7 @@ async function copyReport() {
   } catch { alert('Copy not supported in this browser') }
 }
 
-const fmtFull   = (ts) => {
+const fmtFull    = (ts) => {
   if (!ts) return '—'
   try { return new Date(ts).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' }) }
   catch { return ts }
@@ -658,8 +728,18 @@ onMounted(loadTasks)
   padding: 8px 10px;
   margin-bottom: 0.45rem;
 }
-.report-label  { font-size: 0.75rem; font-weight: 700; color: #34d399; margin-bottom: 4px; }
+.report-label-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.report-label  { font-size: 0.75rem; font-weight: 700; color: #34d399; }
 .report-snippet { font-size: 0.78rem; color: #a7f3d0; line-height: 1.5; }
+
+.verify-only { margin-bottom: 0.45rem; }
+.verify-badge {
+  font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; display: inline-block;
+}
+.vbadge-pass    { background: #14532d; color: #4ade80; }
+.vbadge-warning { background: #422006; color: #fbbf24; }
+.vbadge-fail    { background: #450a0a; color: #f87171; }
 
 .warnings { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; color: #fbbf24; margin-bottom: 0.35rem; }
 .task-error { font-size: 0.75rem; color: #f87171; margin-bottom: 0.35rem; }
@@ -765,13 +845,6 @@ onMounted(loadTasks)
 .rmi { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
 .rml { color: #64748b; font-weight: 600; min-width: 80px; }
 .rmv { color: #e2e8f0; }
-.verify-badge {
-  font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
-  border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
-}
-.vbadge-pass    { background: #14532d; color: #4ade80; }
-.vbadge-warning { background: #422006; color: #fbbf24; }
-.vbadge-fail    { background: #450a0a; color: #f87171; }
 
 .report-section  { margin-bottom: 1rem; }
 .rs-title {

@@ -534,12 +534,20 @@ async def save_report(task_id: str, req: SaveReportRequest):
     t["progress"] = 100
     t["current_step"] = "Agent ทำงานเสร็จแล้ว — มี Final Report"
     events = t.get("agent_events") or []
+    now = datetime.now(timezone.utc).isoformat()
     events.append({
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": now,
         "agent": req.report_source,
         "role": "worker",
         "action": "final_report_saved",
         "message": f"บันทึก Final Report จาก {req.report_source} แล้ว",
+    })
+    events.append({
+        "timestamp": now,
+        "agent": "system",
+        "role": "system",
+        "action": "task_completed",
+        "message": f"Task เสร็จสมบูรณ์ — Final Report จาก {req.report_source}",
     })
     t["agent_events"] = events
     t["updated_at"] = datetime.now(timezone.utc).isoformat()

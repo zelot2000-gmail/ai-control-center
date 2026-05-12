@@ -470,6 +470,48 @@ async function sendCommand(payload) {
 function handleQuickAction(text) { inputText.value = text }
 function onInputError(msg) { addMessage('system', `⚠️ ${msg}`) }
 
+// ── Report template + validation ─────────────────────────────────────────
+const REPORT_TEMPLATE = `## Final Report
+
+### Summary
+สรุปผลการทำงาน
+
+### Services Checked
+- Mobile Gateway:
+- RAG API:
+- TTO API:
+- RTK Bridge:
+- Webhook Gateway:
+- Observer:
+- Worker:
+- Qdrant:
+- Postgres:
+- Redis:
+- Web Dashboard:
+
+### Issues Found
+- ไม่มี / ระบุปัญหาที่พบ
+
+### Commands Used
+- docker compose ps
+- docker compose config --quiet
+- curl health endpoints
+- docker logs tail
+
+### Recommendations
+- ข้อเสนอแนะถัดไป
+
+### Verification Status
+PASS / WARNING / FAIL`
+
+function validateReport(report) {
+  const warns = []
+  if (report.includes('สรุปผลการทำงาน')) warns.push('กรุณากรอก Summary ให้ครบก่อน')
+  if (!report.includes('Services Checked'))   warns.push('ไม่มีส่วน Services Checked')
+  if (report.includes('PASS / WARNING / FAIL')) warns.push('กรุณาระบุ Verification Status เป็น PASS, WARNING หรือ FAIL')
+  return warns
+}
+
 // ── Run Agent (fallback-manual) ───────────────────────────────────────────
 async function runAgent({ taskId, bubbleId }) {
   try {
@@ -497,11 +539,27 @@ async function runAgent({ taskId, bubbleId }) {
 
 // ── Save Report modal ─────────────────────────────────────────────────────
 function openSaveReport({ taskId, bubbleId }) {
-  saveModal.value = { open: true, taskId, bubbleId, report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' }
+  saveModal.value = {
+    open: true, taskId, bubbleId,
+    report: REPORT_TEMPLATE,
+    report_source: 'claude', report_summary: '', verification_status: '',
+    loading: false, error: '',
+  }
+  // Log template opened (fire-and-forget)
+  fetch(`${API}/tasks/${taskId}/agent-activity`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event: { agent: 'user', role: 'user', action: 'report_template_opened', message: 'เปิด Save Report modal' } }),
+  }).catch(() => {})
 }
 
 async function submitSaveReport() {
   if (!saveModal.value.report.trim()) return
+  const warns = validateReport(saveModal.value.report)
+  if (warns.length > 0) {
+    const ok = confirm(`⚠️ รายการที่ยังไม่ครบ:\n${warns.map(w => '• ' + w).join('\n')}\n\nต้องการบันทึกต่อไปหรือไม่?`)
+    if (!ok) return
+  }
   saveModal.value.loading = true
   saveModal.value.error = ''
   try {
