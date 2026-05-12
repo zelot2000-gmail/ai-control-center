@@ -527,6 +527,29 @@ def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path
             lines.append(f"- Check {name}: {url}")
         observer_section = "\n".join(lines)
 
+    rag_section = ""
+    if any(s in skills for s in ("llm-wiki", "rag-ingest")):
+        rag_section = """\n## RAG Lookup Plan
+
+**ก่อนตอบคำถาม domain knowledge ต้องทำก่อนเสมอ:**
+
+1. `POST http://rag-api:8090/search/wiki` — `{"query": "...", "limit": 5}` ค้นหาใน docs/wiki
+2. อ่านผลลัพธ์ที่ได้ — ดู title, path, snippet, heading_path
+3. ใช้ internal SOP/ADR ก่อน general knowledge เสมอ
+4. อ้างอิง wiki path ใน final report เสมอ
+
+**Endpoints:**
+- Search Wiki: `POST http://rag-api:8090/search/wiki`
+- Ingest Wiki: `POST http://rag-api:8090/ingest/wiki`
+- Ingest Report: `GET http://rag-api:8090/ingest/reports/latest`
+- Collections: `GET http://rag-api:8090/collections`
+
+**กฎ:**
+- ✅ Search docs/wiki ก่อนตอบ
+- ✅ Prefer internal SOP/ADR over generic knowledge
+- ✅ Cite wiki path ใน final report
+- ❌ ห้ามตอบจาก general knowledge ถ้า wiki มีคำตอบแล้ว"""
+
     serena_section = ""
     if "serena-mcp" in skills:
         serena_section = """\n## Code Intelligence Plan (Serena MCP)
@@ -625,6 +648,7 @@ Mode: {constraints.get('mode', 'plan-only')}
 {execution_context}
 {observer_section}
 {serena_section}
+{rag_section}
 
 ## Skills Context
 {skills_context if skills_context else '(no skill files loaded)'}

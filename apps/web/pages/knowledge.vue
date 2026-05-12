@@ -34,7 +34,7 @@
 
     <!-- Search Results -->
     <div class="search-results" v-if="searchResults.length || searchError">
-      <div class="section-title">ผลการค้นหา "{{ lastQuery }}"</div>
+      <div class="section-title">ผลการค้นหา "{{ lastQuery }}" — {{ searchResults.length }} รายการ</div>
       <div v-if="searchError" class="error-box">{{ searchError }}</div>
       <div v-else-if="searchResults.length === 0" class="empty-results">
         ไม่พบเอกสารที่ตรงกับ "{{ lastQuery }}"
@@ -42,10 +42,20 @@
       <div v-else class="result-list">
         <div v-for="(r, i) in searchResults" :key="i" class="result-card">
           <div class="result-header">
-            <span class="result-source">📄 {{ r.payload?.source || r.source || 'unknown' }}</span>
-            <span class="result-score">{{ ((r.score || 0) * 100).toFixed(0) }}% match</span>
+            <div class="result-meta">
+              <span class="result-title">{{ r.title || r.payload?.title || 'Untitled' }}</span>
+              <span class="result-category">{{ r.category || r.payload?.category || '' }}</span>
+            </div>
+            <span class="result-score">{{ ((r.score || 0) * 100).toFixed(0) }}%</span>
           </div>
-          <p class="result-text">{{ r.payload?.text || r.text || '' }}</p>
+          <div class="result-path">📄 {{ r.path || r.payload?.path || 'unknown' }}</div>
+          <div v-if="r.heading_path || r.payload?.heading_path" class="result-heading">
+            🔗 {{ r.heading_path || r.payload?.heading_path }}
+          </div>
+          <p class="result-text">{{ r.snippet || r.payload?.text || '' }}</p>
+          <div v-if="(r.tags || r.payload?.tags || []).length" class="result-tags">
+            <span v-for="tag in (r.tags || r.payload?.tags || [])" :key="tag" class="result-tag">{{ tag }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -88,6 +98,14 @@
         <span class="stat-label">หมวดหมู่</span>
       </div>
       <div class="stat">
+        <span class="stat-num stat-ok">{{ ingestReport?.chunks_added ?? '–' }}</span>
+        <span class="stat-label">Chunks ใน RAG</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num stat-ok">{{ ingestReport?.files_ingested ?? '–' }}</span>
+        <span class="stat-label">ไฟล์ที่ Ingest</span>
+      </div>
+      <div class="stat">
         <span class="stat-num" :class="collectionStatus === 'ok' ? 'stat-ok' : 'stat-warn'">
           {{ collectionStatus === 'ok' ? '✅' : '⚠️' }}
         </span>
@@ -108,23 +126,37 @@
             เพื่อให้ Agent ค้นหาความรู้ได้ผ่าน RAG Search
           </p>
           <div class="ingest-steps">
-            <div class="step">1. Copy docs/wiki/ → data/documents/wiki/</div>
-            <div class="step">2. POST /ingest ไปยัง RAG Service</div>
-            <div class="step">3. ตรวจสอบ collection stats</div>
+            <div class="step">1. Scan docs/wiki/**/*.md ทุกไฟล์</div>
+            <div class="step">2. Parse frontmatter + heading-based chunking</div>
+            <div class="step">3. Upsert chunks → Qdrant aicc_wiki (idempotent)</div>
+          </div>
+
+          <div v-if="ingestReport" class="ingest-report">
+            <div class="report-row"><span class="report-label">ไฟล์ที่พบ:</span><span>{{ ingestReport.files_found }}</span></div>
+            <div class="report-row"><span class="report-label">ไฟล์ที่ Ingest:</span><span class="stat-ok">{{ ingestReport.files_ingested }}</span></div>
+            <div class="report-row"><span class="report-label">Chunks เพิ่ม:</span><span class="stat-ok">{{ ingestReport.chunks_added }}</span></div>
+            <div class="report-row"><span class="report-label">Chunks ข้าม:</span><span>{{ ingestReport.chunks_skipped }}</span></div>
+            <div v-if="ingestReport.errors?.length" class="report-row">
+              <span class="report-label">Errors:</span><span class="stat-warn">{{ ingestReport.errors.length }}</span>
+            </div>
+            <div class="report-row">
+              <span class="report-label">ครั้งล่าสุด:</span>
+              <span class="report-time">{{ ingestReport.finished_at ? new Date(ingestReport.finished_at).toLocaleString('th') : '–' }}</span>
+            </div>
           </div>
 
           <div class="ingest-endpoints">
             <div class="endpoint-row">
               <span class="endpoint-label">Ingest:</span>
-              <code>POST {{ ragBaseUrl }}/ingest</code>
+              <code>POST {{ ragBaseUrl }}/ingest/wiki</code>
             </div>
             <div class="endpoint-row">
               <span class="endpoint-label">Search:</span>
-              <code>POST {{ ragBaseUrl }}/search</code>
+              <code>POST {{ ragBaseUrl }}/search/wiki</code>
             </div>
             <div class="endpoint-row">
-              <span class="endpoint-label">Collections:</span>
-              <code>GET {{ ragBaseUrl }}/collections</code>
+              <span class="endpoint-label">Report:</span>
+              <code>GET {{ ragBaseUrl }}/ingest/reports/latest</code>
             </div>
           </div>
 
@@ -163,6 +195,7 @@ const searchResults  = ref([])
 const searchError    = ref('')
 const ingesting      = ref(false)
 const ingestLog      = ref([])
+const ingestReport   = ref(null)
 const collectionStatus = ref('unknown')
 
 const wikiSections = [
@@ -246,14 +279,14 @@ async function runSearch() {
   searchResults.value = []
   lastQuery.value = q
   try {
-    const res = await fetch(`${ragBaseUrl}/search`, {
+    const res = await fetch(`${ragBaseUrl}/search/wiki`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: q, limit: 5 }),
+      body: JSON.stringify({ query: q, limit: 8 }),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
-    searchResults.value = data.results || data || []
+    searchResults.value = data.results || []
   } catch (e) {
     searchError.value = `ค้นหาไม่สำเร็จ: ${e.message} — ตรวจสอบว่า RAG Service รันอยู่ที่ ${ragBaseUrl}`
   } finally {
@@ -271,23 +304,42 @@ function clearSearch() {
 async function runIngest() {
   ingesting.value = true
   ingestLog.value = []
-  addLog('info', 'เริ่ม Ingest docs/wiki/ → RAG...')
+  addLog('info', 'เริ่ม Ingest docs/wiki/ → Qdrant aicc_wiki...')
   try {
-    addLog('info', `POST ${ragBaseUrl}/ingest`)
-    const res = await fetch(`${ragBaseUrl}/ingest`, {
+    addLog('info', `POST ${ragBaseUrl}/ingest/wiki`)
+    const res = await fetch(`${ragBaseUrl}/ingest/wiki`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: '/app/data/documents/wiki' }),
+      body: JSON.stringify({}),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`)
     const data = await res.json()
-    addLog('success', `Ingest สำเร็จ — ${JSON.stringify(data)}`)
+    ingestReport.value = data
+    addLog('success', `Ingest สำเร็จ — ${data.files_ingested} ไฟล์, ${data.chunks_added} chunks เพิ่ม, ${data.chunks_skipped} ข้าม`)
+    if (data.errors?.length) {
+      data.errors.forEach(e => addLog('warn', `Error: ${e}`))
+    }
     collectionStatus.value = 'ok'
   } catch (e) {
     addLog('error', `ล้มเหลว: ${e.message}`)
-    addLog('warn', 'ตรวจสอบว่า RAG Service รันอยู่ และ data/documents/wiki/ มีไฟล์')
+    addLog('warn', `ตรวจสอบว่า RAG Service รันอยู่ที่ ${ragBaseUrl} และ docs/wiki/ mount อยู่`)
   } finally {
     ingesting.value = false
+  }
+}
+
+async function fetchIngestReport() {
+  try {
+    const res = await fetch(`${ragBaseUrl}/ingest/reports/latest`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data && !data.detail) {
+        ingestReport.value = data
+        collectionStatus.value = 'ok'
+      }
+    }
+  } catch {
+    // service may not be running yet
   }
 }
 
@@ -295,6 +347,10 @@ function addLog(type, msg) {
   const prefix = { info: 'ℹ️', success: '✅', error: '❌', warn: '⚠️' }[type] || ''
   ingestLog.value.push({ type, msg: `${prefix} ${msg}` })
 }
+
+onMounted(() => {
+  fetchIngestReport()
+})
 </script>
 
 <style scoped>
@@ -423,9 +479,15 @@ function addLog(type, msg) {
   margin-bottom: 6px;
 }
 
-.result-source { font-size: 0.75rem; color: #60a5fa; font-weight: 500; }
-.result-score  { font-size: 0.72rem; color: #22c55e; font-weight: 600; }
+.result-meta   { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.result-title  { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-category { font-size: 0.68rem; background: #1e3a5f; color: #60a5fa; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
+.result-score  { font-size: 0.72rem; color: #22c55e; font-weight: 700; flex-shrink: 0; }
+.result-path   { font-size: 0.72rem; color: #60a5fa; font-family: monospace; margin: 4px 0 2px; }
+.result-heading { font-size: 0.7rem; color: #a78bfa; margin-bottom: 4px; }
 .result-text   { font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.5; }
+.result-tags   { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.result-tag    { font-size: 0.65rem; background: #1e293b; color: #64748b; border: 1px solid #334155; padding: 1px 6px; border-radius: 4px; }
 
 /* Wiki Grid */
 .wiki-grid {
@@ -616,6 +678,21 @@ function addLog(type, msg) {
 .endpoint-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
 .endpoint-label { color: #64748b; min-width: 70px; }
 .endpoint-row code { color: #a78bfa; }
+
+.ingest-report {
+  background: #0f172a;
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-row { display: flex; justify-content: space-between; font-size: 0.78rem; }
+.report-label { color: #64748b; }
+.report-time { color: #60a5fa; font-size: 0.72rem; }
 
 .ingest-log {
   background: #0f172a;
