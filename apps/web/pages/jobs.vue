@@ -173,6 +173,13 @@
             @click="openAgentReport(task)"
           >📝 Save Agent Report</button>
 
+          <!-- Agent Runner blocked: Approve -->
+          <button
+            v-if="task.result?.agent_run_status === 'blocked_approval_required'"
+            class="btn btn-approve"
+            @click="openAgentApprove(task)"
+          >⛔ Approve Agent Run</button>
+
           <!-- View Agent Run detail -->
           <button
             v-if="task.result?.agent_run_id"
@@ -459,6 +466,46 @@
       </div>
     </div>
 
+    <!-- Agent Runner Approve Modal -->
+    <div class="modal-overlay" v-if="agentApproveModal.open" @click.self="agentApproveModal.open = false">
+      <div class="modal">
+        <div class="modal-header">
+          <span>⛔ Approve Agent Run — {{ agentApproveModal.taskId?.slice(0,8) }}…</span>
+          <button class="btn-close" @click="agentApproveModal.open = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="agentApproveModal.reason" class="approve-reason">🔒 {{ agentApproveModal.reason }}</div>
+          <p class="approve-instruction">
+            Required: <code>{{ agentApproveModal.required_phrase }}</code>
+          </p>
+          <div class="save-field-full">
+            <label class="field-label">Approval Phrase <span class="required">*</span></label>
+            <input
+              v-model="agentApproveModal.phrase"
+              class="summary-input"
+              :placeholder="agentApproveModal.required_phrase"
+            />
+          </div>
+          <div class="save-field-full">
+            <label class="field-label">Approved By</label>
+            <input v-model="agentApproveModal.approved_by" class="summary-input" placeholder="ชื่อผู้อนุมัติ" />
+          </div>
+          <div class="save-error" v-if="agentApproveModal.error">❌ {{ agentApproveModal.error }}</div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-process"
+            :disabled="!agentApproveModal.phrase.trim() || agentApproveModal.loading"
+            @click="submitAgentApprove"
+          >
+            <span v-if="agentApproveModal.loading">⏳ Approving…</span>
+            <span v-else>✅ Approve & Run Agent</span>
+          </button>
+          <button class="btn btn-view" @click="agentApproveModal.open = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Prompt Modal -->
     <div class="modal-overlay" v-if="promptModal.open" @click.self="closePromptModal">
       <div class="modal">
@@ -510,8 +557,9 @@ const promptModal    = ref({ open: false, taskId: '', loading: false, error: '',
 const saveModal      = ref({ open: false, taskId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
 const reportModal    = ref({ open: false, taskId: '', data: null })
 const timelineModal  = ref({ open: false, taskId: '', events: [] })
-const agentRunModal  = ref({ open: false, runId: '', loading: false, error: '', data: null })
-const agentRepModal  = ref({ open: false, taskId: '', runId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
+const agentRunModal      = ref({ open: false, runId: '', loading: false, error: '', data: null })
+const agentRepModal      = ref({ open: false, taskId: '', runId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
+const agentApproveModal  = ref({ open: false, taskId: '', phrase: '', approved_by: 'chain', required_phrase: '', reason: '', loading: false, error: '' })
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const shortId   = (id) => id ? id.slice(0, 8) + '…' : '—'
@@ -821,6 +869,59 @@ async function submitAgentReport() {
   }
 }
 
+// ── Agent Runner: Approve ─────────────────────────────────────────────────
+function openAgentApprove(task) {
+  agentApproveModal.value = {
+    open: true,
+    taskId: task.task_id,
+    phrase: '',
+    approved_by: 'chain',
+    required_phrase: task.result?.approval_phrase || '',
+    reason: task.result?.agent_approval_reason || '',
+    loading: false,
+    error: '',
+  }
+}
+
+async function submitAgentApprove() {
+  if (!agentApproveModal.value.phrase.trim()) return
+  agentApproveModal.value.loading = true
+  agentApproveModal.value.error = ''
+  try {
+    const approveRes = await fetch(`${API}/tasks/${agentApproveModal.value.taskId}/approval`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        approval_phrase: agentApproveModal.value.phrase.trim(),
+        approved_by: agentApproveModal.value.approved_by.trim() || 'unknown',
+      }),
+    })
+    if (!approveRes.ok) {
+      const err = await approveRes.json().catch(() => ({}))
+      agentApproveModal.value.error = err.detail || `HTTP ${approveRes.status}`
+      return
+    }
+
+    const runRes = await fetch(`${WORKER}/agent-runs/from-task/${agentApproveModal.value.taskId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!runRes.ok) {
+      const err = await runRes.json().catch(() => ({}))
+      agentApproveModal.value.error = err.detail || `HTTP ${runRes.status}`
+      return
+    }
+
+    agentApproveModal.value.open = false
+    await loadTasks()
+    alert('✅ Agent Runner approved and started!')
+  } catch (e) {
+    agentApproveModal.value.error = e.message
+  } finally {
+    agentApproveModal.value.loading = false
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 onMounted(loadTasks)
 </script>
@@ -872,6 +973,7 @@ onMounted(loadTasks)
 .btn-agent-prompt   { background: #4c1d95; color: #e9d5ff; }
 .btn-agent-save     { background: #6d28d9; color: #fff; }
 .btn-agent-run      { background: #2e1a4a; color: #c4b5fd; }
+.btn-approve        { background: #b45309; color: #fff; }
 
 /* Error / Empty */
 .error-box {
@@ -946,6 +1048,8 @@ onMounted(loadTasks)
 .ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
 .ar-failed  { background: #450a0a; color: #fca5a5; }
 .ar-running { background: #172554; color: #93c5fd; }
+.ar-blocked_approval_required { background: #422006; color: #fbbf24; font-weight: 700; }
+.tag-agent-runner.ar-blocked_approval_required { background: #422006; color: #fbbf24; }
 
 .attach-box {
   background: #0d1b2e; border: 1px solid #1e3a5f;
@@ -1071,6 +1175,15 @@ onMounted(loadTasks)
 /* Save report modal */
 .save-instruction { font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.75rem; }
 .save-instruction strong { color: #e2e8f0; }
+.approve-reason {
+  background: #450a0a; color: #fca5a5;
+  padding: 0.5rem 0.75rem; border-radius: 6px;
+  font-size: 0.82rem; margin-bottom: 0.75rem;
+}
+.approve-instruction {
+  font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.75rem; line-height: 1.6;
+}
+.approve-instruction code { color: #fbbf24; font-weight: 700; }
 .save-meta-row   { display: flex; gap: 0.75rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
 .save-field      { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 120px; }
 .save-field-full { display: flex; flex-direction: column; gap: 3px; margin-bottom: 0.6rem; }

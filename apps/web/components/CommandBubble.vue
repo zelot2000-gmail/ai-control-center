@@ -75,10 +75,16 @@
               <span class="rag-path" v-if="meta.rag_top_path">· {{ meta.rag_top_path }}</span>
             </div>
             <!-- Agent Runner badge -->
-            <div class="task-detail agent-runner-info" v-if="meta.agent_run_id">
+            <div class="task-detail agent-runner-info" v-if="meta.agent_run_id || meta.agent_run_status === 'blocked_approval_required'">
               <span class="agent-runner-badge">🤖 Agent Runner</span>
               <span class="agent-runner-mode" v-if="meta.agent_run_mode">{{ meta.agent_run_mode }}</span>
               <span class="agent-runner-status" :class="`ar-${meta.agent_run_status}`" v-if="meta.agent_run_status">{{ meta.agent_run_status }}</span>
+              <span v-if="meta.agent_run_status === 'blocked_approval_required'" class="ar-block-icon">⛔</span>
+            </div>
+            <!-- Agent Runner blocked reason -->
+            <div class="agent-runner-blocked" v-if="meta.agent_run_status === 'blocked_approval_required'">
+              🔒 {{ meta.agent_approval_reason || 'ต้องได้รับ approval ก่อนรัน Agent Runner' }}<br>
+              <code v-if="meta.approval_phrase">{{ meta.approval_phrase }}</code>
             </div>
             <div class="task-detail attach-info" v-if="meta.attachments_count > 0">
               <span class="dl">Files:</span> 📎 {{ meta.attachments_count }} ไฟล์แนบ
@@ -155,6 +161,13 @@
               @click="$emit('saveAgentReport', { taskId: meta.task_id, runId: meta.agent_run_id, bubbleId: msg.id })"
             >📝 Save Agent Report</button>
 
+            <!-- Agent Runner: Approve when blocked -->
+            <button
+              v-if="meta.agent_run_status === 'blocked_approval_required'"
+              class="btn-approve-agent"
+              @click="$emit('approveAgentRun', { taskId: meta.task_id, bubbleId: msg.id, approvalPhrase: meta.approval_phrase, approvalReason: meta.agent_approval_reason })"
+            >⛔ Approve Agent Run</button>
+
             <!-- completed: View Report + Timeline + View Prompt -->
             <button
               v-if="meta.status === 'completed'"
@@ -192,7 +205,7 @@
 const props = defineProps({
   msg: { type: Object, required: true },
 })
-defineEmits(['viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline', 'copyAgentPrompt', 'saveAgentReport'])
+defineEmits(['viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline', 'copyAgentPrompt', 'saveAgentReport', 'approveAgentRun'])
 
 const AGENT_ICONS = {
   'manager': '🧭', 'programmer': '💻', 'devops': '🐳',
@@ -208,6 +221,8 @@ const STATUS_LABELS = {
   exported: 'PROMPT READY', agent_running: 'AGENT RUNNING',
   completed: 'COMPLETED', failed: 'FAILED',
   blocked: 'BLOCKED', waiting_approval: 'WAIT APPROVAL',
+  completed_prompt_ready: 'PROMPT READY', completed_report_saved: 'REPORT SAVED',
+  blocked_approval_required: 'BLOCKED — NEEDS APPROVAL',
 }
 const statusLabel = (s) => STATUS_LABELS[s] || (s || '').toUpperCase()
 
@@ -484,6 +499,20 @@ const fmtTime   = (ts) => {
 .ar-completed { background: #d1fae5; color: #065f46; }
 .ar-failed    { background: #fee2e2; color: #991b1b; }
 .ar-running   { background: #dbeafe; color: #1e40af; }
+.ar-blocked_approval_required { background: #fef3c7; color: #b45309; font-weight: 700; }
+.ar-block-icon { font-size: 0.8rem; }
+
+.agent-runner-blocked {
+  font-size: 0.78rem;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 5px 8px;
+  margin: 4px 0 4px;
+  line-height: 1.5;
+}
+.agent-runner-blocked code { font-weight: 700; font-size: 0.78rem; }
 
 .report-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .verify-badge {
@@ -537,7 +566,7 @@ const fmtTime   = (ts) => {
 }
 
 .btn-view-prompt, .btn-run-agent, .btn-save-report, .btn-view-report, .btn-timeline,
-.btn-copy-agent-prompt, .btn-save-agent-report {
+.btn-copy-agent-prompt, .btn-save-agent-report, .btn-approve-agent {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 10px;
@@ -546,7 +575,7 @@ const fmtTime   = (ts) => {
   cursor: pointer;
 }
 .btn-view-prompt:hover, .btn-run-agent:hover, .btn-save-report:hover, .btn-view-report:hover, .btn-timeline:hover,
-.btn-copy-agent-prompt:hover, .btn-save-agent-report:hover { opacity: 0.85; }
+.btn-copy-agent-prompt:hover, .btn-save-agent-report:hover, .btn-approve-agent:hover { opacity: 0.85; }
 
 .btn-view-prompt  { background: #0f766e; color: #fff; }
 .btn-run-agent    { background: #1d4ed8; color: #fff; }
@@ -555,6 +584,7 @@ const fmtTime   = (ts) => {
 .btn-timeline            { background: #1e3a5f; color: #93c5fd; }
 .btn-copy-agent-prompt   { background: #4c1d95; color: #e9d5ff; }
 .btn-save-agent-report   { background: #6d28d9; color: #fff; }
+.btn-approve-agent       { background: #b45309; color: #fff; }
 
 .jobs-link {
   font-size: 0.75rem;

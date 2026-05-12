@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from app.agent_runner import (
     AGENT_RUNNER_ENABLED,
     AGENT_RUNNER_ARTIFACT_DIR,
+    AGENT_RUNNER_MODE,
     run_agent,
     get_run,
     get_runs_for_job,
@@ -27,7 +28,7 @@ app = FastAPI(title="Worker Service", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:3000", "http://localhost:3000"],
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -50,6 +51,59 @@ OBSERVER_HEALTH_TARGETS = [
     ("worker",         "http://worker:8095/health"),
     ("qdrant",         "http://qdrant:6333/healthz"),
 ]
+
+
+def _can_run_agent(task: dict, runner_mode: str) -> dict:
+    risk = task.get("risk", 1)
+    constraints = task.get("constraints") or {}
+    env = constraints.get("environment", "wsl") if isinstance(constraints, dict) else "wsl"
+    mode = constraints.get("mode", "plan-only") if isinstance(constraints, dict) else "plan-only"
+    already_approved = task.get("approval_status", "") == "approved"
+
+    if env == "production" and not already_approved:
+        return {
+            "allowed": False,
+            "reason": "Agent Runner ไม่รัน environment=production โดยตรง — ต้องได้รับ approval",
+            "approval_required": True,
+            "approval_phrase": "CONFIRM DANGEROUS",
+            "blocked_status": "blocked_approval_required",
+        }
+
+    if mode == "execute" and not already_approved:
+        return {
+            "allowed": False,
+            "reason": "mode=execute ต้องได้รับ approval ก่อนรัน Agent",
+            "approval_required": True,
+            "approval_phrase": "APPROVE AGENT EXECUTE",
+            "blocked_status": "blocked_approval_required",
+        }
+
+    if risk >= 3 and not already_approved:
+        phrase = {3: "CONFIRM STAGING", 4: "CONFIRM DEPLOY", 5: "CONFIRM DANGEROUS"}.get(risk, "CONFIRM STAGING")
+        return {
+            "allowed": False,
+            "reason": f"Risk level {risk} ต้องได้รับ approval ก่อนรัน Agent",
+            "approval_required": True,
+            "approval_phrase": phrase,
+            "blocked_status": "blocked_approval_required",
+        }
+
+    if runner_mode == "hermes_http" and risk > 1 and not already_approved:
+        return {
+            "allowed": False,
+            "reason": "hermes_http mode + risk > 1 ต้องได้รับ approval ก่อน",
+            "approval_required": True,
+            "approval_phrase": "APPROVE HERMES HTTP",
+            "blocked_status": "blocked_approval_required",
+        }
+
+    return {
+        "allowed": True,
+        "reason": "ผ่าน approval gate",
+        "approval_required": False,
+        "approval_phrase": "",
+        "blocked_status": "",
+    }
 
 
 def _generate_execution_reason(task: dict, mode: str, autonomy: int) -> str:
@@ -1017,21 +1071,50 @@ async def process_task(req: TaskRequest):
         "agent_run_id": None,
         "agent_run_status": None,
         "agent_run_mode": None,
+        "approval_required": False,
+        "approval_phrase": None,
+        "agent_approval_reason": None,
     }
 
     # ── 5.5. Agent Runner ────────────────────────────────────────────────────
     if AGENT_RUNNER_ENABLED:
         task_for_runner = {**task, "job_id": req.task_id}
-        agent_run_info = await run_agent(task_for_runner, rag_results, _push_agent_activity)
-        result["agent_run_id"] = agent_run_info.get("agent_run_id")
-        result["agent_run_status"] = agent_run_info.get("agent_run_status")
-        result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
-        result["agent_prompt_path"] = agent_run_info.get("agent_prompt_path")
-        logger.info(
-            "Agent runner: run_id=%s status=%s",
-            result["agent_run_id"],
-            result["agent_run_status"],
+        gate = _can_run_agent(task_for_runner, AGENT_RUNNER_MODE)
+
+        await _push_agent_activity(
+            req.task_id,
+            event_agent="agent-runner", event_role="worker",
+            event_action="agent_runner_gate_checked",
+            event_message=f"ตรวจสอบ approval gate: allowed={gate['allowed']} — {gate['reason']}",
         )
+
+        if not gate["allowed"]:
+            result["agent_run_status"] = "blocked_approval_required"
+            result["approval_required"] = True
+            result["approval_phrase"] = gate["approval_phrase"]
+            result["agent_approval_reason"] = gate["reason"]
+            warnings.append(f"Agent Runner blocked: {gate['reason']}")
+            await _push_agent_activity(
+                req.task_id,
+                event_agent="agent-runner", event_role="worker",
+                event_action="agent_runner_blocked_approval_required",
+                event_message=f"Agent Runner ถูก block — {gate['reason']} (phrase required: {gate['approval_phrase']})",
+            )
+            logger.info(
+                "Agent runner BLOCKED for task %s: %s (phrase=%s)",
+                req.task_id, gate["reason"], gate["approval_phrase"],
+            )
+        else:
+            agent_run_info = await run_agent(task_for_runner, rag_results, _push_agent_activity)
+            result["agent_run_id"] = agent_run_info.get("agent_run_id")
+            result["agent_run_status"] = agent_run_info.get("agent_run_status")
+            result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
+            result["agent_prompt_path"] = agent_run_info.get("agent_prompt_path")
+            logger.info(
+                "Agent runner: run_id=%s status=%s",
+                result["agent_run_id"],
+                result["agent_run_status"],
+            )
 
     # ── 6. Done ──────────────────────────────────────────────────────────────
     final_step = (
@@ -1243,4 +1326,67 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
         "report_path": str(report_md_path),
         "verification_status": req.verification_status,
         "job_id": job_id,
+    }
+
+
+@app.post("/agent-runs/from-task/{task_id}")
+async def run_agent_from_task(task_id: str):
+    if not AGENT_RUNNER_ENABLED:
+        raise HTTPException(status_code=400, detail="Agent Runner is disabled")
+
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(f"{MOBILE_GATEWAY_URL}/tasks/{task_id}")
+            if resp.status_code == 404:
+                raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+            resp.raise_for_status()
+            task = resp.json()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Cannot reach mobile-gateway: {e}")
+
+    gate = _can_run_agent(task, AGENT_RUNNER_MODE)
+    if not gate["allowed"]:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Agent Runner blocked: {gate['reason']} (phrase required: {gate['approval_phrase']})",
+        )
+
+    # Re-run RAG for additional context
+    task_text = (task.get("inputs") or {}).get("text", "") or task.get("intent", "")
+    rag_results: List[dict] = []
+    if task_text:
+        try:
+            queries = _build_rag_queries(task_text)
+            rag_results, _ = await _rag_wiki_search_multi(queries)
+        except Exception:
+            pass
+
+    await _push_agent_activity(
+        task_id,
+        event_agent="agent-runner", event_role="worker",
+        event_action="agent_runner_gate_checked",
+        event_message=f"gate re-checked after approval: allowed (approval_status={task.get('approval_status', 'none')})",
+    )
+    await _push_agent_activity(
+        task_id,
+        event_agent="agent-runner", event_role="worker",
+        event_action="agent_runner_started_after_approval",
+        event_message="Agent Runner เริ่มทำงานหลังได้รับ approval",
+    )
+
+    task_for_runner = {**task, "job_id": task_id}
+    agent_run_info = await run_agent(task_for_runner, rag_results, _push_agent_activity)
+
+    logger.info(
+        "Agent runner from-task: task=%s run_id=%s status=%s",
+        task_id, agent_run_info.get("agent_run_id"), agent_run_info.get("agent_run_status"),
+    )
+    return {
+        "task_id": task_id,
+        "agent_run_id": agent_run_info.get("agent_run_id"),
+        "agent_run_status": agent_run_info.get("agent_run_status"),
+        "agent_run_mode": agent_run_info.get("agent_run_mode"),
+        "agent_prompt_path": agent_run_info.get("agent_prompt_path"),
     }

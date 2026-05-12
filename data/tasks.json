@@ -3623,5 +3623,376 @@
       "rollback_required": false,
       "rollback_plan": null
     }
+  },
+  "25c279f6-6158-4ab4-899e-d57e84c95c1e": {
+    "task_id": "25c279f6-6158-4ab4-899e-d57e84c95c1e",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "programmer",
+      "rag-curator",
+      "qa",
+      "manager"
+    ],
+    "skills": [
+      "programmer",
+      "rag-ingest",
+      "qa-verify",
+      "mobile-command",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T16:16:35.355074+00:00",
+    "updated_at": "2026-05-12T16:18:08.040348+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/25c279f6-6158-4ab4-899e-d57e84c95c1e.prompt.md",
+      "agents": [
+        "programmer",
+        "rag-curator",
+        "qa",
+        "manager"
+      ],
+      "skills": [
+        "programmer",
+        "rag-ingest",
+        "qa-verify",
+        "mobile-command",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T16:18:06.800734+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": "eb2c9ba3-b51f-4698-af39-49e4be02757e",
+      "agent_run_status": "completed_prompt_ready",
+      "agent_run_mode": "prompt_only",
+      "approval_required": false,
+      "approval_phrase": null,
+      "agent_approval_reason": null,
+      "agent_prompt_path": "/app/data/agent-runs/eb2c9ba3-b51f-4698-af39-49e4be02757e.prompt.md"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "programmer",
+      "rag-curator",
+      "qa",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T16:16:35.355098+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:06.860608+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:06.995056+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.104085+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.591778+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ จาก 10 queries"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.673080+00:00",
+        "agent": "programmer",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.725399+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.772057+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_gate_checked",
+        "message": "ตรวจสอบ approval gate: allowed=True — ผ่าน approval gate"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.807766+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun eb2c9ba3-b51f-4698-af39-49e4be02757e queued (mode=prompt_only)"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.852360+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.882692+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.917562+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=prompt_only"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:07.961435+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_completed",
+        "message": "สำเร็จ status=completed_prompt_ready"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:08.013684+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "selected_workflow": "wiki-ingest-workflow",
+      "reason_for_mode": "Wiki/knowledge lookup task: RAG search from docs/wiki"
+    },
+    "accountability": {
+      "owner_agent": "programmer",
+      "responsible_agents": [
+        "programmer",
+        "rag-curator",
+        "qa",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "06c45ee0-2b0a-464d-ad98-79e805343031": {
+    "task_id": "06c45ee0-2b0a-464d-ad98-79e805343031",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "deploy production ระบบ worker",
+    "target": "ai-control-center",
+    "risk": 5,
+    "agents": [
+      "devops",
+      "manager"
+    ],
+    "skills": [
+      "docker-deploy",
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "deploy production ระบบ worker",
+      "optimized_text": "deploy production ระบบ worker"
+    },
+    "constraints": {
+      "environment": "production",
+      "mode": "execute"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T16:16:55.595501+00:00",
+    "updated_at": "2026-05-12T16:18:33.099497+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/06c45ee0-2b0a-464d-ad98-79e805343031.prompt.md",
+      "agents": [
+        "devops",
+        "manager"
+      ],
+      "skills": [
+        "docker-deploy",
+        "mobile-command"
+      ],
+      "warnings": [
+        "Agent Runner blocked: Agent Runner ไม่รัน environment=production โดยตรง — ต้องได้รับ approval"
+      ],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T16:18:32.527159+00:00",
+      "rag_results_count": 0,
+      "rag_top_path": "",
+      "agent_run_id": null,
+      "agent_run_status": "blocked_approval_required",
+      "agent_run_mode": null,
+      "approval_required": true,
+      "approval_phrase": "CONFIRM DANGEROUS",
+      "agent_approval_reason": "Agent Runner ไม่รัน environment=production โดยตรง — ต้องได้รับ approval"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "devops",
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T16:16:55.595519+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.571515+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.730810+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.826451+00:00",
+        "agent": "devops",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.890469+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.941246+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_gate_checked",
+        "message": "ตรวจสอบ approval gate: allowed=False — Agent Runner ไม่รัน environment=production โดยตรง — ต้องได้รับ approval"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:32.974313+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_blocked_approval_required",
+        "message": "Agent Runner ถูก block — Agent Runner ไม่รัน environment=production โดยตรง — ต้องได้รับ approval (phrase required: CONFIRM DANGEROUS)"
+      },
+      {
+        "timestamp": "2026-05-12T16:18:33.069244+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "hybrid",
+      "autonomy_level": 5,
+      "selected_workflow": "deployment-workflow",
+      "reason_for_mode": "Risk level 5 requires hybrid mode with approval"
+    },
+    "accountability": {
+      "owner_agent": "devops",
+      "responsible_agents": [
+        "devops",
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": true,
+      "approval_phrase": "CONFIRM DANGEROUS",
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }

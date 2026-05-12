@@ -18,7 +18,7 @@ app = FastAPI(title="Mobile Gateway", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:3000", "http://localhost:3000"],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -675,6 +675,61 @@ async def save_report(task_id: str, req: SaveReportRequest):
         "task_id": task_id,
         "status": "completed",
         "message": "บันทึก Final Report เรียบร้อย",
+    }
+
+
+class AgentApprovalRequest(BaseModel):
+    approval_phrase: str
+    approved_by: str = "unknown"
+
+
+@app.patch("/tasks/{task_id}/approval")
+async def approve_task_for_agent_runner(task_id: str, req: AgentApprovalRequest):
+    tasks = _load_tasks()
+    if task_id not in tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task = tasks[task_id]
+
+    # Required phrase stored in result by worker when gate blocked
+    required = (task.get("result") or {}).get("approval_phrase", "")
+    if not required:
+        risk = task.get("risk", 1)
+        required = {
+            3: "CONFIRM STAGING",
+            4: "CONFIRM DEPLOY",
+            5: "CONFIRM DANGEROUS",
+        }.get(risk, "APPROVE AGENT EXECUTE")
+
+    if req.approval_phrase.strip() != required:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Invalid approval phrase. Required: '{required}'",
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+    task["approval_status"] = "approved"
+    task["approved_by"] = req.approved_by
+    task["approved_at"] = now
+
+    events = task.get("agent_events") or []
+    events.append({
+        "timestamp": now,
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_runner_approved",
+        "message": f"Agent Runner approved by {req.approved_by}",
+    })
+    task["agent_events"] = events
+    task["updated_at"] = now
+    tasks[task_id] = task
+    _save_tasks(tasks)
+
+    logger.info("Task %s agent_runner approved by %s", task_id, req.approved_by)
+    return {
+        "task_id": task_id,
+        "approval_status": "approved",
+        "approved_by": req.approved_by,
+        "message": "Task approved for Agent Runner",
     }
 
 

@@ -16,6 +16,7 @@
         @viewTimeline="viewTimeline"
         @copyAgentPrompt="copyAgentPrompt"
         @saveAgentReport="openAgentReport"
+        @approveAgentRun="openApproveModal"
       />
       <QuickActions @action="handleQuickAction" />
       <CommandInput
@@ -184,6 +185,48 @@
       </div>
     </div>
 
+    <!-- Agent Runner Approve Modal -->
+    <div class="modal-overlay" v-if="approveModal.open" @click.self="closeApproveModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span>⛔ Approve Agent Run — {{ approveModal.taskId?.slice(0,8) }}…</span>
+          <button class="btn-close" @click="closeApproveModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="approveModal.reason" class="approve-reason">🔒 {{ approveModal.reason }}</div>
+          <p class="approve-instruction">
+            พิมพ์ approval phrase เพื่อยืนยันการรัน Agent Runner<br>
+            Required: <code>{{ approveModal.required_phrase }}</code>
+          </p>
+          <div class="save-field-full">
+            <label class="field-label">Approval Phrase <span class="required">*</span></label>
+            <input
+              v-model="approveModal.phrase"
+              class="summary-input"
+              :placeholder="approveModal.required_phrase"
+              @keydown.enter="submitApproval"
+            />
+          </div>
+          <div class="save-field-full">
+            <label class="field-label">Approved By</label>
+            <input v-model="approveModal.approved_by" class="summary-input" placeholder="ชื่อผู้อนุมัติ เช่น: chain" />
+          </div>
+          <div class="modal-error" v-if="approveModal.error">❌ {{ approveModal.error }}</div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-approve"
+            :disabled="!approveModal.phrase.trim() || approveModal.loading"
+            @click="submitApproval"
+          >
+            <span v-if="approveModal.loading">⏳ Approving…</span>
+            <span v-else>✅ Approve & Run Agent</span>
+          </button>
+          <button class="btn btn-close-modal" @click="closeApproveModal">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Prompt Modal -->
     <div class="modal-overlay" v-if="promptModal.open" @click.self="closeModal">
       <div class="modal">
@@ -224,6 +267,7 @@ const promptModal   = ref({ open: false, taskId: '', loading: false, error: '', 
 const saveModal     = ref({ open: false, taskId: '', bubbleId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
 const reportModal   = ref({ open: false, taskId: '', loading: false, error: '', data: null })
 const timelineModal = ref({ open: false, taskId: '', events: [] })
+const approveModal  = ref({ open: false, taskId: '', bubbleId: '', phrase: '', approved_by: 'chain', required_phrase: '', reason: '', loading: false, error: '' })
 
 // Map taskId → intervalId for cleanup on unmount
 const activePolls = new Map()
@@ -326,6 +370,10 @@ function buildTaskMeta(task) {
     agent_run_status: task.result?.agent_run_status || null,
     agent_run_mode: task.result?.agent_run_mode || null,
     agent_prompt_path: task.result?.agent_prompt_path || null,
+    // Agent Runner approval
+    approval_required: task.result?.approval_required || false,
+    approval_phrase: task.result?.approval_phrase || task.accountability?.approval_phrase || null,
+    agent_approval_reason: task.result?.agent_approval_reason || null,
   }
 }
 
@@ -649,6 +697,69 @@ function openAgentReport({ taskId, runId, bubbleId }) {
   }
 }
 
+// ── Agent Runner: Approve modal ───────────────────────────────────────────
+function openApproveModal({ taskId, bubbleId, approvalPhrase, approvalReason }) {
+  approveModal.value = {
+    open: true, taskId, bubbleId,
+    phrase: '',
+    approved_by: 'chain',
+    required_phrase: approvalPhrase || '',
+    reason: approvalReason || '',
+    loading: false, error: '',
+  }
+}
+
+async function submitApproval() {
+  if (!approveModal.value.phrase.trim()) return
+  approveModal.value.loading = true
+  approveModal.value.error = ''
+  try {
+    const approveRes = await fetch(`${API}/tasks/${approveModal.value.taskId}/approval`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        approval_phrase: approveModal.value.phrase.trim(),
+        approved_by: approveModal.value.approved_by.trim() || 'unknown',
+      }),
+    })
+    if (!approveRes.ok) {
+      const err = await approveRes.json().catch(() => ({}))
+      approveModal.value.error = err.detail || `HTTP ${approveRes.status}`
+      return
+    }
+
+    const runRes = await fetch(`${WORKER}/agent-runs/from-task/${approveModal.value.taskId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!runRes.ok) {
+      const err = await runRes.json().catch(() => ({}))
+      approveModal.value.error = err.detail || `HTTP ${runRes.status}`
+      return
+    }
+    const runData = await runRes.json()
+
+    updateMessage(approveModal.value.bubbleId, {
+      meta: {
+        ...getMessageMeta(approveModal.value.bubbleId),
+        agent_run_id: runData.agent_run_id,
+        agent_run_status: runData.agent_run_status,
+        agent_run_mode: runData.agent_run_mode,
+        approval_required: false,
+        agent_approval_reason: null,
+      },
+    })
+    approveModal.value.open = false
+    addMessage('system', `✅ Agent Runner approved — run_id: ${runData.agent_run_id?.slice(0,8)}…`)
+  } catch (e) {
+    approveModal.value.error = e.message
+  } finally {
+    approveModal.value.loading = false
+  }
+}
+
+function closeApproveModal() { approveModal.value.open = false }
+
 // ── View Report modal ─────────────────────────────────────────────────────
 async function viewReport({ taskId }) {
   reportModal.value = { open: true, taskId, loading: true, error: '', data: null }
@@ -834,6 +945,17 @@ async function copyPrompt() {
 .btn-copy        { background: #334155; color: #94a3b8; }
 .btn-close-modal { background: #0f766e; color: #fff; }
 .btn-save        { background: #c2410c; color: #fff; }
+.btn-approve     { background: #b45309; color: #fff; }
+
+.approve-reason {
+  background: #450a0a; color: #fca5a5;
+  padding: 0.5rem 0.75rem; border-radius: 6px;
+  font-size: 0.82rem; margin-bottom: 0.75rem;
+}
+.approve-instruction {
+  font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.75rem; line-height: 1.6;
+}
+.approve-instruction code { color: #fbbf24; font-weight: 700; }
 
 .save-instruction { font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.75rem; }
 .save-instruction strong { color: #e2e8f0; }

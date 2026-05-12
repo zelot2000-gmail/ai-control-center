@@ -59,5 +59,37 @@
     "report_path": "/app/data/agent-runs/1be06514-2c88-48da-8000-af97869c5fcb.report.md",
     "report_saved_at": "2026-05-12T15:48:30.142737+00:00",
     "verification_status": "PASS"
+  },
+  "eb2c9ba3-b51f-4698-af39-49e4be02757e": {
+    "id": "eb2c9ba3-b51f-4698-af39-49e4be02757e",
+    "job_id": "25c279f6-6158-4ab4-899e-d57e84c95c1e",
+    "source": "chatgpt",
+    "agent_role": "programmer",
+    "runner_mode": "prompt_only",
+    "status": "completed_prompt_ready",
+    "skills": [
+      "programmer",
+      "rag-ingest",
+      "qa-verify",
+      "mobile-command",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "workflow": "wiki-ingest-workflow",
+    "input_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "rag_results_count": 5,
+    "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+    "command_id": "25c279f6-6158-4ab4-899e-d57e84c95c1e",
+    "prompt_path": "/app/data/agent-runs/eb2c9ba3-b51f-4698-af39-49e4be02757e.prompt.md",
+    "artifact_dir": "",
+    "report_path": "",
+    "report_saved_at": null,
+    "verification_status": "",
+    "output_summary": null,
+    "error_message": "",
+    "started_at": "2026-05-12T16:18:07.895517+00:00",
+    "completed_at": "2026-05-12T16:18:07.938472+00:00",
+    "created_at": "2026-05-12T16:18:07.785742+00:00",
+    "updated_at": "2026-05-12T16:18:07.942199+00:00"
   }
 }
