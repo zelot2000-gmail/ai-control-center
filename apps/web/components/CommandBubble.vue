@@ -142,6 +142,19 @@
               @click="$emit('saveReport', { taskId: meta.task_id, bubbleId: msg.id })"
             >💾 Save Report</button>
 
+            <!-- Agent Runner: Copy Prompt + Save Agent Report -->
+            <button
+              v-if="meta.agent_run_id && meta.agent_run_status === 'completed_prompt_ready'"
+              class="btn-copy-agent-prompt"
+              @click="$emit('copyAgentPrompt', { runId: meta.agent_run_id })"
+            >📋 Copy Agent Prompt</button>
+
+            <button
+              v-if="meta.agent_run_id && meta.agent_run_status === 'completed_prompt_ready'"
+              class="btn-save-agent-report"
+              @click="$emit('saveAgentReport', { taskId: meta.task_id, runId: meta.agent_run_id, bubbleId: msg.id })"
+            >📝 Save Agent Report</button>
+
             <!-- completed: View Report + Timeline + View Prompt -->
             <button
               v-if="meta.status === 'completed'"
@@ -179,7 +192,7 @@
 const props = defineProps({
   msg: { type: Object, required: true },
 })
-defineEmits(['viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline'])
+defineEmits(['viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline', 'copyAgentPrompt', 'saveAgentReport'])
 
 const AGENT_ICONS = {
   'manager': '🧭', 'programmer': '💻', 'devops': '🐳',
@@ -465,11 +478,12 @@ const fmtTime   = (ts) => {
 }
 .agent-runner-mode { font-size: 0.68rem; color: #7c3aed; font-family: monospace; }
 .agent-runner-status { font-size: 0.68rem; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
-.ar-completed_prompt_ready { background: #d1fae5; color: #065f46; }
+.ar-completed_prompt_ready  { background: #d1fae5; color: #065f46; }
+.ar-completed_report_saved  { background: #bbf7d0; color: #14532d; font-weight: 700; }
 .ar-waiting_for_hermes_manual_execution { background: #fef3c7; color: #92400e; }
 .ar-completed { background: #d1fae5; color: #065f46; }
-.ar-failed { background: #fee2e2; color: #991b1b; }
-.ar-running { background: #dbeafe; color: #1e40af; }
+.ar-failed    { background: #fee2e2; color: #991b1b; }
+.ar-running   { background: #dbeafe; color: #1e40af; }
 
 .report-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .verify-badge {
@@ -522,7 +536,8 @@ const fmtTime   = (ts) => {
   flex-wrap: wrap;
 }
 
-.btn-view-prompt, .btn-run-agent, .btn-save-report, .btn-view-report, .btn-timeline {
+.btn-view-prompt, .btn-run-agent, .btn-save-report, .btn-view-report, .btn-timeline,
+.btn-copy-agent-prompt, .btn-save-agent-report {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 10px;
@@ -530,13 +545,16 @@ const fmtTime   = (ts) => {
   border: none;
   cursor: pointer;
 }
-.btn-view-prompt:hover, .btn-run-agent:hover, .btn-save-report:hover, .btn-view-report:hover, .btn-timeline:hover { opacity: 0.85; }
+.btn-view-prompt:hover, .btn-run-agent:hover, .btn-save-report:hover, .btn-view-report:hover, .btn-timeline:hover,
+.btn-copy-agent-prompt:hover, .btn-save-agent-report:hover { opacity: 0.85; }
 
 .btn-view-prompt  { background: #0f766e; color: #fff; }
 .btn-run-agent    { background: #1d4ed8; color: #fff; }
 .btn-save-report  { background: #c2410c; color: #fff; }
 .btn-view-report  { background: #065f46; color: #fff; }
-.btn-timeline     { background: #1e3a5f; color: #93c5fd; }
+.btn-timeline            { background: #1e3a5f; color: #93c5fd; }
+.btn-copy-agent-prompt   { background: #4c1d95; color: #e9d5ff; }
+.btn-save-agent-report   { background: #6d28d9; color: #fff; }
 
 .jobs-link {
   font-size: 0.75rem;

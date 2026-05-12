@@ -152,15 +152,36 @@
             <span v-else>▶ Process</span>
           </button>
 
-          <!-- exported: View Prompt + Run Agent -->
+          <!-- exported: View Prompt + Run Agent / Agent Runner actions -->
           <button
             v-if="task.status === 'exported'"
             class="btn btn-view"
             @click="viewPrompt(task.task_id)"
           >📄 View Prompt</button>
 
+          <!-- Agent Runner prompt copy (when agent_run_id present) -->
           <button
-            v-if="task.status === 'exported'"
+            v-if="task.status === 'exported' && task.result?.agent_run_id"
+            class="btn btn-agent-prompt"
+            @click="copyAgentPrompt(task)"
+          >📋 Copy Agent Prompt</button>
+
+          <!-- Save Agent Report (replaces generic Run Agent for agent runner tasks) -->
+          <button
+            v-if="task.status === 'exported' && task.result?.agent_run_id && task.result?.agent_run_status === 'completed_prompt_ready'"
+            class="btn btn-agent-save"
+            @click="openAgentReport(task)"
+          >📝 Save Agent Report</button>
+
+          <!-- View Agent Run detail -->
+          <button
+            v-if="task.result?.agent_run_id"
+            class="btn btn-agent-run"
+            @click="viewAgentRun(task.result.agent_run_id)"
+          >🤖 View Agent Run</button>
+
+          <button
+            v-if="task.status === 'exported' && !task.result?.agent_run_id"
             class="btn btn-run-agent"
             :disabled="runningAgent[task.task_id]"
             @click="runAgent(task.task_id)"
@@ -351,6 +372,93 @@
       </div>
     </div>
 
+    <!-- Agent Run Detail Modal -->
+    <div class="modal-overlay" v-if="agentRunModal.open" @click.self="closeAgentRun">
+      <div class="modal">
+        <div class="modal-header">
+          <span>🤖 Agent Run Detail — {{ agentRunModal.data?.id?.slice(0,8) }}…</span>
+          <button class="btn-close" @click="closeAgentRun">✕</button>
+        </div>
+        <div class="modal-body" v-if="agentRunModal.loading">⏳ Loading…</div>
+        <div class="modal-body error-box" v-else-if="agentRunModal.error">❌ {{ agentRunModal.error }}</div>
+        <div class="modal-body agent-run-detail" v-else-if="agentRunModal.data">
+          <div class="ard-row"><span class="ard-label">Run ID</span><code class="ard-val">{{ agentRunModal.data.id }}</code></div>
+          <div class="ard-row"><span class="ard-label">Task ID</span><code class="ard-val">{{ agentRunModal.data.job_id }}</code></div>
+          <div class="ard-row"><span class="ard-label">Mode</span><span class="ard-val">{{ agentRunModal.data.runner_mode }}</span></div>
+          <div class="ard-row">
+            <span class="ard-label">Status</span>
+            <span class="agent-runner-status" :class="`ar-${agentRunModal.data.status}`">{{ agentRunModal.data.status }}</span>
+          </div>
+          <div class="ard-row" v-if="agentRunModal.data.verification_status">
+            <span class="ard-label">Verification</span>
+            <span class="verify-badge" :class="`vbadge-${agentRunModal.data.verification_status}`">
+              {{ verifyIcon(agentRunModal.data.verification_status) }} {{ agentRunModal.data.verification_status?.toUpperCase() }}
+            </span>
+          </div>
+          <div class="ard-row"><span class="ard-label">Agent Role</span><span class="ard-val">{{ agentRunModal.data.agent_role }}</span></div>
+          <div class="ard-row"><span class="ard-label">Workflow</span><span class="ard-val">{{ agentRunModal.data.workflow || '—' }}</span></div>
+          <div class="ard-row"><span class="ard-label">RAG Results</span><span class="ard-val">{{ agentRunModal.data.rag_results_count ?? 0 }}</span></div>
+          <div class="ard-row" v-if="agentRunModal.data.rag_top_path"><span class="ard-label">Top RAG Path</span><code class="ard-val">{{ agentRunModal.data.rag_top_path }}</code></div>
+          <div class="ard-row" v-if="agentRunModal.data.prompt_path"><span class="ard-label">Prompt File</span><code class="ard-val ard-path">{{ agentRunModal.data.prompt_path }}</code></div>
+          <div class="ard-row" v-if="agentRunModal.data.report_path"><span class="ard-label">Report File</span><code class="ard-val ard-path">{{ agentRunModal.data.report_path }}</code></div>
+          <div class="ard-row"><span class="ard-label">Created</span><span class="ard-val">{{ fmtTime(agentRunModal.data.created_at) }}</span></div>
+          <div class="ard-row" v-if="agentRunModal.data.completed_at"><span class="ard-label">Completed</span><span class="ard-val">{{ fmtTime(agentRunModal.data.completed_at) }}</span></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-view" @click="closeAgentRun">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Report Modal -->
+    <div class="modal-overlay" v-if="agentRepModal.open" @click.self="agentRepModal.open = false">
+      <div class="modal">
+        <div class="modal-header">
+          <span>📝 Save Agent Report — {{ agentRepModal.taskId?.slice(0,8) }}…</span>
+          <button class="btn-close" @click="agentRepModal.open = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="save-instruction">วาง <strong>ผลลัพธ์จาก Agent</strong> ที่นี่ — ห้ามวาง Prompt content หรือ Skill SOP</p>
+          <div class="save-meta-row">
+            <div class="save-field">
+              <label class="field-label">Source</label>
+              <select v-model="agentRepModal.report_source" class="agent-select">
+                <option value="claude">Claude</option>
+                <option value="chatgpt">ChatGPT</option>
+                <option value="hermes">Hermes</option>
+                <option value="manual">Manual</option>
+              </select>
+            </div>
+            <div class="save-field">
+              <label class="field-label">Verification</label>
+              <select v-model="agentRepModal.verification_status" class="agent-select">
+                <option value="">— (not set)</option>
+                <option value="pass">✅ Pass</option>
+                <option value="warning">⚠️ Warning</option>
+                <option value="fail">❌ Fail</option>
+              </select>
+            </div>
+          </div>
+          <div class="save-field-full">
+            <label class="field-label">Summary <span class="field-hint">(optional)</span></label>
+            <input v-model="agentRepModal.report_summary" class="summary-input" placeholder="สรุปผลสั้นๆ" />
+          </div>
+          <div class="save-field-full">
+            <label class="field-label">Final Report <span class="required">*</span></label>
+            <textarea v-model="agentRepModal.report" class="report-textarea" rows="10" placeholder="วาง output จาก Claude/ChatGPT ที่นี่…"></textarea>
+          </div>
+          <div class="save-error" v-if="agentRepModal.error">❌ {{ agentRepModal.error }}</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-save" :disabled="!agentRepModal.report.trim() || agentRepModal.loading" @click="submitAgentReport">
+            <span v-if="agentRepModal.loading">⏳ Saving…</span>
+            <span v-else>💾 Save Report</span>
+          </button>
+          <button class="btn btn-view" @click="agentRepModal.open = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Prompt Modal -->
     <div class="modal-overlay" v-if="promptModal.open" @click.self="closePromptModal">
       <div class="modal">
@@ -394,13 +502,16 @@ const STATUS_LABELS = {
   exported: 'PROMPT READY', agent_running: 'AGENT RUNNING',
   completed: 'COMPLETED', failed: 'FAILED',
   blocked: 'BLOCKED', waiting_approval: 'WAIT APPROVAL',
+  completed_prompt_ready: 'PROMPT READY', completed_report_saved: 'REPORT SAVED',
 }
 const statusLabel = (s) => STATUS_LABELS[s] || (s || '').toUpperCase()
 
-const promptModal   = ref({ open: false, taskId: '', loading: false, error: '', content: '' })
-const saveModal     = ref({ open: false, taskId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
-const reportModal   = ref({ open: false, taskId: '', data: null })
-const timelineModal = ref({ open: false, taskId: '', events: [] })
+const promptModal    = ref({ open: false, taskId: '', loading: false, error: '', content: '' })
+const saveModal      = ref({ open: false, taskId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
+const reportModal    = ref({ open: false, taskId: '', data: null })
+const timelineModal  = ref({ open: false, taskId: '', events: [] })
+const agentRunModal  = ref({ open: false, runId: '', loading: false, error: '', data: null })
+const agentRepModal  = ref({ open: false, taskId: '', runId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const shortId   = (id) => id ? id.slice(0, 8) + '…' : '—'
@@ -452,8 +563,8 @@ PASS / WARNING / FAIL`
 function validateReport(report) {
   const warns = []
   if (report.includes('สรุปผลการทำงาน')) warns.push('กรุณากรอก Summary ให้ครบก่อน')
-  if (!report.includes('Services Checked'))   warns.push('ไม่มีส่วน Services Checked')
   if (report.includes('PASS / WARNING / FAIL')) warns.push('กรุณาระบุ Verification Status เป็น PASS, WARNING หรือ FAIL')
+  if (/(?<!\.)\.\.\.(?!\.)/.test(report)) warns.push('มี placeholder "..." ในรายงาน กรุณากรอกให้ครบ')
   return warns
 }
 
@@ -634,6 +745,82 @@ function viewTimeline(task) {
 }
 function closeTimeline() { timelineModal.value.open = false }
 
+// ── Agent Run Detail ──────────────────────────────────────────────────────
+async function viewAgentRun(runId) {
+  agentRunModal.value = { open: true, runId, loading: true, error: '', data: null }
+  try {
+    const res = await fetch(`${WORKER}/agent-runs/${runId}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    agentRunModal.value.data = await res.json()
+  } catch (e) {
+    agentRunModal.value.error = `Cannot load agent run: ${e.message}`
+  } finally {
+    agentRunModal.value.loading = false
+  }
+}
+function closeAgentRun() { agentRunModal.value.open = false }
+
+// ── Copy Agent Prompt ─────────────────────────────────────────────────────
+async function copyAgentPrompt(task) {
+  const runId = task.result?.agent_run_id
+  if (!runId) return
+  try {
+    const res = await fetch(`${WORKER}/agent-runs/${runId}/prompt`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    await navigator.clipboard.writeText(data.content || '')
+    alert('✅ Agent Prompt copied to clipboard')
+  } catch (e) {
+    alert(`Copy ไม่สำเร็จ: ${e.message}`)
+  }
+}
+
+// ── Save Agent Report ─────────────────────────────────────────────────────
+function openAgentReport(task) {
+  agentRepModal.value = {
+    open: true,
+    taskId: task.task_id,
+    runId: task.result?.agent_run_id,
+    report: '', report_source: 'claude', report_summary: '', verification_status: '',
+    loading: false, error: '',
+  }
+}
+
+async function submitAgentReport() {
+  if (!agentRepModal.value.report.trim()) return
+  const warns = validateReport(agentRepModal.value.report)
+  if (warns.length > 0) {
+    const ok = confirm(`⚠️ รายการที่ยังไม่ครบ:\n${warns.map(w => '• ' + w).join('\n')}\n\nต้องการบันทึกต่อไปหรือไม่?`)
+    if (!ok) return
+  }
+  agentRepModal.value.loading = true
+  agentRepModal.value.error = ''
+  try {
+    const body = {
+      final_report: agentRepModal.value.report,
+      report_source: agentRepModal.value.report_source,
+      summary: agentRepModal.value.report_summary.trim() || undefined,
+      verification_status: agentRepModal.value.verification_status || undefined,
+    }
+    const res = await fetch(`${WORKER}/agent-runs/${agentRepModal.value.runId}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      agentRepModal.value.error = err.detail || `HTTP ${res.status}`
+      return
+    }
+    agentRepModal.value.open = false
+    await loadTasks()
+  } catch (e) {
+    agentRepModal.value.error = e.message
+  } finally {
+    agentRepModal.value.loading = false
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 onMounted(loadTasks)
 </script>
@@ -678,10 +865,13 @@ onMounted(loadTasks)
 .btn-refresh    { background: #334155; color: #94a3b8; }
 .btn-process    { background: #1d4ed8; color: #fff; }
 .btn-view       { background: #0f766e; color: #fff; }
-.btn-run-agent  { background: #1d4ed8; color: #fff; }
-.btn-save       { background: #c2410c; color: #fff; }
-.btn-report     { background: #065f46; color: #fff; }
-.btn-timeline   { background: #1e3a5f; color: #93c5fd; }
+.btn-run-agent      { background: #1d4ed8; color: #fff; }
+.btn-save           { background: #c2410c; color: #fff; }
+.btn-report         { background: #065f46; color: #fff; }
+.btn-timeline       { background: #1e3a5f; color: #93c5fd; }
+.btn-agent-prompt   { background: #4c1d95; color: #e9d5ff; }
+.btn-agent-save     { background: #6d28d9; color: #fff; }
+.btn-agent-run      { background: #2e1a4a; color: #c4b5fd; }
 
 /* Error / Empty */
 .error-box {
@@ -741,7 +931,21 @@ onMounted(loadTasks)
 .tag-agent-runner.ar-completed_prompt_ready { background: #064e3b; color: #6ee7b7; }
 .tag-agent-runner.ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
 .tag-agent-runner.ar-completed { background: #064e3b; color: #6ee7b7; }
-.tag-agent-runner.ar-failed    { background: #450a0a; color: #fca5a5; }
+.tag-agent-runner.ar-failed              { background: #450a0a; color: #fca5a5; }
+.tag-agent-runner.ar-completed_report_saved { background: #052e16; color: #4ade80; font-weight: 700; }
+
+/* Agent Run Detail */
+.agent-run-detail { display: flex; flex-direction: column; gap: 8px; }
+.ard-row  { display: flex; align-items: flex-start; gap: 8px; font-size: 0.82rem; }
+.ard-label { min-width: 100px; color: #94a3b8; font-weight: 600; flex-shrink: 0; }
+.ard-val   { color: #e2e8f0; word-break: break-all; }
+.ard-path  { font-size: 0.72rem; color: #a78bfa; }
+.agent-runner-status { font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+.ar-completed_prompt_ready  { background: #064e3b; color: #6ee7b7; }
+.ar-completed_report_saved  { background: #052e16; color: #4ade80; }
+.ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
+.ar-failed  { background: #450a0a; color: #fca5a5; }
+.ar-running { background: #172554; color: #93c5fd; }
 
 .attach-box {
   background: #0d1b2e; border: 1px solid #1e3a5f;

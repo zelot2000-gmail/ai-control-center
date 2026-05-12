@@ -14,6 +14,8 @@
         @saveReport="openSaveReport"
         @viewReport="viewReport"
         @viewTimeline="viewTimeline"
+        @copyAgentPrompt="copyAgentPrompt"
+        @saveAgentReport="openAgentReport"
       />
       <QuickActions @action="handleQuickAction" />
       <CommandInput
@@ -323,6 +325,7 @@ function buildTaskMeta(task) {
     agent_run_id: task.result?.agent_run_id || null,
     agent_run_status: task.result?.agent_run_status || null,
     agent_run_mode: task.result?.agent_run_mode || null,
+    agent_prompt_path: task.result?.agent_prompt_path || null,
   }
 }
 
@@ -519,8 +522,8 @@ PASS / WARNING / FAIL`
 function validateReport(report) {
   const warns = []
   if (report.includes('สรุปผลการทำงาน')) warns.push('กรุณากรอก Summary ให้ครบก่อน')
-  if (!report.includes('Services Checked'))   warns.push('ไม่มีส่วน Services Checked')
   if (report.includes('PASS / WARNING / FAIL')) warns.push('กรุณาระบุ Verification Status เป็น PASS, WARNING หรือ FAIL')
+  if (/(?<!\.)\.\.\.(?!\.)/.test(report)) warns.push('มี placeholder "..." ในรายงาน กรุณากรอกให้ครบ')
   return warns
 }
 
@@ -575,13 +578,23 @@ async function submitSaveReport() {
   saveModal.value.loading = true
   saveModal.value.error = ''
   try {
-    const body = {
-      report: saveModal.value.report,
-      report_source: saveModal.value.report_source,
+    const isAgentRun = !!saveModal.value.runId
+    let url, body
+    if (isAgentRun) {
+      url = `${WORKER}/agent-runs/${saveModal.value.runId}/report`
+      body = {
+        final_report: saveModal.value.report,
+        report_source: saveModal.value.report_source,
+        summary: saveModal.value.report_summary.trim() || undefined,
+        verification_status: saveModal.value.verification_status || undefined,
+      }
+    } else {
+      url = `${API}/tasks/${saveModal.value.taskId}/save-report`
+      body = { report: saveModal.value.report, report_source: saveModal.value.report_source }
+      if (saveModal.value.report_summary.trim()) body.report_summary = saveModal.value.report_summary.trim()
+      if (saveModal.value.verification_status)  body.verification_status = saveModal.value.verification_status
     }
-    if (saveModal.value.report_summary.trim()) body.report_summary = saveModal.value.report_summary.trim()
-    if (saveModal.value.verification_status)  body.verification_status = saveModal.value.verification_status
-    const res = await fetch(`${API}/tasks/${saveModal.value.taskId}/save-report`, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -612,6 +625,29 @@ async function submitSaveReport() {
 }
 
 function closeSaveModal() { saveModal.value.open = false }
+
+// ── Agent Runner: Copy Prompt ─────────────────────────────────────────────
+async function copyAgentPrompt({ runId }) {
+  try {
+    const res = await fetch(`${WORKER}/agent-runs/${runId}/prompt`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    await navigator.clipboard.writeText(data.content || '')
+    addMessage('system', '✅ Agent Prompt copied to clipboard')
+  } catch (e) {
+    addMessage('system', `⚠️ Copy Agent Prompt ไม่สำเร็จ: ${e.message}`)
+  }
+}
+
+// ── Agent Runner: Save Report modal ──────────────────────────────────────
+function openAgentReport({ taskId, runId, bubbleId }) {
+  saveModal.value = {
+    open: true, taskId, bubbleId, runId,
+    report: '',
+    report_source: 'claude', report_summary: '', verification_status: '',
+    loading: false, error: '',
+  }
+}
 
 // ── View Report modal ─────────────────────────────────────────────────────
 async function viewReport({ taskId }) {

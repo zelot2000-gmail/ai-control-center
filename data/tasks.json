@@ -3424,10 +3424,10 @@
     "attachments": [],
     "required_output": "mobile-report",
     "created_at": "2026-05-12T15:26:42.362345+00:00",
-    "updated_at": "2026-05-12T15:29:18.117760+00:00",
-    "status": "exported",
+    "updated_at": "2026-05-12T15:48:30.351307+00:00",
+    "status": "completed",
     "progress": 100,
-    "current_step": "Prompt exported — รอ Agent processing",
+    "current_step": "Agent Run Report บันทึกแล้ว",
     "steps": [
       {
         "name": "created",
@@ -3458,8 +3458,22 @@
       "rag_results_count": 5,
       "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
       "agent_run_id": "1be06514-2c88-48da-8000-af97869c5fcb",
-      "agent_run_status": "completed_prompt_ready",
-      "agent_run_mode": "prompt_only"
+      "agent_run_status": "completed_report_saved",
+      "agent_run_mode": "prompt_only",
+      "final_report": "## Final Report\n\n### Summary\nจาก LLM Wiki พบว่า Serena MCP ต่างจาก RAG ตรงที่ RAG ใช้ค้นเอกสาร/Wiki/SOP/ADR ส่วน Serena MCP ใช้เข้าใจ source code ผ่าน symbol, function, class และ references\n\n### Issues Found\n- ไม่มีปัญหาร้ายแรง\n- ควรแยก routing ระหว่างงาน knowledge lookup กับ code intelligence ให้ชัดต่อไป\n\n### Recommendations\n- ใช้ RAG เมื่อต้องการค้นเอกสารหรือ SOP\n- ใช้ Serena MCP เมื่อต้องการวิเคราะห์โค้ดหรือ impact ก่อนแก้ไฟล์\n\n### Next Actions\n- เพิ่ม Approval Gate สำหรับ Agent Runner\n- เตรียม Hermes HTTP integration จริง\n\n### Verification Status\nPASS",
+      "report_source": "chatgpt",
+      "report_saved_at": "2026-05-12T15:48:30.142737+00:00",
+      "report_summary": "Serena MCP ใช้สำหรับ code intelligence ส่วน RAG ใช้สำหรับค้นเอกสาร/Wiki/SOP",
+      "verification_status": "PASS",
+      "issues_found": [],
+      "recommendations": [
+        "ใช้ RAG สำหรับ knowledge lookup",
+        "ใช้ Serena MCP สำหรับ source code navigation และ impact analysis"
+      ],
+      "next_actions": [
+        "เพิ่ม Approval Gate",
+        "ทดสอบ Hermes HTTP integration"
+      ]
     },
     "current_agent": "manager",
     "speaker_agent": "manager",
@@ -3561,6 +3575,27 @@
         "role": "speaker",
         "action": "task_complete",
         "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T15:48:30.189143+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_report_received",
+        "message": "รับ report จาก chatgpt"
+      },
+      {
+        "timestamp": "2026-05-12T15:48:30.234210+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_report_saved",
+        "message": "บันทึก report แล้ว — verification=PASS"
+      },
+      {
+        "timestamp": "2026-05-12T15:48:30.351274+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_completed_from_agent_report",
+        "message": "Task เสร็จสมบูรณ์จาก Agent Run Report"
       }
     ],
     "execution": {

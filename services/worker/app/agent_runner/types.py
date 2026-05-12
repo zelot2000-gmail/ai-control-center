@@ -45,6 +45,9 @@ class AgentRun:
     command_id: Optional[str] = None
     prompt_path: Optional[str] = None
     artifact_dir: str = ""
+    report_path: str = ""
+    report_saved_at: Optional[str] = None
+    verification_status: str = ""
     output_summary: Optional[str] = None
     error_message: Optional[str] = None
     started_at: Optional[str] = None

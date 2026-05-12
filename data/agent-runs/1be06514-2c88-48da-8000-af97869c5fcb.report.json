@@ -1,0 +1,17 @@
+{
+  "run_id": "1be06514-2c88-48da-8000-af97869c5fcb",
+  "job_id": "d703418b-22a0-4de6-a9b9-65279b668fc8",
+  "report_source": "chatgpt",
+  "verification_status": "PASS",
+  "summary": "Serena MCP ใช้สำหรับ code intelligence ส่วน RAG ใช้สำหรับค้นเอกสาร/Wiki/SOP",
+  "issues_found": [],
+  "recommendations": [
+    "ใช้ RAG สำหรับ knowledge lookup",
+    "ใช้ Serena MCP สำหรับ source code navigation และ impact analysis"
+  ],
+  "next_actions": [
+    "เพิ่ม Approval Gate",
+    "ทดสอบ Hermes HTTP integration"
+  ],
+  "report_saved_at": "2026-05-12T15:48:30.142737+00:00"
+}

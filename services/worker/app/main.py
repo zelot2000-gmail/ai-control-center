@@ -12,10 +12,12 @@ from pydantic import BaseModel
 
 from app.agent_runner import (
     AGENT_RUNNER_ENABLED,
+    AGENT_RUNNER_ARTIFACT_DIR,
     run_agent,
     get_run,
     get_runs_for_job,
     list_runs as list_agent_runs,
+    update_run as update_agent_run,
 )
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -1024,6 +1026,7 @@ async def process_task(req: TaskRequest):
         result["agent_run_id"] = agent_run_info.get("agent_run_id")
         result["agent_run_status"] = agent_run_info.get("agent_run_status")
         result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
+        result["agent_prompt_path"] = agent_run_info.get("agent_prompt_path")
         logger.info(
             "Agent runner: run_id=%s status=%s",
             result["agent_run_id"],
@@ -1060,6 +1063,7 @@ async def process_task(req: TaskRequest):
         "agent_run_id": result.get("agent_run_id"),
         "agent_run_status": result.get("agent_run_status"),
         "agent_run_mode": result.get("agent_run_mode"),
+        "agent_prompt_path": result.get("agent_prompt_path"),
     }
 
 
@@ -1087,6 +1091,21 @@ async def get_skill(skill_id: str):
     return {"skill_id": skill_id, "content": content}
 
 
+class AgentReportRequest(BaseModel):
+    report_source: str = "manual"
+    final_report: str
+    verification_status: Optional[str] = None
+    summary: Optional[str] = None
+    issues_found: Optional[List[str]] = []
+    recommendations: Optional[List[str]] = []
+    next_actions: Optional[List[str]] = []
+
+
+class AgentStatusRequest(BaseModel):
+    status: str
+    error_message: Optional[str] = None
+
+
 @app.get("/agent-runs")
 async def get_agent_runs():
     runs = list_agent_runs()
@@ -1105,3 +1124,123 @@ async def get_agent_run(run_id: str):
 async def get_job_agent_runs(job_id: str):
     runs = get_runs_for_job(job_id)
     return {"job_id": job_id, "count": len(runs), "runs": runs}
+
+
+@app.get("/agent-runs/{run_id}/prompt")
+async def get_agent_run_prompt(run_id: str):
+    run = get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Agent run '{run_id}' not found")
+    prompt_path = run.get("prompt_path", "")
+    if not prompt_path:
+        raise HTTPException(status_code=404, detail=f"No prompt file for run '{run_id}'")
+    p = Path(prompt_path)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail=f"Prompt file not found: {prompt_path}")
+    return {"run_id": run_id, "prompt_path": prompt_path, "content": p.read_text(encoding="utf-8")}
+
+
+@app.patch("/agent-runs/{run_id}/status")
+async def update_agent_run_status_endpoint(run_id: str, req: AgentStatusRequest):
+    run = get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Agent run '{run_id}' not found")
+    update_agent_run(run_id, status=req.status, error_message=req.error_message or "")
+    return {"run_id": run_id, "status": req.status}
+
+
+@app.post("/agent-runs/{run_id}/report")
+async def save_agent_run_report(run_id: str, req: AgentReportRequest):
+    run = get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Agent run '{run_id}' not found")
+
+    now = datetime.now(timezone.utc).isoformat()
+    art = Path(AGENT_RUNNER_ARTIFACT_DIR)
+    art.mkdir(parents=True, exist_ok=True)
+
+    report_md_path = art / f"{run_id}.report.md"
+    report_json_path = art / f"{run_id}.report.json"
+
+    report_md_path.write_text(req.final_report, encoding="utf-8")
+    report_json_path.write_text(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "job_id": run.get("job_id"),
+                "report_source": req.report_source,
+                "verification_status": req.verification_status or "",
+                "summary": req.summary or "",
+                "issues_found": req.issues_found or [],
+                "recommendations": req.recommendations or [],
+                "next_actions": req.next_actions or [],
+                "report_saved_at": now,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    update_agent_run(
+        run_id,
+        status="completed_report_saved",
+        output_summary=req.summary or req.final_report[:200],
+        report_path=str(report_md_path),
+        report_saved_at=now,
+        verification_status=req.verification_status or "",
+        error_message="",
+    )
+    logger.info("Agent run %s report saved (verification=%s)", run_id, req.verification_status)
+
+    job_id = run.get("job_id", "")
+    if job_id:
+        await _push_agent_activity(
+            job_id,
+            event_agent="agent-runner", event_role="worker",
+            event_action="agent_report_received",
+            event_message=f"รับ report จาก {req.report_source}",
+        )
+        await _push_agent_activity(
+            job_id,
+            event_agent="agent-runner", event_role="worker",
+            event_action="agent_report_saved",
+            event_message=f"บันทึก report แล้ว — verification={req.verification_status or 'none'}",
+        )
+        await _push_result(
+            job_id,
+            {
+                "final_report": req.final_report,
+                "report_source": req.report_source,
+                "report_saved_at": now,
+                "report_summary": req.summary or "",
+                "verification_status": req.verification_status or "",
+                "issues_found": req.issues_found or [],
+                "recommendations": req.recommendations or [],
+                "next_actions": req.next_actions or [],
+                "agent_run_id": run_id,
+                "agent_run_status": "completed_report_saved",
+            },
+        )
+        await _push_progress(
+            job_id,
+            status="completed",
+            progress=100,
+            current_step="Agent Run Report บันทึกแล้ว",
+        )
+        await _push_agent_activity(
+            job_id,
+            current_agent="manager", speaker_agent="manager",
+            working_agent="",
+            event_agent="manager", event_role="speaker",
+            event_action="task_completed_from_agent_report",
+            event_message="Task เสร็จสมบูรณ์จาก Agent Run Report",
+        )
+
+    return {
+        "run_id": run_id,
+        "status": "completed_report_saved",
+        "report_path": str(report_md_path),
+        "verification_status": req.verification_status,
+        "job_id": job_id,
+    }
