@@ -91,5 +91,33 @@
     "completed_at": "2026-05-12T16:18:07.938472+00:00",
     "created_at": "2026-05-12T16:18:07.785742+00:00",
     "updated_at": "2026-05-12T16:18:07.942199+00:00"
+  },
+  "1a197e94-efce-4295-bfdd-55363509b43a": {
+    "id": "1a197e94-efce-4295-bfdd-55363509b43a",
+    "job_id": "06c45ee0-2b0a-464d-ad98-79e805343031",
+    "source": "chatgpt",
+    "agent_role": "devops",
+    "runner_mode": "prompt_only",
+    "status": "completed_prompt_ready",
+    "skills": [
+      "docker-deploy",
+      "mobile-command"
+    ],
+    "workflow": "deployment-workflow",
+    "input_text": "deploy production ระบบ worker",
+    "rag_results_count": 5,
+    "rag_top_path": "docs/wiki/workflows/task-lifecycle.md",
+    "command_id": "06c45ee0-2b0a-464d-ad98-79e805343031",
+    "prompt_path": "/app/data/agent-runs/1a197e94-efce-4295-bfdd-55363509b43a.prompt.md",
+    "artifact_dir": "",
+    "report_path": "",
+    "report_saved_at": null,
+    "verification_status": "",
+    "output_summary": null,
+    "error_message": "",
+    "started_at": "2026-05-12T16:31:13.486905+00:00",
+    "completed_at": "2026-05-12T16:31:13.546958+00:00",
+    "created_at": "2026-05-12T16:31:13.331621+00:00",
+    "updated_at": "2026-05-12T16:31:13.550570+00:00"
   }
 }
