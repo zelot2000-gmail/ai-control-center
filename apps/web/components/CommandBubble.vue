@@ -74,6 +74,12 @@
               <span class="rag-count">{{ meta.rag_results_count }} results</span>
               <span class="rag-path" v-if="meta.rag_top_path">· {{ meta.rag_top_path }}</span>
             </div>
+            <!-- Agent Runner badge -->
+            <div class="task-detail agent-runner-info" v-if="meta.agent_run_id">
+              <span class="agent-runner-badge">🤖 Agent Runner</span>
+              <span class="agent-runner-mode" v-if="meta.agent_run_mode">{{ meta.agent_run_mode }}</span>
+              <span class="agent-runner-status" :class="`ar-${meta.agent_run_status}`" v-if="meta.agent_run_status">{{ meta.agent_run_status }}</span>
+            </div>
             <div class="task-detail attach-info" v-if="meta.attachments_count > 0">
               <span class="dl">Files:</span> 📎 {{ meta.attachments_count }} ไฟล์แนบ
             </div>
@@ -450,6 +456,20 @@ const fmtTime   = (ts) => {
 }
 .rag-count { font-size: 0.72rem; color: #1d4ed8; font-weight: 600; }
 .rag-path  { font-size: 0.68rem; color: #6b7280; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+.agent-runner-info { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.agent-runner-badge {
+  font-size: 0.67rem; font-weight: 700;
+  background: #ede9fe; color: #6d28d9;
+  padding: 1px 6px; border-radius: 999px;
+}
+.agent-runner-mode { font-size: 0.68rem; color: #7c3aed; font-family: monospace; }
+.agent-runner-status { font-size: 0.68rem; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
+.ar-completed_prompt_ready { background: #d1fae5; color: #065f46; }
+.ar-waiting_for_hermes_manual_execution { background: #fef3c7; color: #92400e; }
+.ar-completed { background: #d1fae5; color: #065f46; }
+.ar-failed { background: #fee2e2; color: #991b1b; }
+.ar-running { background: #dbeafe; color: #1e40af; }
 
 .report-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .verify-badge {

@@ -319,6 +319,10 @@ function buildTaskMeta(task) {
     // RAG
     rag_results_count: task.result?.rag_results_count ?? 0,
     rag_top_path: task.result?.rag_top_path || null,
+    // Agent Runner
+    agent_run_id: task.result?.agent_run_id || null,
+    agent_run_status: task.result?.agent_run_status || null,
+    agent_run_mode: task.result?.agent_run_mode || null,
   }
 }
 

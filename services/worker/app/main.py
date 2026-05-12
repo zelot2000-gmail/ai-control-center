@@ -10,6 +10,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from app.agent_runner import (
+    AGENT_RUNNER_ENABLED,
+    run_agent,
+    get_run,
+    get_runs_for_job,
+    list_runs as list_agent_runs,
+)
+
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)
 
@@ -253,6 +261,74 @@ async def _rag_wiki_search(query: str, limit: int = 5) -> Tuple[list, Optional[s
             return [], f"HTTP {resp.status_code}"
     except Exception as e:
         return [], str(e)
+
+
+_COMPARISON_RE = re.compile(
+    r"\bต่างจาก\b|\bvs\.?\b|\bเปรียบเทียบ\b|\bdifference\b|\bcompare\b",
+    re.IGNORECASE,
+)
+_TECH_TERM_RE = re.compile(r"\b[A-Z][A-Za-z0-9]*(?:[\s\-][A-Z][A-Za-z0-9]+)*\b")
+
+
+def _build_rag_queries(text: str) -> List[str]:
+    """Build multi-query list from task text for better RAG recall.
+
+    Splits comparison phrases, extracts tech terms, and generates pairwise
+    queries so the embedding search has multiple entry points.
+    """
+    queries: List[str] = [text]
+
+    tech_terms: List[str] = list(dict.fromkeys(
+        t.strip() for t in _TECH_TERM_RE.findall(text)
+        if len(t.strip()) >= 2
+    ))
+
+    if _COMPARISON_RE.search(text):
+        # Pairwise comparison queries
+        for i in range(len(tech_terms)):
+            for j in range(i + 1, len(tech_terms)):
+                queries.append(f"{tech_terms[i]} {tech_terms[j]}")
+                queries.append(f"{tech_terms[i]} vs {tech_terms[j]}")
+        # Individual term queries as fallback
+        queries.extend(tech_terms)
+    else:
+        queries.extend(tech_terms)
+
+    # Deduplicate preserving order
+    seen: set = set()
+    result: List[str] = []
+    for q in queries:
+        key = q.strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            result.append(q.strip())
+    return result
+
+
+async def _rag_wiki_search_multi(
+    queries: List[str],
+    limit_per_query: int = 5,
+    total_limit: int = 5,
+) -> Tuple[List[dict], Optional[str]]:
+    """Run multiple RAG queries, dedupe by (path, heading_path), sort by score desc."""
+    best: dict = {}  # key=(path, heading_path) → highest-score result
+    last_error: Optional[str] = None
+
+    for query in queries:
+        results, error = await _rag_wiki_search(query, limit=limit_per_query)
+        if error:
+            last_error = error
+            continue
+        for r in results:
+            key = (r.get("path", ""), r.get("heading_path", ""))
+            if key not in best or r.get("score", 0) > best[key].get("score", 0):
+                best[key] = r
+
+    if not best:
+        return [], last_error
+
+    merged = sorted(best.values(), key=lambda r: r.get("score", 0), reverse=True)
+    return merged[:total_limit], None
 
 
 def load_skill_context(skill_names: List[str]) -> Tuple[str, List[str]]:
@@ -853,12 +929,17 @@ async def process_task(req: TaskRequest):
             event_action="rag_lookup_started",
             event_message="กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG",
         )
-        query = (
+        raw_query = (
             task.get("inputs", {}).get("optimized_text")
             or task.get("inputs", {}).get("text", "")
         ).strip()
-        rag_results, rag_error = await _rag_wiki_search(query)
-        if rag_error:
+        queries = _build_rag_queries(raw_query)
+        logger.info(
+            "RAG multi-query for task %s: %d queries — %s",
+            req.task_id, len(queries), queries[:4],
+        )
+        rag_results, rag_error = await _rag_wiki_search_multi(queries)
+        if rag_error and not rag_results:
             warnings.append(f"RAG search failed: {rag_error}")
             logger.warning("RAG search failed for task %s: %s", req.task_id, rag_error)
             await _push_agent_activity(
@@ -875,7 +956,7 @@ async def process_task(req: TaskRequest):
                 req.task_id,
                 event_agent="rag-curator", event_role="worker",
                 event_action="rag_lookup_completed",
-                event_message=f"ค้น LLM Wiki สำเร็จ พบ {len(rag_results)} รายการ",
+                event_message=f"ค้น LLM Wiki สำเร็จ พบ {len(rag_results)} รายการ จาก {len(queries)} queries",
             )
         logger.info("RAG lookup: %d results for task %s", len(rag_results), req.task_id)
 
@@ -931,7 +1012,23 @@ async def process_task(req: TaskRequest):
         "processed_at": processed_at,
         "rag_results_count": len(rag_results) if rag_results is not None else 0,
         "rag_top_path": rag_results[0].get("path", "") if rag_results else "",
+        "agent_run_id": None,
+        "agent_run_status": None,
+        "agent_run_mode": None,
     }
+
+    # ── 5.5. Agent Runner ────────────────────────────────────────────────────
+    if AGENT_RUNNER_ENABLED:
+        task_for_runner = {**task, "job_id": req.task_id}
+        agent_run_info = await run_agent(task_for_runner, rag_results, _push_agent_activity)
+        result["agent_run_id"] = agent_run_info.get("agent_run_id")
+        result["agent_run_status"] = agent_run_info.get("agent_run_status")
+        result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
+        logger.info(
+            "Agent runner: run_id=%s status=%s",
+            result["agent_run_id"],
+            result["agent_run_status"],
+        )
 
     # ── 6. Done ──────────────────────────────────────────────────────────────
     final_step = (
@@ -960,6 +1057,9 @@ async def process_task(req: TaskRequest):
         "warnings": warnings,
         "bridge": bridge,
         "processed_at": processed_at,
+        "agent_run_id": result.get("agent_run_id"),
+        "agent_run_status": result.get("agent_run_status"),
+        "agent_run_mode": result.get("agent_run_mode"),
     }
 
 
@@ -985,3 +1085,23 @@ async def list_skills():
 async def get_skill(skill_id: str):
     content = _load_skill_md(skill_id)
     return {"skill_id": skill_id, "content": content}
+
+
+@app.get("/agent-runs")
+async def get_agent_runs():
+    runs = list_agent_runs()
+    return {"count": len(runs), "runs": runs}
+
+
+@app.get("/agent-runs/{run_id}")
+async def get_agent_run(run_id: str):
+    run = get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Agent run '{run_id}' not found")
+    return run
+
+
+@app.get("/jobs/{job_id}/agent-runs")
+async def get_job_agent_runs(job_id: str):
+    runs = get_runs_for_job(job_id)
+    return {"job_id": job_id, "count": len(runs), "runs": runs}

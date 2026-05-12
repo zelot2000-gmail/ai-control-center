@@ -101,6 +101,18 @@ _CODE_INTEL_KEYWORDS = [
     "code review", "วิเคราะห์ code", "serena mcp",
 ]
 
+# "อธิบาย X คืออะไร ต่างจาก…" → conceptual/comparison question → wiki, not code-intel
+_KNOWLEDGE_SEEKING_KEYWORDS = [
+    "อธิบาย", "คืออะไร", "ต่างจาก", "เปรียบเทียบ", "สรุป", "ใช้ทำอะไร",
+    " vs ", "difference", "compare", "what is", "explain",
+]
+
+# Words that indicate actual code manipulation (override knowledge-seeking)
+_CODE_ACTION_KEYWORDS = [
+    "bug", "แก้โค้ด", "แก้ไขโค้ด", "refactor", "เขียน function",
+    "สร้าง function", "error ในไฟล์", "แก้ bug", "component", "แก้ไขไฟล์",
+]
+
 
 def _select_agents(text: str) -> List[str]:
     text_lower = text.lower()
@@ -209,18 +221,25 @@ _WORKFLOW_MAP = {
 
 def _classify_execution(text: str, risk: int) -> dict:
     t = text.lower()
+
+    # Knowledge-seeking (อธิบาย/ต่างจาก/คืออะไร…) without code-action verbs
+    # → wiki/RAG lookup takes priority over code-intel routing
+    is_knowledge_seeking = any(k in t for k in _KNOWLEDGE_SEEKING_KEYWORDS)
+    is_code_action = any(k in t for k in _CODE_ACTION_KEYWORDS)
+    wiki_override = is_knowledge_seeking and not is_code_action
+
     if risk >= 4:
         mode = "hybrid"
         autonomy = 5 if risk == 5 else 4
         reason = f"Risk level {risk} requires hybrid mode with approval"
-    elif any(k in t for k in _CODE_INTEL_KEYWORDS):
-        # Code intelligence always forces hybrid + code-intelligence-workflow
+    elif any(k in t for k in _CODE_INTEL_KEYWORDS) and not wiki_override:
+        # Code intelligence only when NOT a conceptual/comparison question
         mode = "hybrid"
         autonomy = 3
         reason = "Code intelligence task: Serena MCP + impact analysis required"
-    elif any(k in t for k in _WIKI_KEYWORDS):
-        # Wiki/knowledge lookup — workflow if simple, hybrid if analysis needed
-        if any(k in t for k in _AGENT_KEYWORDS):
+    elif any(k in t for k in _WIKI_KEYWORDS) or wiki_override:
+        # Wiki/knowledge lookup — workflow if simple, hybrid if deep analysis
+        if any(k in t for k in _AGENT_KEYWORDS) and not wiki_override:
             mode = "hybrid"
             autonomy = 3
             reason = "Wiki knowledge task with analysis: RAG lookup + agent reasoning"
@@ -241,11 +260,18 @@ def _classify_execution(text: str, risk: int) -> dict:
         autonomy = 2 if risk >= 2 else 1
         reason = "Predictable task with defined steps"
 
+    # Workflow selection — wiki-override tasks check wiki workflows first
     selected_workflow = None
-    for keyword, wf_id in _WORKFLOW_MAP.items():
-        if keyword in t:
-            selected_workflow = wf_id
-            break
+    if wiki_override:
+        for keyword, wf_id in _WORKFLOW_MAP.items():
+            if keyword in t and "wiki" in wf_id:
+                selected_workflow = wf_id
+                break
+    if selected_workflow is None:
+        for keyword, wf_id in _WORKFLOW_MAP.items():
+            if keyword in t:
+                selected_workflow = wf_id
+                break
 
     return {
         "mode": mode,

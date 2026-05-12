@@ -83,6 +83,9 @@
           <span v-if="task.result?.rag_results_count > 0" class="tag tag-rag">
             📚 LLM Wiki · {{ task.result.rag_results_count }} results
           </span>
+          <span v-if="task.result?.agent_run_id" class="tag tag-agent-runner" :class="`ar-${task.result.agent_run_status}`">
+            🤖 {{ task.result.agent_run_mode || 'agent-runner' }}
+          </span>
         </div>
 
         <!-- Attachment list -->
@@ -733,7 +736,12 @@ onMounted(loadTasks)
 .tag  { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
 .tag-agent { background: #1e3a5f; color: #93c5fd; }
 .tag-skill { background: #1a2e1a; color: #86efac; }
-.tag-rag   { background: #1e3a5f; color: #60a5fa; font-weight: 600; }
+.tag-rag          { background: #1e3a5f; color: #60a5fa; font-weight: 600; }
+.tag-agent-runner { background: #2e1a4a; color: #c4b5fd; font-weight: 600; }
+.tag-agent-runner.ar-completed_prompt_ready { background: #064e3b; color: #6ee7b7; }
+.tag-agent-runner.ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
+.tag-agent-runner.ar-completed { background: #064e3b; color: #6ee7b7; }
+.tag-agent-runner.ar-failed    { background: #450a0a; color: #fca5a5; }
 
 .attach-box {
   background: #0d1b2e; border: 1px solid #1e3a5f;

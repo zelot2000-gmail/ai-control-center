@@ -2418,5 +2418,972 @@
       "rollback_required": false,
       "rollback_plan": null
     }
+  },
+  "1123f252-f5bc-4630-90a2-e9cbad76f314": {
+    "task_id": "1123f252-f5bc-4630-90a2-e9cbad76f314",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ docker status และ service health",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer",
+      "devops"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor",
+      "docker-deploy"
+    ],
+    "inputs": {
+      "text": "ตรวจ docker status และ service health",
+      "optimized_text": "ตรวจ docker status และ service health"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T13:28:46.893323+00:00",
+    "updated_at": "2026-05-12T13:28:46.893343+00:00",
+    "status": "pending",
+    "progress": 0,
+    "current_step": "Task created",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": null,
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T13:28:46.893349+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer",
+        "devops"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "3b8fe3e9-b534-4cc1-856c-40b332a1b43b": {
+    "task_id": "3b8fe3e9-b534-4cc1-856c-40b332a1b43b",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "สรุป logs ล่าสุดของระบบ",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "สรุป logs ล่าสุดของระบบ",
+      "optimized_text": "สรุป logs ล่าสุดของระบบ"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T13:28:56.181656+00:00",
+    "updated_at": "2026-05-12T13:28:56.181676+00:00",
+    "status": "pending",
+    "progress": 0,
+    "current_step": "Task created",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": null,
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T13:28:56.181684+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "log-review-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "789e26f8-2cbb-4258-83a2-76390bb402f5": {
+    "task_id": "789e26f8-2cbb-4258-83a2-76390bb402f5",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T13:29:01.399168+00:00",
+    "updated_at": "2026-05-12T13:29:01.399179+00:00",
+    "status": "pending",
+    "progress": 0,
+    "current_step": "Task created",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": null,
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T13:29:01.399182+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "0ab08a7c-938a-49f7-be16-be1446af36a1": {
+    "task_id": "0ab08a7c-938a-49f7-be16-be1446af36a1",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ docker status และ service health",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer",
+      "devops"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor",
+      "docker-deploy"
+    ],
+    "inputs": {
+      "text": "ตรวจ docker status และ service health",
+      "optimized_text": "ตรวจ docker status และ service health"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T13:30:19.373954+00:00",
+    "updated_at": "2026-05-12T13:30:19.373972+00:00",
+    "status": "pending",
+    "progress": 0,
+    "current_step": "Task created",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": null,
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T13:30:19.373979+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer",
+        "devops"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "5bd51c94-ce2d-46fe-9410-35a840973c53": {
+    "task_id": "5bd51c94-ce2d-46fe-9410-35a840973c53",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "observer"
+    ],
+    "skills": [
+      "mobile-command",
+      "observer-monitor"
+    ],
+    "inputs": {
+      "text": "ตรวจ health ระบบทั้งหมด โหมด plan-only",
+      "optimized_text": "ตรวจ health ระบบทั้งหมด โหมด plan-only"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T13:30:24.422828+00:00",
+    "updated_at": "2026-05-12T13:30:24.422848+00:00",
+    "status": "pending",
+    "progress": 0,
+    "current_step": "Task created",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": null,
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T13:30:24.422854+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 1,
+      "selected_workflow": "docker-health-check-workflow",
+      "reason_for_mode": "Predictable task with defined steps"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "observer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "6796b033-2b62-4f42-9406-1500da5e2cd1": {
+    "task_id": "6796b033-2b62-4f42-9406-1500da5e2cd1",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager",
+      "programmer",
+      "rag-curator",
+      "qa"
+    ],
+    "skills": [
+      "mobile-command",
+      "programmer",
+      "rag-ingest",
+      "qa-verify",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T14:31:42.380070+00:00",
+    "updated_at": "2026-05-12T14:31:43.803307+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/6796b033-2b62-4f42-9406-1500da5e2cd1.prompt.md",
+      "agents": [
+        "manager",
+        "programmer",
+        "rag-curator",
+        "qa"
+      ],
+      "skills": [
+        "mobile-command",
+        "programmer",
+        "rag-ingest",
+        "qa-verify",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T14:31:42.441849+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": null,
+      "agent_run_status": null,
+      "agent_run_mode": null
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "programmer",
+      "rag-curator",
+      "qa"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T14:31:42.380190+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:42.617247+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:42.737648+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:42.847057+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:43.521255+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:43.598237+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:43.680355+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T14:31:43.775412+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "hybrid",
+      "autonomy_level": 3,
+      "selected_workflow": "code-intelligence-workflow",
+      "reason_for_mode": "Code intelligence task: Serena MCP + impact analysis required"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "programmer",
+        "rag-curator",
+        "qa"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "62520e8e-84be-455d-8e53-9683dce601ae": {
+    "task_id": "62520e8e-84be-455d-8e53-9683dce601ae",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "manager",
+      "programmer",
+      "rag-curator",
+      "qa"
+    ],
+    "skills": [
+      "mobile-command",
+      "programmer",
+      "rag-ingest",
+      "qa-verify",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T14:49:26.035052+00:00",
+    "updated_at": "2026-05-12T14:50:26.989699+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/62520e8e-84be-455d-8e53-9683dce601ae.prompt.md",
+      "agents": [
+        "manager",
+        "programmer",
+        "rag-curator",
+        "qa"
+      ],
+      "skills": [
+        "mobile-command",
+        "programmer",
+        "rag-ingest",
+        "qa-verify",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T14:50:26.166699+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": null,
+      "agent_run_status": null,
+      "agent_run_mode": null
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "programmer",
+      "rag-curator",
+      "qa"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T14:49:26.035067+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.225358+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.354546+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.445191+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.726896+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.776849+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.867308+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T14:50:26.957204+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "hybrid",
+      "autonomy_level": 3,
+      "selected_workflow": "code-intelligence-workflow",
+      "reason_for_mode": "Code intelligence task: Serena MCP + impact analysis required"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "programmer",
+        "rag-curator",
+        "qa"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "642ec7cb-2ca5-4fc1-b398-3a72749a55da": {
+    "task_id": "642ec7cb-2ca5-4fc1-b398-3a72749a55da",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "skills": [
+      "mobile-command",
+      "qa-verify",
+      "rag-ingest",
+      "programmer",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T15:02:59.538433+00:00",
+    "updated_at": "2026-05-12T15:04:05.423174+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/642ec7cb-2ca5-4fc1-b398-3a72749a55da.prompt.md",
+      "agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "skills": [
+        "mobile-command",
+        "qa-verify",
+        "rag-ingest",
+        "programmer",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [
+        "No relevant wiki results found"
+      ],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T15:03:54.575255+00:00",
+      "rag_results_count": 0,
+      "rag_top_path": "",
+      "agent_run_id": "665deb7a-53fa-4565-ab08-0de4bd438fd1",
+      "agent_run_status": "completed_prompt_ready",
+      "agent_run_mode": "prompt_only"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T15:02:59.538455+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T15:03:54.635869+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T15:03:54.765680+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T15:03:54.866021+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:04.916714+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 0 รายการ"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:04.986142+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.058315+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.131391+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun 665deb7a-53fa-4565-ab08-0de4bd438fd1 queued (mode=prompt_only)"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.173554+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.211452+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.258189+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=prompt_only"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.312536+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_completed",
+        "message": "สำเร็จ status=completed_prompt_ready"
+      },
+      {
+        "timestamp": "2026-05-12T15:04:05.384996+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "hybrid",
+      "autonomy_level": 3,
+      "selected_workflow": "code-intelligence-workflow",
+      "reason_for_mode": "Code intelligence task: Serena MCP + impact analysis required"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }

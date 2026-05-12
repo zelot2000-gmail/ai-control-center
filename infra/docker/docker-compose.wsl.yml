@@ -180,6 +180,12 @@ services:
       - AGENTUNIVERSE_CLI_PATH=${AGENTUNIVERSE_CLI_PATH:-}
       - MOBILE_GATEWAY_URL=${MOBILE_GATEWAY_URL:-http://mobile-gateway:8088}
       - RAG_API_URL=${RAG_API_URL:-http://rag-api:8090}
+      - AGENT_RUNNER_ENABLED=${AGENT_RUNNER_ENABLED:-false}
+      - AGENT_RUNNER_MODE=${AGENT_RUNNER_MODE:-prompt_only}
+      - HERMES_API_URL=${HERMES_API_URL:-}
+      - HERMES_API_KEY=${HERMES_API_KEY:-}
+      - HERMES_TIMEOUT_MS=${HERMES_TIMEOUT_MS:-120000}
+      - AGENT_RUNNER_ARTIFACT_DIR=${AGENT_RUNNER_ARTIFACT_DIR:-/app/data/agent-runs}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ../../data:/app/data
