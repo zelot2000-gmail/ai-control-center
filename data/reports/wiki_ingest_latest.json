@@ -1,0 +1,238 @@
+{
+  "status": "completed",
+  "started_at": "2026-05-12T11:52:20.473086+00:00",
+  "completed_at": "2026-05-12T11:52:21.410313+00:00",
+  "collection": "aicc_wiki",
+  "wiki_dir": "/app/docs/wiki",
+  "files_found": 28,
+  "files_ingested": 28,
+  "files_skipped": 0,
+  "total_new_chunks": 0,
+  "errors": [],
+  "files": [
+    {
+      "path": "docs/wiki/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 21,
+      "new_chunks": 0,
+      "skipped_chunks": 21
+    },
+    {
+      "path": "docs/wiki/decisions/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 8,
+      "new_chunks": 0,
+      "skipped_chunks": 8
+    },
+    {
+      "path": "docs/wiki/decisions/why-hybrid-workflow-agent.md",
+      "category": "decisions",
+      "title": "ADR: ทำไมถึงใช้ Hybrid Workflow-Agent Architecture",
+      "total_chunks": 13,
+      "new_chunks": 0,
+      "skipped_chunks": 13
+    },
+    {
+      "path": "docs/wiki/decisions/why-qdrant.md",
+      "category": "decisions",
+      "title": "ADR: ทำไมถึงเลือก Qdrant",
+      "total_chunks": 10,
+      "new_chunks": 0,
+      "skipped_chunks": 10
+    },
+    {
+      "path": "docs/wiki/decisions/why-serena-mcp.md",
+      "category": "decisions",
+      "title": "ADR: ทำไมถึงเลือก Serena MCP",
+      "total_chunks": 15,
+      "new_chunks": 0,
+      "skipped_chunks": 15
+    },
+    {
+      "path": "docs/wiki/decisions/why-tto-rtk.md",
+      "category": "decisions",
+      "title": "ADR: ทำไมถึงใช้ TTO + RTK Framework",
+      "total_chunks": 17,
+      "new_chunks": 0,
+      "skipped_chunks": 17
+    },
+    {
+      "path": "docs/wiki/llm/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 3,
+      "new_chunks": 0,
+      "skipped_chunks": 3
+    },
+    {
+      "path": "docs/wiki/llm/context-engineering.md",
+      "category": "llm",
+      "title": "Context Engineering",
+      "total_chunks": 17,
+      "new_chunks": 0,
+      "skipped_chunks": 17
+    },
+    {
+      "path": "docs/wiki/llm/embedding-models.md",
+      "category": "llm",
+      "title": "Embedding Models",
+      "total_chunks": 9,
+      "new_chunks": 0,
+      "skipped_chunks": 9
+    },
+    {
+      "path": "docs/wiki/llm/model-selection.md",
+      "category": "llm",
+      "title": "Model Selection Guide",
+      "total_chunks": 8,
+      "new_chunks": 0,
+      "skipped_chunks": 8
+    },
+    {
+      "path": "docs/wiki/llm/prompt-patterns.md",
+      "category": "llm",
+      "title": "Prompt Patterns",
+      "total_chunks": 11,
+      "new_chunks": 0,
+      "skipped_chunks": 11
+    },
+    {
+      "path": "docs/wiki/mcp/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 4,
+      "new_chunks": 0,
+      "skipped_chunks": 4
+    },
+    {
+      "path": "docs/wiki/mcp/chrome-devtools-mcp.md",
+      "category": "mcp",
+      "title": "Chrome DevTools MCP",
+      "total_chunks": 13,
+      "new_chunks": 0,
+      "skipped_chunks": 13
+    },
+    {
+      "path": "docs/wiki/mcp/mcp-security.md",
+      "category": "mcp",
+      "title": "MCP Security",
+      "total_chunks": 12,
+      "new_chunks": 0,
+      "skipped_chunks": 12
+    },
+    {
+      "path": "docs/wiki/mcp/serena-mcp-runtime-setup.md",
+      "category": "mcp",
+      "title": "Serena MCP Runtime Setup Guide",
+      "total_chunks": 38,
+      "new_chunks": 0,
+      "skipped_chunks": 38
+    },
+    {
+      "path": "docs/wiki/mcp/serena-mcp.md",
+      "category": "mcp",
+      "title": "Serena MCP",
+      "total_chunks": 16,
+      "new_chunks": 0,
+      "skipped_chunks": 16
+    },
+    {
+      "path": "docs/wiki/ops/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 6,
+      "new_chunks": 0,
+      "skipped_chunks": 6
+    },
+    {
+      "path": "docs/wiki/ops/almalinux8-cwp.md",
+      "category": "ops",
+      "title": "AlmaLinux 8 + CWP Operations",
+      "total_chunks": 28,
+      "new_chunks": 0,
+      "skipped_chunks": 28
+    },
+    {
+      "path": "docs/wiki/ops/backup-restore.md",
+      "category": "ops",
+      "title": "Backup & Restore",
+      "total_chunks": 32,
+      "new_chunks": 0,
+      "skipped_chunks": 32
+    },
+    {
+      "path": "docs/wiki/ops/docker-wsl.md",
+      "category": "ops",
+      "title": "Docker + WSL Operations",
+      "total_chunks": 29,
+      "new_chunks": 0,
+      "skipped_chunks": 29
+    },
+    {
+      "path": "docs/wiki/rag/README.md",
+      "category": "wiki",
+      "title": "README",
+      "total_chunks": 3,
+      "new_chunks": 0,
+      "skipped_chunks": 3
+    },
+    {
+      "path": "docs/wiki/rag/chunking-strategy.md",
+      "category": "rag",
+      "title": "RAG Chunking Strategy",
+      "total_chunks": 13,
+      "new_chunks": 0,
+      "skipped_chunks": 13
+    },
+    {
+      "path": "docs/wiki/rag/qdrant-notes.md",
+      "category": "rag",
+      "title": "Qdrant Notes",
+      "total_chunks": 21,
+      "new_chunks": 0,
+      "skipped_chunks": 21
+    },
+    {
+      "path": "docs/wiki/rag/retrieval-quality.md",
+      "category": "rag",
+      "title": "RAG Retrieval Quality",
+      "total_chunks": 17,
+      "new_chunks": 0,
+      "skipped_chunks": 17
+    },
+    {
+      "path": "docs/wiki/workflows/README.md",
+      "category": "workflows",
+      "title": "Workflows",
+      "total_chunks": 1,
+      "new_chunks": 0,
+      "skipped_chunks": 1
+    },
+    {
+      "path": "docs/wiki/workflows/approval-policy.md",
+      "category": "workflows",
+      "title": "Approval Policy",
+      "total_chunks": 12,
+      "new_chunks": 0,
+      "skipped_chunks": 12
+    },
+    {
+      "path": "docs/wiki/workflows/task-lifecycle.md",
+      "category": "workflows",
+      "title": "Task Lifecycle",
+      "total_chunks": 12,
+      "new_chunks": 0,
+      "skipped_chunks": 12
+    },
+    {
+      "path": "docs/wiki/workflows/workflow-vs-agent.md",
+      "category": "workflows",
+      "title": "Workflow vs Agent",
+      "total_chunks": 10,
+      "new_chunks": 0,
+      "skipped_chunks": 10
+    }
+  ]
+}
