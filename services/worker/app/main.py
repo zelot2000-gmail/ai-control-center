@@ -527,6 +527,38 @@ def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path
             lines.append(f"- Check {name}: {url}")
         observer_section = "\n".join(lines)
 
+    serena_section = ""
+    if "serena-mcp" in skills:
+        serena_section = """\n## Code Intelligence Plan (Serena MCP)
+
+**ก่อนแก้ไฟล์ใดๆ ต้องทำ 4 ขั้นตอนนี้ก่อนเสมอ:**
+
+1. `find_symbol(name)` — หา definition ของ function/class ที่เกี่ยวข้อง
+2. `find_references(symbol)` — หาทุกที่ที่ symbol ถูกใช้ใน codebase
+3. `impact_analysis(symbol)` — ประเมินว่าถ้าแก้ X จะกระทบอะไรบ้าง
+4. `search_codebase(pattern)` — หาไฟล์ที่เกี่ยวข้องทั้งหมด
+
+**กฎบังคับ:**
+- ❌ ห้ามแก้ไฟล์โดยไม่มี impact analysis ก่อน
+- ❌ ห้ามอ่านทั้ง repo — อ่านเฉพาะไฟล์ที่ Serena ระบุว่า relevant
+- ❌ ห้าม deploy ผ่าน Serena MCP
+- ❌ ห้ามรัน destructive command
+- ✅ Refactor ใหญ่ (>5 files) → QA Agent verify ก่อน merge
+- ✅ Security-sensitive code (auth/secret/permission) → Security Agent ตรวจก่อน
+- ✅ Library/dependency ใหม่ → R&D Agent ประเมิน adoption status ก่อน
+
+**Output ที่ต้องการจาก Serena:**
+```yaml
+serena_result:
+  symbols_found: []
+  files_relevant: []
+  impact_report:
+    affected_files: []
+    breaking_change: false
+    risk_level: 1
+  plan_approved: false
+```"""
+
     execution_context = _build_execution_context(task)
 
     # Build attachments section
@@ -592,6 +624,7 @@ Mode: {constraints.get('mode', 'plan-only')}
 {workflow_md}
 {execution_context}
 {observer_section}
+{serena_section}
 
 ## Skills Context
 {skills_context if skills_context else '(no skill files loaded)'}

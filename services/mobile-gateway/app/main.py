@@ -84,6 +84,12 @@ def _assess_risk(text: str, target: str, environment: str) -> int:
     return 1
 
 
+_CODE_INTEL_KEYWORDS = [
+    "serena", "code intelligence", "refactor", "impact analysis",
+    "code review", "วิเคราะห์ code", "serena mcp",
+]
+
+
 def _select_agents(text: str) -> List[str]:
     text_lower = text.lower()
     agents = ["manager"]
@@ -101,10 +107,15 @@ def _select_agents(text: str) -> List[str]:
         agents.append("security")
     if any(k in text_lower for k in ["backup", "ssl", "server", "cwp"]):
         agents.append("administrator")
+    # Code intelligence: serena/refactor/impact analysis → programmer + qa
+    if any(k in text_lower for k in _CODE_INTEL_KEYWORDS):
+        if "programmer" not in agents:
+            agents.append("programmer")
+        agents.append("qa")
     return list(set(agents))
 
 
-def _select_skills(agents: List[str]) -> List[str]:
+def _select_skills(agents: List[str], text: str = "") -> List[str]:
     skill_map = {
         "programmer": "programmer",
         "devops": "docker-deploy",
@@ -114,8 +125,15 @@ def _select_skills(agents: List[str]) -> List[str]:
         "security": "security-check",
         "administrator": "cwp-server-admin",
         "manager": "mobile-command",
+        "qa": "qa-verify",
+        "designer": "design-system",
     }
-    return [skill_map[a] for a in agents if a in skill_map]
+    skills = [skill_map[a] for a in agents if a in skill_map]
+    # Add serena-mcp when code intelligence keywords present
+    if any(k in text.lower() for k in _CODE_INTEL_KEYWORDS):
+        if "serena-mcp" not in skills:
+            skills.append("serena-mcp")
+    return skills
 
 
 _WORKFLOW_KEYWORDS = [
@@ -129,6 +147,7 @@ _AGENT_KEYWORDS = [
 _HYBRID_KEYWORDS = [
     "deploy", "staging", "production", "restart", "ssl", "firewall",
     "database", "release", "rollout", "browser qa", "ui review",
+    "refactor", "code intelligence", "serena", "impact analysis", "code review",
 ]
 _WORKFLOW_MAP = {
     "ingest": "rag-ingest-workflow",
@@ -146,6 +165,17 @@ _WORKFLOW_MAP = {
     "log": "log-review-workflow",
     "rag quality": "rag-evaluation-workflow",
     "prod readiness": "prod-readiness-workflow",
+    # code intelligence
+    "serena mcp": "code-intelligence-workflow",
+    "serena": "code-intelligence-workflow",
+    "code intelligence": "code-intelligence-workflow",
+    "refactor": "code-intelligence-workflow",
+    "impact analysis": "code-intelligence-workflow",
+    "code review": "code-intelligence-workflow",
+    "วิเคราะห์ code": "code-intelligence-workflow",
+    # wiki
+    "wiki": "wiki-ingest-workflow",
+    "ingest wiki": "wiki-ingest-workflow",
 }
 
 
@@ -155,14 +185,19 @@ def _classify_execution(text: str, risk: int) -> dict:
         mode = "hybrid"
         autonomy = 5 if risk == 5 else 4
         reason = f"Risk level {risk} requires hybrid mode with approval"
-    elif any(k in t for k in _AGENT_KEYWORDS):
-        mode = "agent"
+    elif any(k in t for k in _CODE_INTEL_KEYWORDS):
+        # Code intelligence keywords always force hybrid + code-intelligence-workflow
+        mode = "hybrid"
         autonomy = 3
-        reason = "Open-ended task requiring dynamic reasoning"
+        reason = "Code intelligence task: Serena MCP + impact analysis required"
     elif any(k in t for k in _HYBRID_KEYWORDS):
         mode = "hybrid"
         autonomy = 4 if "production" in t else 3
         reason = "Structured task with decision points requiring agent judgment"
+    elif any(k in t for k in _AGENT_KEYWORDS):
+        mode = "agent"
+        autonomy = 3
+        reason = "Open-ended task requiring dynamic reasoning"
     else:
         mode = "workflow"
         autonomy = 2 if risk >= 2 else 1
@@ -279,7 +314,7 @@ async def create_task(req: TaskRequest):
 
     risk = _assess_risk(req.text, req.target_system or "", req.environment)
     agents = _select_agents(req.text)
-    skills = _select_skills(agents)
+    skills = _select_skills(agents, req.text)
     execution = _classify_execution(req.text, risk)
 
     status = "pending"

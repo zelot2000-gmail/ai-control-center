@@ -156,6 +156,55 @@ Serena MCP เป็น **Code Intelligence Layer** — ไม่ใช่ produ
 
 ---
 
+## วิธีใช้ Serena MCP ใน Coding Workflow
+
+### ตัวอย่างคำสั่งที่ใช้ได้
+
+```
+@Programmer วิเคราะห์ bug หน้า command.vue โดยใช้ Serena MCP ก่อนแก้
+@Programmer refactor TaskResult schema ใช้ Serena impact analysis ก่อน
+@QA code review command.vue changes ด้วย Serena MCP
+@Programmer วิเคราะห์ bug หน้า command.vue และใช้ Serena MCP หาไฟล์ที่เกี่ยวข้องก่อนแก้
+```
+
+เมื่อส่งคำสั่งที่มีคีย์เวิร์ด `serena`, `refactor`, `code intelligence`, `impact analysis`, `code review`:
+- Agents: `programmer`, `qa`, `manager`
+- Skills: `programmer`, `serena-mcp`, `qa-verify`
+- Workflow: `code-intelligence-workflow`
+- View Prompt จะมี section **Code Intelligence Plan** ที่บังคับทำ impact analysis ก่อนแก้ไฟล์
+
+### Flow
+
+```
+User → ส่ง command ที่มี "serena" / "refactor" / "code intelligence"
+  ↓
+Mobile Gateway → เพิ่ม agents: [programmer, qa, manager]
+               → เพิ่ม skills: [programmer, serena-mcp, qa-verify]
+               → workflow: code-intelligence-workflow
+  ↓
+Worker → สร้าง Prompt พร้อม:
+  - Serena MCP tool list
+  - Code Intelligence Plan section
+  - Impact analysis requirement
+  - กฎบังคับก่อนแก้ไฟล์
+  ↓
+View Prompt → Programmer Agent เห็น plan ชัดเจน
+  ↓
+Run Agent → ทำ Serena queries ก่อน → impact analysis → plan → apply → QA verify
+```
+
+### กฎ Serena ที่สำคัญ
+
+| กฎ | เหตุผล |
+|-----|--------|
+| ใช้ Serena ก่อนอ่านไฟล์ใดๆ | ลด token 80% |
+| ห้ามแก้ไฟล์โดยไม่มี impact analysis | ป้องกัน regression |
+| ห้ามอ่านทั้ง repo | ใช้ Serena ระบุ relevant files แทน |
+| Refactor ใหญ่ → QA verify | ป้องกัน side effect |
+| Security code → Security Agent | ป้องกัน vulnerability |
+
+---
+
 ## Accountability
 
 เมื่อแก้ไขเอกสารใน wiki ให้บันทึก:
