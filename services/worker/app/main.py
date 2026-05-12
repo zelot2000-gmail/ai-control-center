@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import httpx
@@ -355,23 +356,152 @@ def _build_execution_context(task: dict) -> str:
 
 _TEXT_EXTENSIONS = {".txt", ".md", ".log", ".json", ".yaml", ".yml", ".csv"}
 
+_SECRET_RE = re.compile(
+    r'(?i)(?:password|passwd|pwd|api_key|apikey|api-key|secret_key|secretkey|secret|token)'
+    r'\s*[:=]\s*\S+'
+    r'|bearer\s+[A-Za-z0-9\-._~+/=]{8,}'
+)
 
-def _read_attachment_context(attachment: dict, max_chars: int = 3000) -> str:
-    stored_path = attachment.get("stored_path", "")
-    filename    = attachment.get("filename") or attachment.get("safe_filename", "")
-    _, ext = os.path.splitext(filename)
-    if ext.lower() not in _TEXT_EXTENSIONS:
-        return f"(binary file — {attachment.get('content_type', 'unknown type')} — cannot read as text)"
-    try:
-        p = Path(stored_path)
-        if not p.exists():
-            return "(file not found on disk)"
-        text = p.read_text(encoding="utf-8", errors="replace")
-        if len(text) > max_chars:
-            text = text[:max_chars] + "\n...(truncated)"
-        return text
-    except Exception as e:
-        return f"(error reading file: {e})"
+
+def _mask_value(m: re.Match) -> str:
+    s = m.group(0)
+    for sep in ('=', ':'):
+        idx = s.find(sep)
+        if idx != -1:
+            return s[:idx + 1] + '***MASKED***'
+    return '***MASKED***'
+
+
+def _detect_and_mask(text: str) -> Tuple[str, bool]:
+    """Return (masked_text, has_secrets)."""
+    has_secrets = bool(_SECRET_RE.search(text))
+    if has_secrets:
+        text = _SECRET_RE.sub(_mask_value, text)
+    return text, has_secrets
+
+
+_CLASSIFY_MAP: dict = {
+    # text
+    ".txt":  ("text",         "text-extract",          ["manager", "rag-curator", "observer"], ["mobile-command", "rag-ingest"]),
+    ".md":   ("text",         "text-extract",          ["manager", "rag-curator"],             ["rag-ingest", "llm-wiki"]),
+    ".log":  ("text",         "text-extract",          ["observer", "manager"],                ["observer-monitor"]),
+    ".csv":  ("text",         "text-extract",          ["manager", "research"],                ["research-development"]),
+    ".json": ("text",         "text-extract",          ["manager", "devops"],                  ["devops"]),
+    ".yaml": ("text",         "text-extract",          ["manager", "devops"],                  ["devops"]),
+    ".yml":  ("text",         "text-extract",          ["manager", "devops"],                  ["devops"]),
+    # document
+    ".pdf":  ("document",     "document-extract",      ["rag-curator", "manager", "qa"],       ["rag-ingest", "llm-wiki"]),
+    ".doc":  ("document",     "document-extract",      ["rag-curator", "manager", "qa"],       ["rag-ingest", "llm-wiki"]),
+    ".docx": ("document",     "document-extract",      ["rag-curator", "manager", "qa"],       ["rag-ingest", "llm-wiki"]),
+    # spreadsheet
+    ".xls":  ("spreadsheet",  "spreadsheet-extract",   ["manager", "qa", "research"],          ["research-development"]),
+    ".xlsx": ("spreadsheet",  "spreadsheet-extract",   ["manager", "qa", "research"],          ["research-development"]),
+    # presentation
+    ".ppt":  ("presentation", "presentation-extract",  ["designer", "manager", "research"],    ["design-system", "research-development"]),
+    ".pptx": ("presentation", "presentation-extract",  ["designer", "manager", "research"],    ["design-system", "research-development"]),
+    # image
+    ".jpg":  ("image",        "vision-required",       ["designer", "qa"],                     ["design-system", "browser-devtools"]),
+    ".jpeg": ("image",        "vision-required",       ["designer", "qa"],                     ["design-system", "browser-devtools"]),
+    ".png":  ("image",        "vision-required",       ["designer", "qa"],                     ["design-system", "browser-devtools"]),
+    ".webp": ("image",        "vision-required",       ["designer", "qa"],                     ["design-system", "browser-devtools"]),
+    ".gif":  ("image",        "vision-required",       ["designer", "qa"],                     ["design-system", "browser-devtools"]),
+}
+
+
+def classify_attachment(filename: str, content_type: str = "") -> dict:
+    """Return category/analysis_mode/agents/skills for a file."""
+    _, ext = os.path.splitext((filename or "").lower())
+    row = _CLASSIFY_MAP.get(ext)
+    if row:
+        cat, mode, agents, skills = row
+        return {"category": cat, "analysis_mode": mode, "recommended_agents": agents, "recommended_skills": skills}
+    return {"category": "unknown", "analysis_mode": "unsupported", "recommended_agents": ["manager"], "recommended_skills": []}
+
+
+def _enhance_skills_for_attachments(skills: List[str], attachments: List[dict]) -> List[str]:
+    skill_set = set(skills)
+    for att in attachments:
+        fn = att.get("filename") or att.get("safe_filename", "")
+        info = classify_attachment(fn, att.get("content_type", ""))
+        skill_set.update(info["recommended_skills"])
+        # Extra: .log with compose hints
+        _, ext = os.path.splitext(fn.lower())
+        if ext in {".yaml", ".yml"} and "compose" in fn.lower():
+            skill_set.add("docker-deploy")
+    return list(skill_set)
+
+
+def _enhance_agents_for_attachments(agents: List[str], attachments: List[dict]) -> List[str]:
+    agent_set = set(agents)
+    for att in attachments:
+        fn = att.get("filename") or att.get("safe_filename", "")
+        info = classify_attachment(fn, att.get("content_type", ""))
+        agent_set.update(info["recommended_agents"])
+    return list(agent_set)
+
+
+_CONTEXT_INSTRUCTIONS: dict = {
+    "document": (
+        "Document file detected.\n"
+        "Analysis mode: document-extract\n"
+        "Use document parser or RAG ingestion workflow.\n"
+        "If parser is not available, ask user to convert to PDF/text or run extraction tool."
+    ),
+    "spreadsheet": (
+        "Spreadsheet file detected.\n"
+        "Analysis mode: spreadsheet-extract\n"
+        "Required analysis:\n"
+        "- sheet names\n"
+        "- columns\n"
+        "- row counts\n"
+        "- summary\n"
+        "- anomalies"
+    ),
+    "presentation": (
+        "Presentation file detected.\n"
+        "Analysis mode: presentation-extract\n"
+        "Required analysis:\n"
+        "- slide count\n"
+        "- titles\n"
+        "- key messages\n"
+        "- design issues\n"
+        "- improvement suggestions"
+    ),
+    "image": (
+        "Image file detected.\n"
+        "Analysis mode: vision-required\n"
+        "Required analysis:\n"
+        "- describe visible content\n"
+        "- detect text/logo/layout\n"
+        "- assess quality\n"
+        "- design/QA recommendations"
+    ),
+}
+
+
+def _read_attachment_context(attachment: dict, max_chars: int = 3000) -> Tuple[str, bool]:
+    """Return (content_or_instructions, has_secrets)."""
+    fn = attachment.get("filename") or attachment.get("safe_filename", "")
+    info = classify_attachment(fn, attachment.get("content_type", ""))
+    category = info["category"]
+
+    if category == "text":
+        stored_path = attachment.get("stored_path", "")
+        try:
+            p = Path(stored_path)
+            if not p.exists():
+                return ("(file not found on disk)", False)
+            text = p.read_text(encoding="utf-8", errors="replace")
+            if len(text) > max_chars:
+                text = text[:max_chars] + "\n...(truncated)"
+            return _detect_and_mask(text)
+        except Exception as e:
+            return (f"(error reading file: {e})", False)
+
+    instructions = _CONTEXT_INSTRUCTIONS.get(category)
+    if instructions:
+        return (instructions, False)
+    return (f"(unsupported file type — {attachment.get('content_type', 'unknown')})", False)
 
 
 def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path:
@@ -403,25 +533,34 @@ def _export_prompt(task: dict, skills_context: str, warnings: List[str]) -> Path
     attachments = task.get("attachments") or []
     attachments_section = ""
     if attachments:
+        attachment_has_secrets = False
         lines = ["\n## Attachments\n"]
         for att in attachments:
             fn   = att.get("filename") or att.get("safe_filename", "?")
             ct   = att.get("content_type", "unknown")
             size = att.get("size", 0)
             path = att.get("stored_path", "")
-            lines.append(f"- **{fn}** | {ct} | {size} bytes | `{path}`")
-            _, ext = os.path.splitext(fn)
-            if ext.lower() == ".md":
-                lines.append(f"  > 💡 ไฟล์นี้สามารถ ingest เข้า RAG ได้")
-            elif ext.lower() in {".log"}:
-                lines.append(f"  > 💡 แนะนำ: ใช้ observer/log-review-workflow")
-            elif ext.lower() in {".yaml", ".yml"} and "compose" in fn.lower():
-                lines.append(f"  > 💡 แนะนำ: ใช้ devops/docker-deploy skill")
+            info = classify_attachment(fn, ct)
+            lines.append(f"- **{fn}**")
+            lines.append(f"  - content_type: {ct}")
+            lines.append(f"  - size: {size} bytes")
+            lines.append(f"  - stored_path: `{path}`")
+            lines.append(f"  - category: {info['category']}")
+            lines.append(f"  - analysis_mode: {info['analysis_mode']}")
+            lines.append(f"  - recommended_agents: {', '.join(info['recommended_agents'])}")
+            lines.append(f"  - recommended_skills: {', '.join(info['recommended_skills']) or '(none)'}")
         lines.append("\n## Attachment Context\n")
         for att in attachments:
             fn = att.get("filename") or att.get("safe_filename", "?")
-            ctx_text = _read_attachment_context(att)
-            lines.append(f"### {fn}\n```\n{ctx_text}\n```\n")
+            ctx_text, has_sec = _read_attachment_context(att)
+            if has_sec:
+                attachment_has_secrets = True
+            lines.append(f"### {fn}")
+            if has_sec:
+                lines.append("> ⚠️ **Possible secret detected and masked** — กรุณาตรวจสอบก่อนแชร์")
+            lines.append(f"```\n{ctx_text}\n```\n")
+        if attachment_has_secrets:
+            warnings.append("Possible secret detected and masked in attachment")
         attachments_section = "\n".join(lines)
 
     content = f"""# Task: {task_id}
@@ -575,6 +714,12 @@ async def process_task(req: TaskRequest):
     task = normalize_task(raw_task)
     task["processed_at"] = processed_at
 
+    # Enhance agents + skills based on attachment file types
+    if task.get("attachments"):
+        task["agents"] = _enhance_agents_for_attachments(task.get("agents", []), task["attachments"])
+        task["skills"] = _enhance_skills_for_attachments(task.get("skills", []), task["attachments"])
+        logger.info("After attachment enhancement — agents=%s skills=%s", task["agents"], task["skills"])
+
     agents_list: List[str] = task["agents"]
     has_observer = "observer" in agents_list
     primary_worker = "observer" if has_observer else (agents_list[0] if agents_list else "manager")
@@ -644,6 +789,15 @@ async def process_task(req: TaskRequest):
         raise HTTPException(status_code=500, detail=f"Export failed: {e}")
 
     logger.info("Task exported: %s  warnings=%d", export_path, len(warnings))
+
+    # Fire attachment_context_built event if task has attachments
+    if task.get("attachments"):
+        await _push_agent_activity(
+            req.task_id,
+            event_agent="worker", event_role="worker",
+            event_action="attachment_context_built",
+            event_message=f"สร้าง Attachment Context จาก {len(task['attachments'])} ไฟล์แล้ว",
+        )
 
     bridge = "hermes" if HERMES_CLI_PATH else ("agentuniverse" if AGENTUNIVERSE_CLI_PATH else "local-export")
     result = {

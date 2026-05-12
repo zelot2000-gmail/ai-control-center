@@ -17,7 +17,7 @@
         type="file"
         multiple
         class="hidden-file-input"
-        accept=".txt,.md,.log,.json,.yaml,.yml,.pdf,.png,.jpg,.jpeg,.csv"
+        accept=".txt,.md,.log,.json,.yaml,.yml,.csv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.gif"
         @change="onFilesSelected"
       />
 

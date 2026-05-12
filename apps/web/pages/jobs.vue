@@ -82,6 +82,17 @@
           <span class="tag tag-skill" v-for="s in task.skills" :key="s">{{ s }}</span>
         </div>
 
+        <!-- Attachment list -->
+        <div class="attach-box" v-if="task.attachments?.length">
+          <div class="attach-header">📎 {{ task.attachments.length }} ไฟล์แนบ</div>
+          <div v-for="(f, i) in task.attachments" :key="i" class="attach-row">
+            <span class="attach-fname">{{ f.filename || f.safe_filename }}</span>
+            <span class="attach-mode" :class="`mode-${classifyMode(f.filename || f.safe_filename || '')}`">
+              {{ classifyMode(f.filename || f.safe_filename || '') }}
+            </span>
+          </div>
+        </div>
+
         <!-- Prompt path (exported/agent_running) -->
         <div class="export-path" v-if="task.result?.export_path && task.status !== 'completed'">
           📋 Prompt: <code>{{ shortPath(task.result.export_path) }}</code>
@@ -566,6 +577,20 @@ async function copyReport() {
   } catch { alert('Copy not supported in this browser') }
 }
 
+const _MODES = {
+  txt: 'text-extract', md: 'text-extract', log: 'text-extract',
+  json: 'text-extract', yaml: 'text-extract', yml: 'text-extract', csv: 'text-extract',
+  pdf: 'document-extract', doc: 'document-extract', docx: 'document-extract',
+  xls: 'spreadsheet-extract', xlsx: 'spreadsheet-extract',
+  ppt: 'presentation-extract', pptx: 'presentation-extract',
+  jpg: 'vision-required', jpeg: 'vision-required', png: 'vision-required',
+  webp: 'vision-required', gif: 'vision-required',
+}
+const classifyMode = (fn) => {
+  const ext = (fn || '').split('.').pop()?.toLowerCase() || ''
+  return _MODES[ext] || 'unsupported'
+}
+
 const fmtFull    = (ts) => {
   if (!ts) return '—'
   try { return new Date(ts).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' }) }
@@ -706,6 +731,30 @@ onMounted(loadTasks)
 .tag-agent { background: #1e3a5f; color: #93c5fd; }
 .tag-skill { background: #1a2e1a; color: #86efac; }
 
+.attach-box {
+  background: #0d1b2e; border: 1px solid #1e3a5f;
+  border-radius: 8px; padding: 6px 10px; margin-bottom: 0.4rem;
+}
+.attach-header {
+  font-size: 0.72rem; font-weight: 700; color: #60a5fa; margin-bottom: 4px;
+}
+.attach-row {
+  display: flex; align-items: center; gap: 6px; padding: 1px 0;
+}
+.attach-fname {
+  font-size: 0.72rem; color: #94a3b8;
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.attach-mode {
+  font-size: 0.62rem; font-weight: 600;
+  padding: 1px 5px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+}
+.mode-text-extract        { background: #064e3b; color: #6ee7b7; }
+.mode-document-extract    { background: #1e3a5f; color: #93c5fd; }
+.mode-spreadsheet-extract { background: #2e1065; color: #c4b5fd; }
+.mode-presentation-extract{ background: #422006; color: #fbbf24; }
+.mode-vision-required     { background: #500724; color: #f9a8d4; }
+.mode-unsupported         { background: #1e293b; color: #475569; }
 .export-path { font-size: 0.75rem; color: #4ade80; margin-bottom: 0.35rem; word-break: break-all; }
 .export-path code { font-family: monospace; }
 

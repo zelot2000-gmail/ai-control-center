@@ -32,6 +32,21 @@
             💬 Prompt พร้อมแล้ว — กรุณา <strong>Copy Prompt</strong> ไปให้ Claude/Hermes ประมวลผล
           </div>
 
+          <!-- Attachment list (always visible if non-zero) -->
+          <div class="attach-list" v-if="meta.attachments_count > 0">
+            <div class="attach-list-header">📎 {{ meta.attachments_count }} ไฟล์แนบ</div>
+            <div
+              v-for="(f, i) in (meta.attachments || [])"
+              :key="i"
+              class="attach-row"
+            >
+              <span class="attach-fname">{{ f.filename || f.safe_filename }}</span>
+              <span class="attach-mode" :class="`mode-${classifyMode(f.filename || f.safe_filename || '')}`">
+                {{ classifyMode(f.filename || f.safe_filename || '') }}
+              </span>
+            </div>
+          </div>
+
           <!-- Current step -->
           <div class="task-step">{{ meta.current_step }}</div>
 
@@ -52,6 +67,9 @@
             </div>
             <div class="task-detail" v-if="meta.skills?.length">
               <span class="dl">Skills:</span> {{ meta.skills.join(', ') }}
+            </div>
+            <div class="task-detail attach-info" v-if="meta.attachments_count > 0">
+              <span class="dl">Files:</span> 📎 {{ meta.attachments_count }} ไฟล์แนบ
             </div>
             <div class="task-detail" v-if="meta.export_path">
               <span class="dl">Prompt:</span>
@@ -186,6 +204,20 @@ const dotClass = computed(() => {
   if (s === 'agent_running') return 'dot-orange'
   return 'dot-blue'
 })
+
+const _MODES = {
+  txt: 'text-extract', md: 'text-extract', log: 'text-extract',
+  json: 'text-extract', yaml: 'text-extract', yml: 'text-extract', csv: 'text-extract',
+  pdf: 'document-extract', doc: 'document-extract', docx: 'document-extract',
+  xls: 'spreadsheet-extract', xlsx: 'spreadsheet-extract',
+  ppt: 'presentation-extract', pptx: 'presentation-extract',
+  jpg: 'vision-required', jpeg: 'vision-required', png: 'vision-required',
+  webp: 'vision-required', gif: 'vision-required',
+}
+const classifyMode = (fn) => {
+  const ext = (fn || '').split('.').pop()?.toLowerCase() || ''
+  return _MODES[ext] || 'unsupported'
+}
 
 const shortId   = (id) => id ? id.slice(0, 8) + '…' : '—'
 const shortPath = (p)  => p  ? p.replace('/app/data/exports/', '') : p
@@ -325,6 +357,47 @@ const fmtTime   = (ts) => {
   padding: 6px 10px;
   margin-bottom: 6px;
 }
+
+.attach-list {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+}
+.attach-list-header {
+  font-weight: 700;
+  color: #1d4ed8;
+  margin-bottom: 3px;
+}
+.attach-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 0;
+}
+.attach-fname {
+  color: #374151;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attach-mode {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.mode-text-extract       { background: #d1fae5; color: #065f46; }
+.mode-document-extract   { background: #dbeafe; color: #1d4ed8; }
+.mode-spreadsheet-extract{ background: #ede9fe; color: #5b21b6; }
+.mode-presentation-extract{ background: #fef3c7; color: #b45309; }
+.mode-vision-required    { background: #fce7f3; color: #be185d; }
+.mode-unsupported        { background: #f3f4f6; color: #9ca3af; }
+.attach-info { color: #1d4ed8; }
 
 .task-step {
   font-size: 0.8rem;

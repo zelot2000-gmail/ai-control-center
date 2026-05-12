@@ -313,6 +313,9 @@ function buildTaskMeta(task) {
     report_source: task.result?.report_source || null,
     report_summary: task.result?.report_summary || null,
     verification_status: task.result?.verification_status || null,
+    // Attachments
+    attachments_count: task.attachments?.length || 0,
+    attachments: task.attachments || [],
   }
 }
 
@@ -448,6 +451,8 @@ async function sendCommand(payload) {
       agents: data.agents,
       skills: data.skills,
       approval_phrase: data.approval_phrase,
+      attachments_count: attachments.length,
+      attachments: attachments,
     })
 
     if (attachments.length) {

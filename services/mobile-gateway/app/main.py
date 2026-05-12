@@ -31,8 +31,16 @@ UPLOADS_DIR  = Path("/app/data/uploads")
 
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
 ALLOWED_EXTENSIONS = {
-    ".txt", ".md", ".log", ".json", ".yaml", ".yml",
-    ".csv", ".pdf", ".png", ".jpg", ".jpeg",
+    # text
+    ".txt", ".md", ".log", ".json", ".yaml", ".yml", ".csv",
+    # document
+    ".pdf", ".doc", ".docx",
+    # spreadsheet
+    ".xls", ".xlsx",
+    # presentation
+    ".ppt", ".pptx",
+    # image
+    ".jpg", ".jpeg", ".png", ".webp", ".gif",
 }
 
 
@@ -312,7 +320,17 @@ async def create_task(req: TaskRequest):
                 "role": "speaker",
                 "action": "task_created",
                 "message": "รับคำสั่งและสร้าง task แล้ว",
-            }
+            },
+            *[
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "agent": "worker",
+                    "role": "worker",
+                    "action": "file_uploaded",
+                    "message": f"ไฟล์ {att.get('filename', att.get('safe_filename', '?'))} ถูกอัพโหลดเรียบร้อย ({att.get('size', 0)} bytes)",
+                }
+                for att in (req.attachments or [])
+            ],
         ],
         "execution": execution,
         "accountability": {

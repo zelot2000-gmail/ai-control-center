@@ -2111,5 +2111,183 @@
       "rollback_required": false,
       "rollback_plan": null
     }
+  },
+  "c6344190-d52e-47da-81fe-8bdb0406e218": {
+    "task_id": "c6344190-d52e-47da-81fe-8bdb0406e218",
+    "source": "dashboard",
+    "user": "chain",
+    "intent": "วิเคราะห์รูปให้หน่อย",
+    "target": null,
+    "risk": 1,
+    "agents": [
+      "manager"
+    ],
+    "skills": [
+      "mobile-command"
+    ],
+    "inputs": {
+      "text": "วิเคราะห์รูปให้หน่อย",
+      "optimized_text": "วิเคราะห์รูปให้หน่อย"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [
+      {
+        "file_id": "209701ed-4876-4037-a1ea-bebc614600cc",
+        "filename": "logo.png",
+        "safe_filename": "logo.png",
+        "content_type": "image/png",
+        "size": 2036664,
+        "stored_path": "/app/data/uploads/209701ed-4876-4037-a1ea-bebc614600cc_logo.png"
+      }
+    ],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T06:56:45.405642+00:00",
+    "updated_at": "2026-05-12T07:01:51.888369+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Agent ทำงานเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/c6344190-d52e-47da-81fe-8bdb0406e218.prompt.md",
+      "agents": [
+        "manager"
+      ],
+      "skills": [
+        "mobile-command"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T06:56:45.445797+00:00",
+      "final_report": "## Final Report\n\n### Summary\nสรุปผลการทำงาน\n\n### Services Checked\n- Mobile Gateway:\n- RAG API:\n- TTO API:\n- RTK Bridge:\n- Webhook Gateway:\n- Observer:\n- Worker:\n- Qdrant:\n- Postgres:\n- Redis:\n- Web Dashboard:\n\n### Issues Found\n- ไม่มี / ระบุปัญหาที่พบ\n\n### Commands Used\n- docker compose ps\n- docker compose config --quiet\n- curl health endpoints\n- docker logs tail\n\n### Recommendations\n- ข้อเสนอแนะถัดไป\n\n### Verification Status\nPASS / WARNING / FAIL\n\n\n# Task: c6344190-d52e-47da-81fe-8bdb0406e218\n\n## Intent\nวิเคราะห์รูปให้หน่อย\n\n## Source\n- source: dashboard\n- user: chain\n- target: None\n- risk: 1\n\n## Agents\n- manager\n\n## Skills\n- mobile-command\n\n## Context\nText: วิเคราะห์รูปให้หน่อย\nOptimized Text: วิเคราะห์รูปให้หน่อย\n\n## Constraints\nEnvironment: wsl\nMode: plan-only\n\n## Workflow\n- plan\n- build\n- verify\n- report\n\n\n## Execution Mode\n- **Mode**: agent\n- **Autonomy Level**: 3\n- **Reason**: Open-ended task requiring dynamic reasoning\n\n> Agent mode: use dynamic reasoning, explain every tool call, do not take production actions without approval\n\n\n## Accountability\n- Owner: manager\n- Agents: manager\n- Approval required: False\n- Rollback plan: None\n\n\n\n## Skills Context\n### mobile-command\n# Skill: Mobile Command\n\n## วัตถุประสงค์\nรับ input จากมือถือ / ChatGPT / webhook แปลงเป็น Task Packet มาตรฐาน\n\n## Input Format\n```json\n{\n  \"source\": \"chatgpt-mobile | webhook | dashboard | manual\",\n  \"user\": \"username\",\n  \"text\": \"ข้อความคำสั่ง\",\n  \"target_system\": \"service name หรือ all\",\n  \"environment\": \"wsl | staging | production\",\n  \"mode\": \"plan-only | execute | dry-run\"\n}\n```\n\n## Output: Task Packet\nตาม schema ใน `core/commands/task-schema.yaml`\n\n## Steps\n1. Parse input text เพื่อหา intent\n2. ส่ง text ผ่าน TTO /optimize เพื่อลด token\n3. เลือก agents จาก intent\n4. เลือก skills จาก core/skills/index.json\n5. ประเมิน risk level\n6. สร้าง task_id (UUID)\n7. บันทึก task ลง Postgres (หรือ fallback JSON)\n8. ส่ง task packet ต่อ\n\n## Intent Detection Keywords\n- \"ตรวจ\" / \"check\" / \"debug\" → observer / qa\n- \"deploy\" / \"build\" / \"รัน\" → devops\n- \"แก้โค้ด\" / \"fix\" / \"เขียน\" → programmer\n- \"เพิ่มเอกสาร\" / \"ingest\" → rag-curator\n- \"ทดลอง\" / \"research\" / \"PoC\" → research\n- \"backup\" / \"restore\" / \"SSL\" → administrator\n- \"security\" / \"ตรวจ permission\" → security\n\n\n## Warnings\n- (none)\n\n## Instructions\nFollow AGENTS.md: Plan -> Build -> Verify -> Report.\nUse Workflow-first, Agent-when-needed, Hybrid by design.\nRespect Risk Policy and Approval Policy.\nLog every tool call in tool_usage_log.\nRespond in Thai, readable on mobile.\n\n## Attachments\n\n- **logo.png** | image/png | 2036664 bytes | `/app/data/uploads/209701ed-4876-4037-a1ea-bebc614600cc_logo.png`\n\n## Attachment Context\n\n### logo.png\n```\n(binary file — image/png — cannot read as text)\n```\n",
+      "report_source": "claude",
+      "report_saved_at": "2026-05-12T07:01:51.888322+00:00",
+      "verification_status": "pass",
+      "issues_found": [],
+      "recommendations": [],
+      "next_actions": []
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T06:56:45.405659+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.405662+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "file_uploaded",
+        "message": "ไฟล์ logo.png ถูกอัพโหลดเรียบร้อย (2036664 bytes)"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.517918+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.619122+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.692274+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.743629+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.777325+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "attachment_context_built",
+        "message": "สร้าง Attachment Context จาก 1 ไฟล์แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T06:56:45.830558+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      },
+      {
+        "timestamp": "2026-05-12T07:01:13.328639+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "agent_run_requested",
+        "message": "Prompt พร้อมแล้ว กรุณา Copy ไปให้ Claude/Hermes ประมวลผล"
+      },
+      {
+        "timestamp": "2026-05-12T07:01:51.888360+00:00",
+        "agent": "claude",
+        "role": "worker",
+        "action": "final_report_saved",
+        "message": "บันทึก Final Report จาก claude แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T07:01:51.888360+00:00",
+        "agent": "system",
+        "role": "system",
+        "action": "task_completed",
+        "message": "Task เสร็จสมบูรณ์ — Final Report จาก claude"
+      }
+    ],
+    "execution": {
+      "mode": "agent",
+      "autonomy_level": 3,
+      "selected_workflow": null,
+      "reason_for_mode": "Open-ended task requiring dynamic reasoning"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }
