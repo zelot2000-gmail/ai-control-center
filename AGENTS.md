@@ -53,6 +53,8 @@ Workflow-first → Agent-when-needed → Hybrid by design → Accountability alw
 | security-review-workflow | hybrid | security |
 | rag-evaluation-workflow | hybrid | rag-curator |
 | log-review-workflow | hybrid | observer |
+| wiki-ingest-workflow | workflow | rag-curator, observer |
+| code-intelligence-workflow | hybrid | programmer, qa, security, manager |
 
 ---
 
@@ -218,6 +220,58 @@ Local Web Dashboard (127.0.0.1:3000) / API Endpoints
         ↓
 QA Report / UI Report / Performance Report
 ```
+
+## Code Intelligence Tool Layer (Serena MCP)
+
+```
+Claude / Windsurf / Hermes / Agent
+        ↓
+Serena MCP  [local/dev/staging ONLY]
+        ↓
+Language Server (Python / TypeScript / Go / Rust)
+        ↓
+Symbol Index + Reference Graph + Call Graph
+        ↓
+Code Intelligence Report / Impact Analysis / Refactor Plan
+```
+
+Serena MCP = **Code Intelligence Layer** — ให้ AI เข้าใจ codebase ระดับ semantic ก่อนแก้ไฟล์  
+**ไม่ใช่ production runtime** — ใช้ในกระบวนการ development เท่านั้น
+
+### Serena MCP vs RAG
+
+| | RAG | Serena MCP |
+|---|-----|-----------|
+| **Source** | เอกสาร, wiki, SOP, notes | Source code |
+| **Unit** | Document chunk | Symbol, function, class, file |
+| **Query** | Natural language | Symbol name, file path, pattern |
+| **Output** | Text passages | File path + line number + symbol refs |
+| **เมื่อไรใช้** | ต้องการ domain knowledge | ต้องการเข้าใจหรือแก้ code |
+
+**กฎ**:
+- ❌ ห้ามใช้ RAG แทน Serena สำหรับ code navigation
+- ❌ ห้ามใช้ Serena แทน RAG สำหรับ document/wiki retrieval
+- ❌ ห้ามอ่านทั้ง repo ถ้า Serena หา context ให้ได้
+
+### Serena MCP — กฎการใช้งาน
+
+- **ใช้ก่อนอ่านไฟล์จำนวนมาก** — query Serena ก่อนเพื่อระบุ relevant files
+- **ห้ามแก้ไฟล์โดยไม่มี impact analysis ก่อน**
+- **ห้าม deploy** ผ่าน Serena
+- **ห้ามรัน destructive command** ผ่าน Serena
+- **Refactor ใหญ่ (>5 files)** → ต้องให้ QA Agent verify
+- **Security-sensitive code** → ต้องให้ Security Agent ตรวจ
+- **Library/dependency ใหม่** → ต้องให้ R&D Agent ประเมินก่อน
+
+### Agents ที่ใช้ Serena MCP
+
+- **Programmer** — แก้ bug, feature, refactor, code review
+- **QA** — ตรวจ test coverage, หา untested paths
+- **Security** — audit code, หา dangerous patterns, secret scan
+- **R&D** — PoC, benchmark, ศึกษา codebase ใหม่
+- **Manager** — impact analysis เพื่อประเมิน risk ของ task (read-only เท่านั้น)
+
+---
 
 ### Chrome DevTools MCP — กฎการใช้งาน
 - **ใช้เฉพาะ local / dev / staging เท่านั้น**
