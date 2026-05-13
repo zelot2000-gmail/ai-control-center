@@ -1132,6 +1132,11 @@ async def process_task(req: TaskRequest):
             result["agent_run_status"] = agent_run_info.get("agent_run_status")
             result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
             result["agent_prompt_path"] = agent_run_info.get("agent_prompt_path")
+            for _f in ("fallback_mode", "fallback_reason", "hermes_endpoint",
+                       "hermes_http_status", "hermes_response_format", "response_received_at"):
+                _v = agent_run_info.get(_f)
+                if _v is not None:
+                    result[_f] = _v
             logger.info(
                 "Agent runner: run_id=%s status=%s fallback=%s",
                 result["agent_run_id"],
@@ -1438,6 +1443,11 @@ async def run_agent_from_task(task_id: str):
             "agent_run_id": agent_run_info.get("agent_run_id"),
             "agent_run_status": agent_run_info.get("agent_run_status"),
         }
+        for _f in ("fallback_mode", "fallback_reason", "hermes_endpoint",
+                   "hermes_http_status", "hermes_response_format", "response_received_at"):
+            _v = agent_run_info.get(_f)
+            if _v is not None:
+                hermes_result[_f] = _v
         _sync_hermes_report(task_id, hermes_result, agent_run_info)
         await _push_result(task_id, hermes_result)
         await _push_progress(

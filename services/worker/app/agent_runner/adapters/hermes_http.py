@@ -12,6 +12,8 @@ from ..config import (
     HERMES_API_KEY,
     HERMES_API_URL,
     HERMES_FALLBACK_MODE,
+    HERMES_MODEL,
+    HERMES_REQUEST_FORMAT,
     HERMES_RETRY_ATTEMPTS,
     HERMES_RETRY_BACKOFF_SECONDS,
     HERMES_TIMEOUT_SECONDS,
@@ -67,6 +69,23 @@ def _build_v1_payload(run: AgentRun, prompt: str, prompt_path: str) -> dict:
             "risk_level": 1,
         },
         "submitted_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def _build_openai_payload(run: AgentRun, prompt: str) -> dict:
+    return {
+        "model": HERMES_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are Hermes Agent Runner inside AI Control Center. Return final report only.",
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+        "temperature": 0.2,
     }
 
 
@@ -245,26 +264,35 @@ async def run(
         logger.warning("hermes_http: HERMES_API_URL not set → fallback to %s", HERMES_FALLBACK_MODE)
         return await _do_fallback(run, prompt, artifact_dir, push_event, error="HERMES_API_URL not configured")
 
+    # ── Build payload and select endpoint ────────────────────────────────────
+    if HERMES_REQUEST_FORMAT == "openai_compatible":
+        payload = _build_openai_payload(run, prompt)
+        post_url = HERMES_API_URL
+        post_label = masked_endpoint
+    else:  # native
+        payload = _build_v1_payload(run, prompt, str(prompt_path))
+        post_url = f"{HERMES_API_URL}/run"
+        post_label = f"{masked_endpoint}/run"
+
     # ── Save payload ──────────────────────────────────────────────────────────
-    payload = _build_v1_payload(run, prompt, str(prompt_path))
     payload_path = art / f"{run.id}.hermes-payload.json"
     payload_path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
-    await _push("hermes_http_payload_saved", f"Payload saved run_id={run.id}")
+    await _push("hermes_http_payload_saved", f"Payload saved format={HERMES_REQUEST_FORMAT} run_id={run.id}")
 
     # NOTE: API key is never logged — only used in Authorization header
     headers = {"Content-Type": "application/json"}
     if HERMES_API_KEY:
         headers["Authorization"] = f"Bearer {HERMES_API_KEY}"
 
-    await _push("hermes_http_requested", f"POST {masked_endpoint}/run run_id={run.id}")
-    logger.info("hermes_http: POST %s/run run_id=%s", masked_endpoint, run.id)
+    await _push("hermes_http_requested", f"POST {post_label} format={HERMES_REQUEST_FORMAT} run_id={run.id}")
+    logger.info("hermes_http: POST %s format=%s run_id=%s", post_label, HERMES_REQUEST_FORMAT, run.id)
 
     # ── HTTP request (with retry) ─────────────────────────────────────────────
     try:
-        resp = await _post_with_retry(f"{HERMES_API_URL}/run", payload, headers)
+        resp = await _post_with_retry(post_url, payload, headers)
     except httpx.TimeoutException:
         err = f"Timeout after {HERMES_TIMEOUT_SECONDS}s (attempts={max(1, HERMES_RETRY_ATTEMPTS + 1)})"
         logger.error("hermes_http: %s", err)

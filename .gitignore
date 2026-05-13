@@ -40,3 +40,6 @@ data/exports/*
 data/reports/*
 !data/reports/.gitkeep
 data/uploads-test*
+data/mock_*.py
+data/verify_*.sh
+data/check_*.sh
