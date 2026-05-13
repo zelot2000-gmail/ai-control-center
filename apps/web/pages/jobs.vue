@@ -159,16 +159,16 @@
             @click="viewPrompt(task.task_id)"
           >📄 View Prompt</button>
 
-          <!-- Agent Runner prompt copy (when agent_run_id present) -->
+          <!-- Agent Runner prompt copy (when agent_run_id present and status in hermes/prompt states) -->
           <button
-            v-if="task.status === 'exported' && task.result?.agent_run_id"
+            v-if="task.result?.agent_run_id && ['completed_prompt_ready','waiting_hermes','hermes_manual_pending','hermes_response_unrecognized'].includes(task.result?.agent_run_status)"
             class="btn btn-agent-prompt"
             @click="copyAgentPrompt(task)"
           >📋 Copy Agent Prompt</button>
 
-          <!-- Save Agent Report (replaces generic Run Agent for agent runner tasks) -->
+          <!-- Save Agent Report -->
           <button
-            v-if="task.status === 'exported' && task.result?.agent_run_id && task.result?.agent_run_status === 'completed_prompt_ready'"
+            v-if="task.result?.agent_run_id && ['completed_prompt_ready','waiting_hermes','hermes_manual_pending','hermes_response_unrecognized'].includes(task.result?.agent_run_status)"
             class="btn btn-agent-save"
             @click="openAgentReport(task)"
           >📝 Save Agent Report</button>
@@ -394,7 +394,7 @@
           <div class="ard-row"><span class="ard-label">Mode</span><span class="ard-val">{{ agentRunModal.data.runner_mode }}</span></div>
           <div class="ard-row">
             <span class="ard-label">Status</span>
-            <span class="agent-runner-status" :class="`ar-${agentRunModal.data.status}`">{{ agentRunModal.data.status }}</span>
+            <span class="agent-runner-status" :class="`ar-${agentRunModal.data.status}`">{{ STATUS_LABELS[agentRunModal.data.status] || agentRunModal.data.status }}</span>
           </div>
           <div class="ard-row" v-if="agentRunModal.data.verification_status">
             <span class="ard-label">Verification</span>
@@ -406,10 +406,30 @@
           <div class="ard-row"><span class="ard-label">Workflow</span><span class="ard-val">{{ agentRunModal.data.workflow || '—' }}</span></div>
           <div class="ard-row"><span class="ard-label">RAG Results</span><span class="ard-val">{{ agentRunModal.data.rag_results_count ?? 0 }}</span></div>
           <div class="ard-row" v-if="agentRunModal.data.rag_top_path"><span class="ard-label">Top RAG Path</span><code class="ard-val">{{ agentRunModal.data.rag_top_path }}</code></div>
+          <div class="ard-row" v-if="agentRunModal.data.hermes_endpoint">
+            <span class="ard-label">Hermes URL</span>
+            <code class="ard-val ard-hermes-url">{{ maskUrl(agentRunModal.data.hermes_endpoint) }}</code>
+          </div>
+          <div class="ard-row" v-if="agentRunModal.data.fallback_mode">
+            <span class="ard-label">Fallback Mode</span>
+            <span class="ard-val ard-fallback">{{ agentRunModal.data.fallback_mode }}</span>
+          </div>
           <div class="ard-row" v-if="agentRunModal.data.prompt_path"><span class="ard-label">Prompt File</span><code class="ard-val ard-path">{{ agentRunModal.data.prompt_path }}</code></div>
           <div class="ard-row" v-if="agentRunModal.data.report_path"><span class="ard-label">Report File</span><code class="ard-val ard-path">{{ agentRunModal.data.report_path }}</code></div>
+          <div class="ard-row" v-if="agentRunModal.data.error_message">
+            <span class="ard-label">Error</span>
+            <span class="ard-val ard-error">{{ agentRunModal.data.error_message }}</span>
+          </div>
           <div class="ard-row"><span class="ard-label">Created</span><span class="ard-val">{{ fmtTime(agentRunModal.data.created_at) }}</span></div>
+          <div class="ard-row" v-if="agentRunModal.data.started_at"><span class="ard-label">Started</span><span class="ard-val">{{ fmtTime(agentRunModal.data.started_at) }}</span></div>
           <div class="ard-row" v-if="agentRunModal.data.completed_at"><span class="ard-label">Completed</span><span class="ard-val">{{ fmtTime(agentRunModal.data.completed_at) }}</span></div>
+          <!-- Hermes waiting notice -->
+          <div class="hermes-waiting-info" v-if="agentRunModal.data.status === 'waiting_hermes'">
+            ⏳ Submitted to Hermes — รอผลลัพธ์อัตโนมัติ หรือ Save Report ด้วยตนเอง
+          </div>
+          <div class="hermes-error-info" v-if="agentRunModal.data.status === 'hermes_response_unrecognized'">
+            ⚠️ Hermes ตอบกลับในรูปแบบที่ไม่รู้จัก — กรุณา Save Report ด้วยตนเอง
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-view" @click="closeAgentRun">Close</button>
@@ -550,6 +570,8 @@ const STATUS_LABELS = {
   completed: 'COMPLETED', failed: 'FAILED',
   blocked: 'BLOCKED', waiting_approval: 'WAIT APPROVAL',
   completed_prompt_ready: 'PROMPT READY', completed_report_saved: 'REPORT SAVED',
+  waiting_hermes: 'WAITING HERMES', hermes_manual_pending: 'HERMES PENDING',
+  hermes_response_unrecognized: 'HERMES ERROR', blocked_approval_required: 'NEED APPROVAL',
 }
 const statusLabel = (s) => STATUS_LABELS[s] || (s || '').toUpperCase()
 
@@ -762,6 +784,14 @@ const fmtFull    = (ts) => {
   catch { return ts }
 }
 const verifyIcon = (v) => ({ pass: '✅', warning: '⚠️', fail: '❌' }[v] || '')
+
+const maskUrl = (url) => {
+  if (!url) return '—'
+  try {
+    const u = new URL(url)
+    return `${u.protocol}//${u.hostname}${u.port ? ':' + u.port : ''}/***`
+  } catch { return url.slice(0, 30) + '***' }
+}
 
 // ── View Prompt ───────────────────────────────────────────────────────────
 async function viewPrompt(taskId) {
@@ -1032,6 +1062,9 @@ onMounted(loadTasks)
 .tag-agent-runner { background: #2e1a4a; color: #c4b5fd; font-weight: 600; }
 .tag-agent-runner.ar-completed_prompt_ready { background: #064e3b; color: #6ee7b7; }
 .tag-agent-runner.ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
+.tag-agent-runner.ar-waiting_hermes { background: #1e3a5f; color: #93c5fd; }
+.tag-agent-runner.ar-hermes_manual_pending { background: #451a03; color: #fcd34d; }
+.tag-agent-runner.ar-hermes_response_unrecognized { background: #450a0a; color: #fca5a5; }
 .tag-agent-runner.ar-completed { background: #064e3b; color: #6ee7b7; }
 .tag-agent-runner.ar-failed              { background: #450a0a; color: #fca5a5; }
 .tag-agent-runner.ar-completed_report_saved { background: #052e16; color: #4ade80; font-weight: 700; }
@@ -1041,11 +1074,17 @@ onMounted(loadTasks)
 .ard-row  { display: flex; align-items: flex-start; gap: 8px; font-size: 0.82rem; }
 .ard-label { min-width: 100px; color: #94a3b8; font-weight: 600; flex-shrink: 0; }
 .ard-val   { color: #e2e8f0; word-break: break-all; }
-.ard-path  { font-size: 0.72rem; color: #a78bfa; }
+.ard-path        { font-size: 0.72rem; color: #a78bfa; }
+.ard-hermes-url  { font-size: 0.72rem; color: #7dd3fc; }
+.ard-fallback    { font-size: 0.75rem; color: #fbbf24; }
+.ard-error       { font-size: 0.75rem; color: #fca5a5; word-break: break-all; }
 .agent-runner-status { font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
 .ar-completed_prompt_ready  { background: #064e3b; color: #6ee7b7; }
 .ar-completed_report_saved  { background: #052e16; color: #4ade80; }
 .ar-waiting_for_hermes_manual_execution { background: #451a03; color: #fcd34d; }
+.ar-waiting_hermes          { background: #1e3a5f; color: #93c5fd; }
+.ar-hermes_manual_pending   { background: #451a03; color: #fcd34d; }
+.ar-hermes_response_unrecognized { background: #450a0a; color: #fca5a5; }
 .ar-failed  { background: #450a0a; color: #fca5a5; }
 .ar-running { background: #172554; color: #93c5fd; }
 .ar-blocked_approval_required { background: #422006; color: #fbbf24; font-weight: 700; }
@@ -1088,6 +1127,23 @@ onMounted(loadTasks)
   padding: 6px 10px;
   margin-bottom: 0.45rem;
 }
+
+/* Hermes info boxes (inside Agent Run Detail modal) */
+.hermes-waiting-info {
+  font-size: 0.8rem; color: #93c5fd;
+  background: #0f2040; border: 1px solid #1e3a5f;
+  border-radius: 6px; padding: 8px 10px; margin-top: 0.5rem;
+}
+.hermes-error-info {
+  font-size: 0.8rem; color: #fbbf24;
+  background: #1c1000; border: 1px solid #451a03;
+  border-radius: 6px; padding: 8px 10px; margin-top: 0.5rem;
+}
+
+/* Badge for waiting_hermes task status */
+.badge-waiting_hermes          { background: #1e3a5f; color: #93c5fd; }
+.badge-hermes_manual_pending   { background: #451a03; color: #fcd34d; }
+.badge-hermes_response_unrecognized { background: #450a0a; color: #fca5a5; }
 
 /* Completed report preview */
 .report-preview {

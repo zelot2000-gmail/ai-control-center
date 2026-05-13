@@ -12,14 +12,18 @@ class RunnerMode:
 
 
 class RunStatus:
-    QUEUED                 = "queued"
-    PREPARING              = "preparing"
-    RUNNING                = "running"
-    COMPLETED              = "completed"
-    COMPLETED_PROMPT_READY = "completed_prompt_ready"
-    WAITING_FOR_HERMES     = "waiting_for_hermes_manual_execution"
-    FAILED                 = "failed"
-    SKIPPED_DISABLED       = "skipped_disabled"
+    QUEUED                      = "queued"
+    PREPARING                   = "preparing"
+    RUNNING                     = "running"
+    COMPLETED                   = "completed"
+    COMPLETED_PROMPT_READY      = "completed_prompt_ready"
+    COMPLETED_REPORT_SAVED      = "completed_report_saved"
+    WAITING_FOR_HERMES          = "waiting_for_hermes_manual_execution"
+    WAITING_HERMES              = "waiting_hermes"
+    HERMES_MANUAL_PENDING       = "hermes_manual_pending"
+    HERMES_RESPONSE_UNRECOGNIZED = "hermes_response_unrecognized"
+    FAILED                      = "failed"
+    SKIPPED_DISABLED            = "skipped_disabled"
 
 
 @dataclass
@@ -27,6 +31,11 @@ class RunResult:
     status: str
     prompt_path: Optional[str] = None
     error_message: Optional[str] = None
+    report_path: Optional[str] = None
+    final_report: Optional[str] = None
+    output_summary: Optional[str] = None
+    verification_status: Optional[str] = None
+    fallback_mode: Optional[str] = None
 
 
 @dataclass
@@ -50,6 +59,8 @@ class AgentRun:
     verification_status: str = ""
     output_summary: Optional[str] = None
     error_message: Optional[str] = None
+    fallback_mode: str = ""
+    hermes_endpoint: str = ""
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

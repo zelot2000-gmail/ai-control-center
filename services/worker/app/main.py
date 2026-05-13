@@ -873,6 +873,18 @@ async def get_workflow(workflow_id: str):
     return {"workflow_id": workflow_id, "steps": steps, "content": content}
 
 
+def _sync_hermes_report(task_id: str, result: dict, agent_run_info: dict) -> None:
+    """Copy hermes report data into result dict for _push_result sync."""
+    result["final_report"] = agent_run_info.get("final_report")
+    result["report_source"] = "hermes"
+    result["report_saved_at"] = datetime.now(timezone.utc).isoformat()
+    result["report_summary"] = agent_run_info.get("output_summary") or ""
+    result["verification_status"] = agent_run_info.get("verification_status") or "warning"
+    result["issues_found"] = []
+    result["recommendations"] = []
+    result["next_actions"] = []
+
+
 @app.post("/process-task")
 async def process_task(req: TaskRequest):
     processed_at = datetime.now(timezone.utc).isoformat()
@@ -1111,27 +1123,51 @@ async def process_task(req: TaskRequest):
             result["agent_run_mode"] = agent_run_info.get("agent_run_mode")
             result["agent_prompt_path"] = agent_run_info.get("agent_prompt_path")
             logger.info(
-                "Agent runner: run_id=%s status=%s",
+                "Agent runner: run_id=%s status=%s fallback=%s",
                 result["agent_run_id"],
                 result["agent_run_status"],
+                agent_run_info.get("fallback_mode"),
             )
 
+            # ── Hermes auto-report: sync task to completed ───────────────────
+            if agent_run_info.get("final_report") and result["agent_run_status"] == "completed_report_saved":
+                _sync_hermes_report(req.task_id, result, agent_run_info)
+
     # ── 6. Done ──────────────────────────────────────────────────────────────
-    final_step = (
-        "Prompt exported — รอ Agent processing"
-        if bridge == "local-export"
-        else "Export Prompt สำเร็จ"
+    hermes_completed = (
+        AGENT_RUNNER_ENABLED
+        and result.get("agent_run_status") == "completed_report_saved"
+        and result.get("final_report")
     )
-    await _push_progress(req.task_id, status="exported", progress=100)
-    await _push_agent_activity(
-        req.task_id,
-        current_agent="manager", speaker_agent="manager",
-        working_agent="",          # clear active worker
-        current_step=final_step,
-        event_agent="manager", event_role="speaker",
-        event_action="task_complete",
-        event_message=final_step,
-    )
+    if hermes_completed:
+        # Task already completed via hermes auto-report
+        final_step = "Hermes ประมวลผลเสร็จแล้ว — มี Final Report"
+        await _push_progress(req.task_id, status="completed", progress=100, current_step=final_step)
+        await _push_agent_activity(
+            req.task_id,
+            current_agent="manager", speaker_agent="manager",
+            working_agent="",
+            current_step=final_step,
+            event_agent="manager", event_role="speaker",
+            event_action="task_completed_from_hermes",
+            event_message=final_step,
+        )
+    else:
+        final_step = (
+            "Prompt exported — รอ Agent processing"
+            if bridge == "local-export"
+            else "Export Prompt สำเร็จ"
+        )
+        await _push_progress(req.task_id, status="exported", progress=100)
+        await _push_agent_activity(
+            req.task_id,
+            current_agent="manager", speaker_agent="manager",
+            working_agent="",
+            current_step=final_step,
+            event_agent="manager", event_role="speaker",
+            event_action="task_complete",
+            event_message=final_step,
+        )
     await _push_result(req.task_id, result)
 
     return {
@@ -1380,13 +1416,39 @@ async def run_agent_from_task(task_id: str):
     agent_run_info = await run_agent(task_for_runner, rag_results, _push_agent_activity)
 
     logger.info(
-        "Agent runner from-task: task=%s run_id=%s status=%s",
+        "Agent runner from-task: task=%s run_id=%s status=%s fallback=%s",
         task_id, agent_run_info.get("agent_run_id"), agent_run_info.get("agent_run_status"),
+        agent_run_info.get("fallback_mode"),
     )
+
+    # Hermes auto-report: sync task to completed
+    if agent_run_info.get("final_report") and agent_run_info.get("agent_run_status") == "completed_report_saved":
+        hermes_result: dict = {
+            "agent_run_id": agent_run_info.get("agent_run_id"),
+            "agent_run_status": agent_run_info.get("agent_run_status"),
+        }
+        _sync_hermes_report(task_id, hermes_result, agent_run_info)
+        await _push_result(task_id, hermes_result)
+        await _push_progress(
+            task_id, status="completed", progress=100,
+            current_step="Hermes ประมวลผลเสร็จแล้ว — มี Final Report",
+        )
+        await _push_agent_activity(
+            task_id,
+            current_agent="manager", speaker_agent="manager",
+            working_agent="",
+            event_agent="manager", event_role="speaker",
+            event_action="task_completed_from_hermes",
+            event_message="Task เสร็จสมบูรณ์จาก Hermes HTTP Response (after approval)",
+        )
+
     return {
         "task_id": task_id,
         "agent_run_id": agent_run_info.get("agent_run_id"),
         "agent_run_status": agent_run_info.get("agent_run_status"),
         "agent_run_mode": agent_run_info.get("agent_run_mode"),
         "agent_prompt_path": agent_run_info.get("agent_prompt_path"),
+        "final_report": agent_run_info.get("final_report"),
+        "verification_status": agent_run_info.get("verification_status"),
+        "fallback_mode": agent_run_info.get("fallback_mode"),
     }

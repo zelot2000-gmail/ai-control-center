@@ -8,7 +8,7 @@ from ..types import AgentRun, RunResult, RunStatus
 logger = logging.getLogger(__name__)
 
 
-async def run(run: AgentRun, prompt: str, artifact_dir: str) -> RunResult:
+async def run(run: AgentRun, prompt: str, artifact_dir: str, push_event=None) -> RunResult:
     try:
         art = Path(artifact_dir)
         art.mkdir(parents=True, exist_ok=True)

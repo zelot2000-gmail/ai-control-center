@@ -4053,5 +4053,711 @@
     "approval_status": "approved",
     "approved_by": "chain",
     "approved_at": "2026-05-12T16:30:59.763146+00:00"
+  },
+  "ef07c6a9-edbd-4727-882c-8e0291b81aff": {
+    "task_id": "ef07c6a9-edbd-4727-882c-8e0291b81aff",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "skills": [
+      "mobile-command",
+      "qa-verify",
+      "rag-ingest",
+      "programmer",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-12T16:49:15.008879+00:00",
+    "updated_at": "2026-05-12T16:52:58.502864+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/ef07c6a9-edbd-4727-882c-8e0291b81aff.prompt.md",
+      "agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "skills": [
+        "mobile-command",
+        "qa-verify",
+        "rag-ingest",
+        "programmer",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-12T16:52:56.952627+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": "3df17070-b306-4f23-941e-457368ba1785",
+      "agent_run_status": "waiting_for_hermes_manual_execution",
+      "agent_run_mode": "hermes_http",
+      "approval_required": false,
+      "approval_phrase": null,
+      "agent_approval_reason": null,
+      "agent_prompt_path": "/app/data/agent-runs/3df17070-b306-4f23-941e-457368ba1785.prompt.md"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-12T16:49:15.008904+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:57.008646+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:57.144517+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:57.435963+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:57.922004+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ จาก 10 queries"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:57.982196+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.043518+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.089301+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_gate_checked",
+        "message": "ตรวจสอบ approval gate: allowed=True — ผ่าน approval gate"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.147791+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun 3df17070-b306-4f23-941e-457368ba1785 queued (mode=hermes_http)"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.196918+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.237165+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.284175+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=hermes_http"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.330921+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_fallback_manual",
+        "message": "Falling back to hermes_manual (reason: HERMES_API_URL not configured)"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.385812+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_waiting_hermes",
+        "message": "รอ Hermes manual execution"
+      },
+      {
+        "timestamp": "2026-05-12T16:52:58.463093+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "selected_workflow": "wiki-ingest-workflow",
+      "reason_for_mode": "Wiki/knowledge lookup task: RAG search from docs/wiki"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "8fc42fcd-574e-4ae2-bbf5-c807135bc75f": {
+    "task_id": "8fc42fcd-574e-4ae2-bbf5-c807135bc75f",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "skills": [
+      "mobile-command",
+      "qa-verify",
+      "rag-ingest",
+      "programmer",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-13T03:29:44.812841+00:00",
+    "updated_at": "2026-05-13T03:34:24.491113+00:00",
+    "status": "exported",
+    "progress": 100,
+    "current_step": "Prompt exported — รอ Agent processing",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/8fc42fcd-574e-4ae2-bbf5-c807135bc75f.prompt.md",
+      "agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "skills": [
+        "mobile-command",
+        "qa-verify",
+        "rag-ingest",
+        "programmer",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-13T03:34:22.708629+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": "bddf9f41-fbb0-4b22-9dcf-0059d2f79ba5",
+      "agent_run_status": "waiting_for_hermes_manual_execution",
+      "agent_run_mode": "hermes_http",
+      "approval_required": false,
+      "approval_phrase": null,
+      "agent_approval_reason": null,
+      "agent_prompt_path": "/app/data/agent-runs/bddf9f41-fbb0-4b22-9dcf-0059d2f79ba5.prompt.md"
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-13T03:29:44.812855+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:22.779409+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:22.897917+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:22.996195+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.522279+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ จาก 10 queries"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.594220+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.655427+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.704281+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_gate_checked",
+        "message": "ตรวจสอบ approval gate: allowed=True — ผ่าน approval gate"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.739467+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun bddf9f41-fbb0-4b22-9dcf-0059d2f79ba5 queued (mode=hermes_http)"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.776142+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.809780+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.847159+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=hermes_http"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:23.908675+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_requested",
+        "message": "POST http://host.docker.internal:20199/run run_id=bddf9f41-fbb0-4b22-9dcf-0059d2f79ba5"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:24.007833+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_failed",
+        "message": "Connection error: [Errno -2] Name or service not known"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:24.040483+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_fallback_manual",
+        "message": "Falling back to hermes_manual (reason: [Errno -2] Name or service not known)"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:24.099170+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_waiting_hermes",
+        "message": "รอ Hermes manual execution"
+      },
+      {
+        "timestamp": "2026-05-13T03:34:24.445597+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_complete",
+        "message": "Prompt exported — รอ Agent processing"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "selected_workflow": "wiki-ingest-workflow",
+      "reason_for_mode": "Wiki/knowledge lookup task: RAG search from docs/wiki"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
+  },
+  "3d426f9e-9a0b-47ff-ade7-b272deac9444": {
+    "task_id": "3d426f9e-9a0b-47ff-ade7-b272deac9444",
+    "source": "chatgpt",
+    "user": "chain",
+    "intent": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+    "target": "ai-control-center",
+    "risk": 1,
+    "agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "skills": [
+      "mobile-command",
+      "qa-verify",
+      "rag-ingest",
+      "programmer",
+      "llm-wiki",
+      "serena-mcp"
+    ],
+    "inputs": {
+      "text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร",
+      "optimized_text": "ใช้ LLM Wiki อธิบายว่า Serena MCP ต่างจาก RAG อย่างไร"
+    },
+    "constraints": {
+      "environment": "wsl",
+      "mode": "plan-only"
+    },
+    "workflow": [
+      "plan",
+      "build",
+      "verify",
+      "report"
+    ],
+    "attachments": [],
+    "required_output": "mobile-report",
+    "created_at": "2026-05-13T03:46:08.912221+00:00",
+    "updated_at": "2026-05-13T03:47:52.422452+00:00",
+    "status": "completed",
+    "progress": 100,
+    "current_step": "Hermes ประมวลผลเสร็จแล้ว — มี Final Report",
+    "steps": [
+      {
+        "name": "created",
+        "label": "รับคำสั่งแล้ว",
+        "progress": 0,
+        "status": "done"
+      }
+    ],
+    "result": {
+      "export_path": "/app/data/exports/3d426f9e-9a0b-47ff-ade7-b272deac9444.prompt.md",
+      "agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "skills": [
+        "mobile-command",
+        "qa-verify",
+        "rag-ingest",
+        "programmer",
+        "llm-wiki",
+        "serena-mcp"
+      ],
+      "warnings": [],
+      "bridge": "local-export",
+      "processed_at": "2026-05-13T03:47:50.874623+00:00",
+      "rag_results_count": 5,
+      "rag_top_path": "docs/wiki/mcp/serena-mcp.md",
+      "agent_run_id": "b3d8bb09-1376-4908-bbb7-e6aa2a7104db",
+      "agent_run_status": "completed_report_saved",
+      "agent_run_mode": "hermes_http",
+      "approval_required": false,
+      "approval_phrase": null,
+      "agent_approval_reason": null,
+      "agent_prompt_path": "/app/data/agent-runs/b3d8bb09-1376-4908-bbb7-e6aa2a7104db.prompt.md",
+      "final_report": "## Final Report\n\n### Summary\nHermes mock วิเคราะห์สำเร็จ: RAG ใช้ค้นเอกสาร/Wiki/SOP ส่วน Serena MCP ใช้ code intelligence สำหรับ source code navigation และ impact analysis\n\n### Issues Found\n- ไม่มีปัญหาร้ายแรง\n\n### Recommendations\n- ใช้ RAG สำหรับ knowledge lookup\n- ใช้ Serena MCP สำหรับ coding workflow\n\n### Verification Status\nPASS",
+      "report_source": "hermes",
+      "report_saved_at": "2026-05-13T03:47:52.334985+00:00",
+      "report_summary": "Hermes mock response OK",
+      "verification_status": "pass",
+      "issues_found": [],
+      "recommendations": [],
+      "next_actions": []
+    },
+    "current_agent": "manager",
+    "speaker_agent": "manager",
+    "working_agent": null,
+    "active_agents": [
+      "manager",
+      "qa",
+      "rag-curator",
+      "programmer"
+    ],
+    "agent_events": [
+      {
+        "timestamp": "2026-05-13T03:46:08.912237+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_created",
+        "message": "รับคำสั่งและสร้าง task แล้ว"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:50.938580+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_received",
+        "message": "Manager รับงานและกำลังจัดประเภท"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.059367+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "load_skills",
+        "message": "Manager กำลังโหลด Agent, Skill และ Workflow"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.265896+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_started",
+        "message": "กำลังค้น LLM Wiki จาก docs/wiki ผ่าน RAG"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.774886+00:00",
+        "agent": "rag-curator",
+        "role": "worker",
+        "action": "rag_lookup_completed",
+        "message": "ค้น LLM Wiki สำเร็จ พบ 5 รายการ จาก 10 queries"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.835823+00:00",
+        "agent": "manager",
+        "role": "worker",
+        "action": "build_context",
+        "message": "กำลังรวม Context สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.899202+00:00",
+        "agent": "worker",
+        "role": "worker",
+        "action": "export_prompt",
+        "message": "Worker กำลังสร้าง Prompt สำหรับ Agent"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:51.951424+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_runner_gate_checked",
+        "message": "ตรวจสอบ approval gate: allowed=True — ผ่าน approval gate"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.012695+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_queued",
+        "message": "AgentRun b3d8bb09-1376-4908-bbb7-e6aa2a7104db queued (mode=hermes_http)"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.058912+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_preparing",
+        "message": "กำลังสร้าง prompt..."
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.087372+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_prompt_built",
+        "message": "Prompt พร้อมแล้ว"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.122253+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "agent_run_started",
+        "message": "เริ่มรัน adapter=hermes_http"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.160773+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_requested",
+        "message": "POST http://host.docker.internal:20199/run run_id=b3d8bb09-1376-4908-bbb7-e6aa2a7104db"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.202567+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_payload_sent",
+        "message": "HTTP 200"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.233942+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_http_response_received",
+        "message": "Report present=True verification=pass"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.281526+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "hermes_report_saved",
+        "message": "Report saved verification=pass"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.315296+00:00",
+        "agent": "agent-runner",
+        "role": "worker",
+        "action": "task_completed_from_hermes",
+        "message": "Task completed from Hermes HTTP response"
+      },
+      {
+        "timestamp": "2026-05-13T03:47:52.388344+00:00",
+        "agent": "manager",
+        "role": "speaker",
+        "action": "task_completed_from_hermes",
+        "message": "Hermes ประมวลผลเสร็จแล้ว — มี Final Report"
+      }
+    ],
+    "execution": {
+      "mode": "workflow",
+      "autonomy_level": 2,
+      "selected_workflow": "wiki-ingest-workflow",
+      "reason_for_mode": "Wiki/knowledge lookup task: RAG search from docs/wiki"
+    },
+    "accountability": {
+      "owner_agent": "manager",
+      "responsible_agents": [
+        "manager",
+        "qa",
+        "rag-curator",
+        "programmer"
+      ],
+      "approver": null,
+      "approval_required": false,
+      "approval_phrase": null,
+      "decision_log": [],
+      "tool_usage_log": [],
+      "command_validation_log": [],
+      "verification_log": [],
+      "error_log": [],
+      "rollback_required": false,
+      "rollback_plan": null
+    }
   }
 }

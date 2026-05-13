@@ -32,6 +32,14 @@
             💬 Prompt พร้อมแล้ว — กรุณา <strong>Copy Prompt</strong> ไปให้ Claude/Hermes ประมวลผล
           </div>
 
+          <!-- Hermes waiting info -->
+          <div class="hermes-waiting-info" v-if="meta.agent_run_status === 'waiting_hermes'">
+            ⏳ Prompt ถูกส่งให้ Hermes แล้ว — รอผลการประมวลผล (อาจใช้เวลาสักครู่)
+          </div>
+          <div class="hermes-waiting-info hermes-error-info" v-if="meta.agent_run_status === 'hermes_response_unrecognized'">
+            ⚠️ Hermes ตอบกลับในรูปแบบที่ไม่รู้จัก — กรุณา Save Report เองผ่านปุ่มด้านล่าง
+          </div>
+
           <!-- Attachment list (always visible if non-zero) -->
           <div class="attach-list" v-if="meta.attachments_count > 0">
             <div class="attach-list-header">📎 {{ meta.attachments_count }} ไฟล์แนบ</div>
@@ -150,13 +158,13 @@
 
             <!-- Agent Runner: Copy Prompt + Save Agent Report -->
             <button
-              v-if="meta.agent_run_id && meta.agent_run_status === 'completed_prompt_ready'"
+              v-if="meta.agent_run_id && ['completed_prompt_ready','waiting_hermes','hermes_manual_pending','hermes_response_unrecognized'].includes(meta.agent_run_status)"
               class="btn-copy-agent-prompt"
               @click="$emit('copyAgentPrompt', { runId: meta.agent_run_id })"
             >📋 Copy Agent Prompt</button>
 
             <button
-              v-if="meta.agent_run_id && meta.agent_run_status === 'completed_prompt_ready'"
+              v-if="meta.agent_run_id && ['completed_prompt_ready','waiting_hermes','hermes_manual_pending','hermes_response_unrecognized'].includes(meta.agent_run_status)"
               class="btn-save-agent-report"
               @click="$emit('saveAgentReport', { taskId: meta.task_id, runId: meta.agent_run_id, bubbleId: msg.id })"
             >📝 Save Agent Report</button>
@@ -221,7 +229,11 @@ const STATUS_LABELS = {
   exported: 'PROMPT READY', agent_running: 'AGENT RUNNING',
   completed: 'COMPLETED', failed: 'FAILED',
   blocked: 'BLOCKED', waiting_approval: 'WAIT APPROVAL',
-  completed_prompt_ready: 'PROMPT READY', completed_report_saved: 'REPORT SAVED',
+  completed_prompt_ready: 'PROMPT READY',
+  completed_report_saved: 'REPORT SAVED',
+  waiting_hermes: 'WAITING HERMES',
+  hermes_manual_pending: 'HERMES PENDING',
+  hermes_response_unrecognized: 'HERMES ERROR',
   blocked_approval_required: 'BLOCKED — NEEDS APPROVAL',
 }
 const statusLabel = (s) => STATUS_LABELS[s] || (s || '').toUpperCase()
@@ -500,6 +512,9 @@ const fmtTime   = (ts) => {
 .ar-failed    { background: #fee2e2; color: #991b1b; }
 .ar-running   { background: #dbeafe; color: #1e40af; }
 .ar-blocked_approval_required { background: #fef3c7; color: #b45309; font-weight: 700; }
+.ar-waiting_hermes            { background: #dbeafe; color: #1e40af; }
+.ar-hermes_manual_pending     { background: #fef3c7; color: #92400e; }
+.ar-hermes_response_unrecognized { background: #fee2e2; color: #991b1b; }
 .ar-block-icon { font-size: 0.8rem; }
 
 .agent-runner-blocked {

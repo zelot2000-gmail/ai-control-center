@@ -169,8 +169,6 @@ services:
       start_period: 10s
 
   worker:
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     <<: *common
     build:
       context: ../../services/worker
