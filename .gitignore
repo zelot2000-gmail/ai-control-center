@@ -29,3 +29,11 @@ venv/
 Thumbs.db
 
 docker-compose.override.yml
+
+# AI Control Center runtime data
+data/tasks.json
+data/agent-runs.json
+data/agent-runs/*
+!data/agent-runs/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
