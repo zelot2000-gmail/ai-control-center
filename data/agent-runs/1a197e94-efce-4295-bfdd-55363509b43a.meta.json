@@ -1,9 +1,0 @@
-{
-  "run_id": "1a197e94-efce-4295-bfdd-55363509b43a",
-  "job_id": "06c45ee0-2b0a-464d-ad98-79e805343031",
-  "command_id": "06c45ee0-2b0a-464d-ad98-79e805343031",
-  "agent_role": "devops",
-  "runner_mode": "prompt_only",
-  "created_at": "2026-05-12T16:31:13.331621+00:00",
-  "exported_at": "2026-05-12T16:31:13.541869+00:00"
-}

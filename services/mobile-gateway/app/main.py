@@ -29,6 +29,13 @@ GATEWAY_SECRET = os.getenv("MOBILE_GATEWAY_SECRET", "")
 TASKS_FILE   = "/app/data/tasks.json"
 UPLOADS_DIR  = Path("/app/data/uploads")
 
+# Ensure data directories and tasks.json exist at import time
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+_tasks_path = Path(TASKS_FILE)
+_tasks_path.parent.mkdir(parents=True, exist_ok=True)
+if not _tasks_path.exists():
+    _tasks_path.write_text("{}", encoding="utf-8")
+
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
 ALLOWED_EXTENSIONS = {
     # text

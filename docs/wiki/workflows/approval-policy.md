@@ -1,9 +1,9 @@
 ---
 title: "Approval Policy"
 category: workflows
-tags: [approval, autonomy, risk, authorization, confirm]
+tags: [approval, autonomy, risk, authorization, confirm, agent-runner]
 status: stable
-updated: 2026-05-12
+updated: 2026-05-13
 ---
 
 # Approval Policy
@@ -66,6 +66,39 @@ Agent จะ proceed เมื่อได้รับ phrase นี้เท่
 
 ---
 
+## Agent Runner Approval Gate
+
+สำหรับ **Agent Runner v1** มี approval gate แยกต่างหากที่ทำงานใน runtime (ไม่ใช่ phrase-based):
+
+### เงื่อนไขที่ต้อง approve ก่อน run
+
+| เงื่อนไข | ผลลัพธ์ |
+|---------|--------|
+| `environment == "production"` | `blocked_approval_required` |
+| `mode == "execute"` | `blocked_approval_required` |
+| `risk_level >= 3` | `blocked_approval_required` |
+| `runner_mode == "hermes_http"` AND `risk_level > 1` | `blocked_approval_required` |
+
+เงื่อนไขทั้งหมดนี้ **cumulative** — ถ้าตรงข้อใดข้อหนึ่งก็ block
+
+### วิธี Approve ผ่าน API
+
+```http
+PATCH /tasks/{task_id}/approval
+Content-Type: application/json
+X-Gateway-Secret: {MOBILE_GATEWAY_SECRET}
+
+{"approval_status": "approved"}
+```
+
+หลัง approve: worker จะ re-queue task และรัน agent runner ต่อโดยอัตโนมัติ
+
+### วิธี Approve ผ่าน UI
+
+Jobs page → เลือก task ที่มีสถานะ `NEED APPROVAL` → คลิก "Approve" button
+
+---
+
 ## Authorization Context
 
 Agent ต้องตรวจสอบก่อนทุก action ว่า:
@@ -79,6 +112,8 @@ Agent ต้องตรวจสอบก่อนทุก action ว่า:
 
 ## Approval Workflow
 
+### Phrase-based (CLAUDE.md / manual ops)
+
 ```
 User → Request action (Risk Level ≥ 4)
          ↓
@@ -91,6 +126,20 @@ User → พิมพ์ CONFIRM ...
 Agent → ตรวจ phrase ตรงไหม?
          ├─ ใช่ → proceed + log approval
          └─ ไม่ใช่ → reject + explain
+```
+
+### Runtime Gate (Agent Runner)
+
+```
+task created (environment=production OR mode=execute OR risk≥3)
+    ↓
+_can_run_agent() → block
+    ↓
+agent_run_status = "blocked_approval_required"
+    ↓
+User → PATCH /tasks/{id}/approval {"approval_status": "approved"}
+    ↓
+Worker picks up → re-run agent runner → proceeds
 ```
 
 ---

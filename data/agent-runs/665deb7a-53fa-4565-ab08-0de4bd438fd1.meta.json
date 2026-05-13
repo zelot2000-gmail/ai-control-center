@@ -1,9 +1,0 @@
-{
-  "run_id": "665deb7a-53fa-4565-ab08-0de4bd438fd1",
-  "job_id": "642ec7cb-2ca5-4fc1-b398-3a72749a55da",
-  "command_id": "642ec7cb-2ca5-4fc1-b398-3a72749a55da",
-  "agent_role": "manager",
-  "runner_mode": "prompt_only",
-  "created_at": "2026-05-12T15:04:05.093711+00:00",
-  "exported_at": "2026-05-12T15:04:05.278485+00:00"
-}

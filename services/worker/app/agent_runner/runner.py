@@ -104,11 +104,21 @@ async def run_agent(
         }
         if result.report_path:
             update_kwargs["report_path"] = result.report_path
-            update_kwargs["verification_status"] = result.verification_status or "warning"
+            update_kwargs["verification_status"] = result.verification_status or "UNKNOWN"
             update_kwargs["output_summary"] = result.output_summary or ""
             update_kwargs["report_saved_at"] = datetime.now(timezone.utc).isoformat()
         if result.fallback_mode:
             update_kwargs["fallback_mode"] = result.fallback_mode
+        if result.fallback_reason:
+            update_kwargs["fallback_reason"] = result.fallback_reason
+        if result.hermes_endpoint:
+            update_kwargs["hermes_endpoint"] = result.hermes_endpoint
+        if result.hermes_http_status:
+            update_kwargs["hermes_http_status"] = result.hermes_http_status
+        if result.hermes_response_format:
+            update_kwargs["hermes_response_format"] = result.hermes_response_format
+        if result.response_received_at:
+            update_kwargs["response_received_at"] = result.response_received_at
         update_run(run.id, **update_kwargs)
 
         # Status-specific push events
@@ -151,4 +161,9 @@ async def run_agent(
         "output_summary": (result.output_summary if result else None),
         "report_path": (result.report_path if result else None),
         "fallback_mode": (result.fallback_mode if result else None),
+        "fallback_reason": (result.fallback_reason if result else None),
+        "hermes_endpoint": (result.hermes_endpoint if result else ""),
+        "hermes_http_status": (result.hermes_http_status if result else 0),
+        "hermes_response_format": (result.hermes_response_format if result else ""),
+        "response_received_at": (result.response_received_at if result else None),
     }

@@ -1,8 +1,0 @@
-{
-  "run_id": "b3d8bb09-1376-4908-bbb7-e6aa2a7104db",
-  "report_source": "hermes",
-  "final_report": "## Final Report\n\n### Summary\nHermes mock วิเคราะห์สำเร็จ: RAG ใช้ค้นเอกสาร/Wiki/SOP ส่วน Serena MCP ใช้ code intelligence สำหรับ source code navigation และ impact analysis\n\n### Issues Found\n- ไม่มีปัญหาร้ายแรง\n\n### Recommendations\n- ใช้ RAG สำหรับ knowledge lookup\n- ใช้ Serena MCP สำหรับ coding workflow\n\n### Verification Status\nPASS",
-  "summary": "Hermes mock response OK",
-  "verification_status": "pass",
-  "report_saved_at": "2026-05-13T03:47:52.248127+00:00"
-}

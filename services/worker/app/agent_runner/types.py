@@ -4,6 +4,25 @@ from datetime import datetime, timezone
 from typing import Optional, List
 
 
+def normalize_verification_status(v: Optional[str]) -> str:
+    """Normalize verification_status to uppercase canonical form.
+    Returns '' if v is empty/None (meaning 'not set by user').
+    Hermes responses use _normalize_vstat() in hermes_http.py which returns UNKNOWN for empty.
+    """
+    if not v:
+        return ""
+    v_lower = v.lower().strip()
+    if v_lower in ("pass", "passed", "ok", "success", "successful"):
+        return "PASS"
+    if v_lower in ("warning", "warn"):
+        return "WARNING"
+    if v_lower in ("fail", "failed", "error", "failed_check"):
+        return "FAIL"
+    if v_lower == "unknown":
+        return "UNKNOWN"
+    return "UNKNOWN"
+
+
 class RunnerMode:
     PROMPT_ONLY   = "prompt_only"
     HERMES_MANUAL = "hermes_manual"
@@ -36,6 +55,11 @@ class RunResult:
     output_summary: Optional[str] = None
     verification_status: Optional[str] = None
     fallback_mode: Optional[str] = None
+    fallback_reason: Optional[str] = None
+    hermes_endpoint: str = ""
+    hermes_http_status: int = 0
+    hermes_response_format: str = ""
+    response_received_at: Optional[str] = None
 
 
 @dataclass
@@ -60,7 +84,11 @@ class AgentRun:
     output_summary: Optional[str] = None
     error_message: Optional[str] = None
     fallback_mode: str = ""
+    fallback_reason: str = ""
     hermes_endpoint: str = ""
+    hermes_http_status: int = 0
+    hermes_response_format: str = ""
+    response_received_at: Optional[str] = None
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

@@ -20,6 +20,7 @@ from app.agent_runner import (
     list_runs as list_agent_runs,
     update_run as update_agent_run,
 )
+from app.agent_runner.types import normalize_verification_status
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)
@@ -38,6 +39,14 @@ MOBILE_GATEWAY_URL = os.getenv("MOBILE_GATEWAY_URL", "http://mobile-gateway:8088
 RAG_API_URL = os.getenv("RAG_API_URL", "http://rag-api:8090")
 EXPORTS_DIR = Path("/app/data/exports")
 AGENTS_MD_PATH = Path("/app/AGENTS.md")
+
+# Ensure data directories and JSON files exist at import time (safe on re-import)
+EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+Path(AGENT_RUNNER_ARTIFACT_DIR).mkdir(parents=True, exist_ok=True)
+_agent_runs_file = Path("/app/data/agent-runs.json")
+_agent_runs_file.parent.mkdir(parents=True, exist_ok=True)
+if not _agent_runs_file.exists():
+    _agent_runs_file.write_text("{}", encoding="utf-8")
 SKILLS_INDEX_PATH = Path("/app/core/skills/index.json")
 WORKFLOWS_INDEX_PATH = Path("/app/core/workflows/index.json")
 
@@ -879,7 +888,8 @@ def _sync_hermes_report(task_id: str, result: dict, agent_run_info: dict) -> Non
     result["report_source"] = "hermes"
     result["report_saved_at"] = datetime.now(timezone.utc).isoformat()
     result["report_summary"] = agent_run_info.get("output_summary") or ""
-    result["verification_status"] = agent_run_info.get("verification_status") or "warning"
+    raw_vstat = agent_run_info.get("verification_status") or ""
+    result["verification_status"] = normalize_verification_status(raw_vstat) or "UNKNOWN"
     result["issues_found"] = []
     result["recommendations"] = []
     result["next_actions"] = []
@@ -1275,6 +1285,7 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
         raise HTTPException(status_code=404, detail=f"Agent run '{run_id}' not found")
 
     now = datetime.now(timezone.utc).isoformat()
+    vstat = normalize_verification_status(req.verification_status or "")
     art = Path(AGENT_RUNNER_ARTIFACT_DIR)
     art.mkdir(parents=True, exist_ok=True)
 
@@ -1288,7 +1299,7 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
                 "run_id": run_id,
                 "job_id": run.get("job_id"),
                 "report_source": req.report_source,
-                "verification_status": req.verification_status or "",
+                "verification_status": vstat,
                 "summary": req.summary or "",
                 "issues_found": req.issues_found or [],
                 "recommendations": req.recommendations or [],
@@ -1307,10 +1318,10 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
         output_summary=req.summary or req.final_report[:200],
         report_path=str(report_md_path),
         report_saved_at=now,
-        verification_status=req.verification_status or "",
+        verification_status=vstat,
         error_message="",
     )
-    logger.info("Agent run %s report saved (verification=%s)", run_id, req.verification_status)
+    logger.info("Agent run %s report saved (verification=%s)", run_id, vstat)
 
     job_id = run.get("job_id", "")
     if job_id:
@@ -1333,7 +1344,7 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
                 "report_source": req.report_source,
                 "report_saved_at": now,
                 "report_summary": req.summary or "",
-                "verification_status": req.verification_status or "",
+                "verification_status": vstat,
                 "issues_found": req.issues_found or [],
                 "recommendations": req.recommendations or [],
                 "next_actions": req.next_actions or [],
@@ -1360,7 +1371,7 @@ async def save_agent_run_report(run_id: str, req: AgentReportRequest):
         "run_id": run_id,
         "status": "completed_report_saved",
         "report_path": str(report_md_path),
-        "verification_status": req.verification_status,
+        "verification_status": vstat,
         "job_id": job_id,
     }
 

@@ -111,7 +111,7 @@
             <span
               v-if="task.result.verification_status"
               class="verify-badge"
-              :class="`vbadge-${task.result.verification_status}`"
+              :class="`vbadge-${task.result.verification_status?.toLowerCase()}`"
             >{{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}</span>
           </div>
           <div class="report-snippet">
@@ -120,7 +120,7 @@
         </div>
         <!-- Verification badge only (no report text yet) -->
         <div class="verify-only" v-else-if="task.status === 'completed' && task.result?.verification_status">
-          <span class="verify-badge" :class="`vbadge-${task.result.verification_status}`">
+          <span class="verify-badge" :class="`vbadge-${task.result.verification_status?.toLowerCase()}`">
             {{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}
           </span>
         </div>
@@ -314,7 +314,7 @@
             <div class="rmi"><span class="rml">Saved</span><span class="rmv">{{ fmtFull(reportModal.data.report_saved_at) }}</span></div>
             <div class="rmi" v-if="reportModal.data.verification_status">
               <span class="rml">Verification</span>
-              <span class="verify-badge" :class="`vbadge-${reportModal.data.verification_status}`">
+              <span class="verify-badge" :class="`vbadge-${reportModal.data.verification_status?.toLowerCase()}`">
                 {{ verifyIcon(reportModal.data.verification_status) }} {{ reportModal.data.verification_status?.toUpperCase() }}
               </span>
             </div>
@@ -398,7 +398,7 @@
           </div>
           <div class="ard-row" v-if="agentRunModal.data.verification_status">
             <span class="ard-label">Verification</span>
-            <span class="verify-badge" :class="`vbadge-${agentRunModal.data.verification_status}`">
+            <span class="verify-badge" :class="`vbadge-${agentRunModal.data.verification_status?.toLowerCase()}`">
               {{ verifyIcon(agentRunModal.data.verification_status) }} {{ agentRunModal.data.verification_status?.toUpperCase() }}
             </span>
           </div>
@@ -410,9 +410,25 @@
             <span class="ard-label">Hermes URL</span>
             <code class="ard-val ard-hermes-url">{{ maskUrl(agentRunModal.data.hermes_endpoint) }}</code>
           </div>
+          <div class="ard-row" v-if="agentRunModal.data.hermes_http_status">
+            <span class="ard-label">HTTP Status</span>
+            <span class="ard-val">{{ agentRunModal.data.hermes_http_status }}</span>
+          </div>
+          <div class="ard-row" v-if="agentRunModal.data.hermes_response_format">
+            <span class="ard-label">Response Fmt</span>
+            <span class="ard-val ard-fallback">{{ agentRunModal.data.hermes_response_format }}</span>
+          </div>
           <div class="ard-row" v-if="agentRunModal.data.fallback_mode">
             <span class="ard-label">Fallback Mode</span>
             <span class="ard-val ard-fallback">{{ agentRunModal.data.fallback_mode }}</span>
+          </div>
+          <div class="ard-row" v-if="agentRunModal.data.fallback_reason">
+            <span class="ard-label">Fallback Reason</span>
+            <span class="ard-val ard-error">{{ agentRunModal.data.fallback_reason }}</span>
+          </div>
+          <div class="ard-row" v-if="agentRunModal.data.response_received_at">
+            <span class="ard-label">Response At</span>
+            <span class="ard-val">{{ fmtTime(agentRunModal.data.response_received_at) }}</span>
           </div>
           <div class="ard-row" v-if="agentRunModal.data.prompt_path"><span class="ard-label">Prompt File</span><code class="ard-val ard-path">{{ agentRunModal.data.prompt_path }}</code></div>
           <div class="ard-row" v-if="agentRunModal.data.report_path"><span class="ard-label">Report File</span><code class="ard-val ard-path">{{ agentRunModal.data.report_path }}</code></div>
@@ -783,7 +799,10 @@ const fmtFull    = (ts) => {
   try { return new Date(ts).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' }) }
   catch { return ts }
 }
-const verifyIcon = (v) => ({ pass: '✅', warning: '⚠️', fail: '❌' }[v] || '')
+const verifyIcon = (v) => {
+  const lv = (v || '').toLowerCase()
+  return { pass: '✅', warning: '⚠️', fail: '❌', unknown: '❓' }[lv] || ''
+}
 
 const maskUrl = (url) => {
   if (!url) return '—'
@@ -1165,6 +1184,7 @@ onMounted(loadTasks)
 .vbadge-pass    { background: #14532d; color: #4ade80; }
 .vbadge-warning { background: #422006; color: #fbbf24; }
 .vbadge-fail    { background: #450a0a; color: #f87171; }
+.vbadge-unknown { background: #334155; color: #94a3b8; }
 
 .warnings { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; color: #fbbf24; margin-bottom: 0.35rem; }
 .task-error { font-size: 0.75rem; color: #f87171; margin-bottom: 0.35rem; }

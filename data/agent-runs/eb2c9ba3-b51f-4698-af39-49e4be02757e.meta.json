@@ -1,9 +1,0 @@
-{
-  "run_id": "eb2c9ba3-b51f-4698-af39-49e4be02757e",
-  "job_id": "25c279f6-6158-4ab4-899e-d57e84c95c1e",
-  "command_id": "25c279f6-6158-4ab4-899e-d57e84c95c1e",
-  "agent_role": "programmer",
-  "runner_mode": "prompt_only",
-  "created_at": "2026-05-12T16:18:07.785742+00:00",
-  "exported_at": "2026-05-12T16:18:07.934934+00:00"
-}

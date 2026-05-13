@@ -109,7 +109,7 @@
               <span class="task-detail" v-if="meta.report_source">
                 <span class="dl">Source:</span> {{ meta.report_source }}
               </span>
-              <span v-if="meta.verification_status" class="verify-badge" :class="`vbadge-${meta.verification_status}`">
+              <span v-if="meta.verification_status" class="verify-badge" :class="`vbadge-${meta.verification_status?.toLowerCase()}`">
                 {{ verifyIcon(meta.verification_status) }} {{ meta.verification_status?.toUpperCase() }}
               </span>
             </div>
@@ -222,7 +222,10 @@ const AGENT_ICONS = {
   'research': '🔬', 'worker': '⚙️',
 }
 const agentIcon  = (a) => AGENT_ICONS[a] || '🤖'
-const verifyIcon = (v) => ({ pass: '✅', warning: '⚠️', fail: '❌' }[v] || '')
+const verifyIcon = (v) => {
+  const lv = (v || '').toLowerCase()
+  return { pass: '✅', warning: '⚠️', fail: '❌', unknown: '❓' }[lv] || ''
+}
 
 const STATUS_LABELS = {
   pending: 'PENDING', running: 'RUNNING', exporting: 'EXPORTING',
@@ -538,6 +541,18 @@ const fmtTime   = (ts) => {
 .vbadge-pass    { background: #dcfce7; color: #15803d; }
 .vbadge-warning { background: #fef3c7; color: #b45309; }
 .vbadge-fail    { background: #fee2e2; color: #b91c1c; }
+.vbadge-unknown { background: #f3f4f6; color: #6b7280; }
+
+/* Hermes info boxes (inline in task block) */
+.hermes-waiting-info {
+  font-size: 0.78rem; color: #1e40af;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 6px; padding: 6px 10px; margin-bottom: 6px;
+}
+.hermes-error-info {
+  color: #92400e;
+  background: #fff7ed; border-color: #fed7aa;
+}
 
 .final-report-preview {
   font-size: 0.78rem;
