@@ -191,12 +191,26 @@ services:
       - HERMES_FALLBACK_MODE=${HERMES_FALLBACK_MODE:-hermes_manual}
       - HERMES_RETRY_ATTEMPTS=${HERMES_RETRY_ATTEMPTS:-1}
       - HERMES_RETRY_BACKOFF_SECONDS=${HERMES_RETRY_BACKOFF_SECONDS:-2}
+      - HERMES_PROVIDER=${HERMES_PROVIDER:-openai_compatible}
+      - HERMES_REQUEST_FORMAT=${HERMES_REQUEST_FORMAT:-native}
+      - HERMES_MODEL=${HERMES_MODEL:-}
+      - HERMES_TEMPERATURE=${HERMES_TEMPERATURE:-}
       - AGENT_RUNNER_ARTIFACT_DIR=${AGENT_RUNNER_ARTIFACT_DIR:-/app/data/agent-runs}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AICC_WORKSPACE_ID=${AICC_WORKSPACE_ID:-ai-control-center}
+      - AICC_WORKSPACE_NAME=${AICC_WORKSPACE_NAME:-AI Control Center}
+      - AICC_WORKSPACE_ROOT=${AICC_WORKSPACE_ROOT:-/workspace}
+      - AICC_WORKSPACE_DEFAULT_MODE=${AICC_WORKSPACE_DEFAULT_MODE:-plan-only}
+      - AICC_WORKSPACE_ALLOWED_PATHS=${AICC_WORKSPACE_ALLOWED_PATHS:-apps/web/pages,apps/web/components,services/worker/app,services/mobile-gateway/app,core/workflows,docs/wiki,docs/releases,infra/docker,.env.example,.gitignore}
+      - AICC_WORKSPACE_BLOCKED_PATHS=${AICC_WORKSPACE_BLOCKED_PATHS:-.env,data,.git,node_modules,apps/web/dist,apps/web/.output,.claude/settings.local.json}
     volumes:
       - ../../data:/app/data
       - ../../core:/app/core:ro
       - ../../AGENTS.md:/app/AGENTS.md:ro
+      # Self-modify workflow workspace (DEV ONLY — RW access to project root).
+      # Allowlist + blocklist in services/worker/app/code_edit/policy.py
+      # provide the actual safety boundary, not this mount.
+      - ../..:/workspace:rw
     ports:
       - "127.0.0.1:8095:8095"
     healthcheck:

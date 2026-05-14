@@ -3,11 +3,18 @@
     <h1>AI Control Center</h1>
 
     <div class="nav-grid">
+      <a href="/cowork" class="nav-card nav-card-primary">
+        <span class="nav-icon">◈</span>
+        <div>
+          <div class="nav-title">CoWork</div>
+          <div class="nav-desc">AI Workspace — 3-column CoWork UI</div>
+        </div>
+      </a>
       <a href="/command" class="nav-card">
         <span class="nav-icon">💬</span>
         <div>
           <div class="nav-title">Command</div>
-          <div class="nav-desc">ส่งคำสั่งให้ทีม AI</div>
+          <div class="nav-desc">ส่งคำสั่งให้ทีม AI (classic)</div>
         </div>
       </a>
       <a href="/jobs" class="nav-card">
@@ -36,6 +43,13 @@
         <div>
           <div class="nav-title">Logs</div>
           <div class="nav-desc">System & Agent Logs</div>
+        </div>
+      </a>
+      <a href="/settings" class="nav-card nav-card-settings">
+        <span class="nav-icon">⚙️</span>
+        <div>
+          <div class="nav-title">Provider Settings</div>
+          <div class="nav-desc">Hermes / 9Router / OpenAI-compatible</div>
         </div>
       </a>
     </div>
@@ -78,6 +92,29 @@ h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; }
 }
 
 .nav-card:hover { background: #eff6ff; border-color: #93c5fd; }
+
+.nav-card-primary {
+  background: #0c1830;
+  border-color: #1e3a5f;
+  color: #e2e8f0;
+  grid-column: 1 / -1;
+}
+.nav-card-primary .nav-title { color: #60a5fa; font-size: 1rem; }
+.nav-card-primary .nav-desc  { color: #94a3b8; }
+.nav-card-primary:hover { background: #0f2040; border-color: #3b82f6; }
+.nav-card-primary .nav-icon { font-size: 1.6rem; }
+
+.nav-card-settings {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #e2e8f0;
+}
+.nav-card-settings .nav-title { color: #f1f5f9; }
+.nav-card-settings .nav-desc  { color: #94a3b8; }
+.nav-card-settings:hover {
+  background: #0f172a;
+  border-color: #3b82f6;
+}
 
 .nav-icon { font-size: 1.5rem; flex-shrink: 0; }
 .nav-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; }

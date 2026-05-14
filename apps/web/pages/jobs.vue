@@ -2,10 +2,26 @@
   <div class="page">
     <!-- Header -->
     <div class="header">
-      <h1 class="title">Jobs</h1>
-      <button class="btn btn-refresh" :disabled="loading" @click="loadTasks">
-        <span v-if="loading">⏳</span><span v-else>🔄</span> Refresh
-      </button>
+      <div class="header-left">
+        <h1 class="title">⚡ Agent Operations</h1>
+        <span class="title-sub">Dashboard</span>
+      </div>
+      <div class="header-right">
+        <a href="/command" class="btn btn-console">🖥 Console</a>
+        <button class="btn btn-refresh" :disabled="loading" @click="loadTasks">
+          <span v-if="loading">⏳</span><span v-else>↺</span> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Workspace info bar -->
+    <div class="ws-bar" v-if="wsInfo">
+      <span class="ws-bar-item">🗂 <strong>{{ wsInfo.name }}</strong></span>
+      <span class="ws-bar-sep">·</span>
+      <span class="ws-bar-item"><code class="ws-bar-code">{{ wsInfo.root }}</code></span>
+      <span class="ws-bar-sep">·</span>
+      <span class="ws-bar-item ws-bar-branch" v-if="wsInfo.git_branch">⎇ {{ wsInfo.git_branch }}</span>
+      <span class="ws-bar-item ws-bar-mode">{{ wsInfo.default_mode }}</span>
     </div>
 
     <!-- Summary bar -->
@@ -88,6 +104,18 @@
           </span>
         </div>
 
+        <!-- Hermes HTTP row (visible on card for all statuses) -->
+        <div class="hermes-row" v-if="task.result?.hermes_http_status || task.result?.hermes_response_format || task.result?.fallback_reason || task.result?.report_saved_at">
+          <span v-if="task.result?.hermes_http_status" class="hhd-badge" :class="task.result.hermes_http_status === 200 ? 'hhd-ok' : 'hhd-err'">HTTP {{ task.result.hermes_http_status }}</span>
+          <span v-if="task.result?.hermes_response_format" class="hhd-fmt">{{ task.result.hermes_response_format }}</span>
+          <span v-if="task.result?.report_saved_at" class="hhd-saved">report saved {{ fmtTime(task.result.report_saved_at) }}</span>
+          <span v-if="task.result?.verification_status && task.status !== 'completed'" class="verify-badge inline-vbadge" :class="`vbadge-${task.result.verification_status?.toLowerCase()}`">{{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}</span>
+        </div>
+        <!-- Fallback reason (on card) -->
+        <div class="fallback-row" v-if="task.result?.fallback_reason">
+          ⚠️ fallback: {{ task.result.fallback_reason }}
+        </div>
+
         <!-- Attachment list -->
         <div class="attach-box" v-if="task.attachments?.length">
           <div class="attach-header">📎 {{ task.attachments.length }} ไฟล์แนบ</div>
@@ -123,6 +151,31 @@
           <span class="verify-badge" :class="`vbadge-${task.result.verification_status?.toLowerCase()}`">
             {{ verifyIcon(task.result.verification_status) }} {{ task.result.verification_status?.toUpperCase() }}
           </span>
+        </div>
+
+        <!-- Self-Modify Code Edit panel (loads only if task has a saved /code-edit state) -->
+        <div class="code-edit-panel" v-if="codeEdits[task.task_id]">
+          <div class="ce-head">
+            <span class="ce-icon">🛠</span>
+            <span class="ce-title">Self-Modify Code Edit</span>
+            <span class="ce-status" :class="`ce-st-${codeEdits[task.task_id].status}`">{{ codeEdits[task.task_id].status }}</span>
+            <span class="ce-risk-tag" :class="`ce-risk-${codeEdits[task.task_id].risk_level}`">risk {{ codeEdits[task.task_id].risk_level }}/5</span>
+          </div>
+          <div class="ce-files-row" v-if="codeEdits[task.task_id].files_to_change?.length">
+            <span class="ce-key">Files</span>
+            <code v-for="f in codeEdits[task.task_id].files_to_change" :key="f" class="ce-file">{{ f }}</code>
+          </div>
+          <div class="ce-files-row" v-if="codeEdits[task.task_id].verification_overall && codeEdits[task.task_id].verification_overall !== 'UNKNOWN'">
+            <span class="ce-key">Verification</span>
+            <span :class="`vbadge-${codeEdits[task.task_id].verification_overall?.toLowerCase()}`" class="verify-badge">
+              {{ codeEdits[task.task_id].verification_overall }}
+            </span>
+          </div>
+          <div class="ce-files-row" v-if="codeEdits[task.task_id].commit_hash">
+            <span class="ce-key">Commit</span>
+            <code class="ce-file">{{ codeEdits[task.task_id].commit_hash }}</code>
+            <span v-if="codeEdits[task.task_id].branch" class="ce-branch">on {{ codeEdits[task.task_id].branch }}</span>
+          </div>
         </div>
 
         <!-- Warnings -->
@@ -430,6 +483,10 @@
             <span class="ard-label">Response At</span>
             <span class="ard-val">{{ fmtTime(agentRunModal.data.response_received_at) }}</span>
           </div>
+          <div class="ard-row" v-if="agentRunModal.data.report_saved_at">
+            <span class="ard-label">Report Saved</span>
+            <span class="ard-val">{{ fmtTime(agentRunModal.data.report_saved_at) }}</span>
+          </div>
           <div class="ard-row" v-if="agentRunModal.data.prompt_path"><span class="ard-label">Prompt File</span><code class="ard-val ard-path">{{ agentRunModal.data.prompt_path }}</code></div>
           <div class="ard-row" v-if="agentRunModal.data.report_path"><span class="ard-label">Report File</span><code class="ard-val ard-path">{{ agentRunModal.data.report_path }}</code></div>
           <div class="ard-row" v-if="agentRunModal.data.error_message">
@@ -567,6 +624,8 @@ const API    = config.public.apiBase
 const WORKER = config.public.workerBase
 
 const tasks      = ref([])
+const codeEdits  = ref({})   // task_id → code-edit state (loaded lazily on refresh)
+const wsInfo     = ref(null)
 const loading    = ref(false)
 const fetchError = ref('')
 const processing = ref({})
@@ -663,11 +722,25 @@ async function loadTasks() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
     tasks.value = data.tasks || []
+    // Lazy-load any code-edit states (silent — most tasks won't have one)
+    loadCodeEdits(tasks.value.map(t => t.task_id))
   } catch (e) {
     fetchError.value = `Cannot reach mobile-gateway (${API}): ${e.message}`
   } finally {
     loading.value = false
   }
+}
+
+async function loadCodeEdits(taskIds) {
+  const next = {}
+  await Promise.all(taskIds.map(async (tid) => {
+    if (!tid) return
+    try {
+      const r = await fetch(`${WORKER}/code-edit/${tid}`)
+      if (r.ok) next[tid] = await r.json()
+    } catch { /* ignore — task may have no code-edit state */ }
+  }))
+  codeEdits.value = next
 }
 
 // ── Process task (pending/failed → exported) ──────────────────────────────
@@ -972,7 +1045,13 @@ async function submitAgentApprove() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
-onMounted(loadTasks)
+onMounted(async () => {
+  await loadTasks()
+  try {
+    const res = await fetch(`${WORKER}/workspace`)
+    if (res.ok) wsInfo.value = await res.json()
+  } catch { /* non-critical */ }
+})
 </script>
 
 <style scoped>
@@ -980,17 +1059,40 @@ onMounted(loadTasks)
 
 .page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0f172a;
+  background: #080c14;
   color: #e2e8f0;
   min-height: 100vh;
   padding: 1rem;
-  max-width: 680px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
 /* Header */
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-.title  { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; margin: 0; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.9rem;
+  background: #0a1628;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+}
+.header-left { display: flex; align-items: baseline; gap: 0.4rem; }
+.header-right { display: flex; align-items: center; gap: 0.5rem; }
+.title  { font-size: 1.15rem; font-weight: 800; color: #f1f5f9; margin: 0; letter-spacing: 0.01em; }
+.title-sub { font-size: 0.68rem; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* Workspace bar */
+.ws-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+  background: #0a1628; border: 1px solid #1e3a5f; border-radius: 8px;
+  padding: 0.4rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.72rem;
+}
+.ws-bar-item { color: #94a3b8; }
+.ws-bar-item strong { color: #7dd3fc; }
+.ws-bar-sep  { color: #334155; }
+.ws-bar-code { background: #0f172a; border: 1px solid #334155; border-radius: 4px; padding: 1px 5px; font-size: 0.68rem; color: #cbd5e1; font-family: monospace; }
+.ws-bar-branch { color: #6ee7b7; font-family: monospace; }
+.ws-bar-mode { background: #1e1b4b; color: #a78bfa; padding: 1px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
 
 /* Summary */
 .summary { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
@@ -1012,7 +1114,8 @@ onMounted(loadTasks)
   font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
 }
 .btn:disabled   { opacity: 0.5; cursor: not-allowed; }
-.btn-refresh    { background: #334155; color: #94a3b8; }
+.btn-refresh    { background: #1e293b; color: #64748b; }
+.btn-console    { background: #1e3a5f; color: #93c5fd; text-decoration: none; }
 .btn-process    { background: #1d4ed8; color: #fff; }
 .btn-view       { background: #0f766e; color: #fff; }
 .btn-run-agent      { background: #1d4ed8; color: #fff; }
@@ -1035,10 +1138,13 @@ onMounted(loadTasks)
 .task-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .task-card {
-  background: #1e293b;
+  background: #111827;
   border-radius: 12px;
   padding: 1rem;
   border-left: 4px solid #334155;
+  border: 1px solid #1e293b;
+  border-left: 4px solid #334155;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
 }
 .card-pending       { border-left-color: #475569; }
 .card-running       { border-left-color: #3b82f6; }
@@ -1136,6 +1242,26 @@ onMounted(loadTasks)
 .export-path { font-size: 0.75rem; color: #4ade80; margin-bottom: 0.35rem; word-break: break-all; }
 .export-path code { font-family: monospace; }
 
+/* Hermes HTTP row on card */
+.hermes-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 0.35rem; font-size: 0.75rem;
+}
+.hhd-badge { font-weight: 700; padding: 2px 7px; border-radius: 999px; font-size: 0.7rem; }
+.hhd-ok  { background: #064e3b; color: #6ee7b7; }
+.hhd-err { background: #500724; color: #fca5a5; }
+.hhd-fmt  { background: #1e3a5f; color: #93c5fd; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+.hhd-saved { color: #6ee7b7; font-size: 0.7rem; }
+.inline-vbadge { font-size: 0.7rem; }
+
+/* Fallback reason on card */
+.fallback-row {
+  font-size: 0.75rem; color: #fbbf24;
+  background: #422006; border-radius: 6px;
+  padding: 4px 8px; margin-bottom: 0.35rem;
+  word-break: break-word;
+}
+
 /* Agent Running notice */
 .agent-running-notice {
   font-size: 0.8rem;
@@ -1188,6 +1314,42 @@ onMounted(loadTasks)
 
 .warnings { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; color: #fbbf24; margin-bottom: 0.35rem; }
 .task-error { font-size: 0.75rem; color: #f87171; margin-bottom: 0.35rem; }
+
+/* Self-modify code edit panel */
+.code-edit-panel {
+  background: #1c1230; border: 1px solid #3b1f5e; border-left: 3px solid #a78bfa;
+  border-radius: 8px; padding: 6px 10px; margin-bottom: 0.45rem;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ce-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ce-icon { font-size: 1rem; }
+.ce-title { font-size: 0.78rem; font-weight: 700; color: #c4b5fd; }
+.ce-status {
+  font-size: 0.66rem; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.ce-st-patch_proposed        { background: #1e3a5f; color: #93c5fd; }
+.ce-st-patch_applied         { background: #422006; color: #fbbf24; }
+.ce-st-verification_passed   { background: #064e3b; color: #6ee7b7; }
+.ce-st-verification_failed   { background: #450a0a; color: #fca5a5; }
+.ce-st-waiting_commit_approval { background: #422006; color: #fbbf24; }
+.ce-st-committed             { background: #052e16; color: #4ade80; font-weight: 700; }
+.ce-st-rolled_back           { background: #334155; color: #cbd5e1; }
+.ce-st-blocked               { background: #450a0a; color: #fca5a5; }
+
+.ce-risk-tag {
+  font-size: 0.62rem; font-weight: 600;
+  padding: 1px 5px; border-radius: 4px;
+  background: #334155; color: #cbd5e1;
+}
+.ce-risk-1, .ce-risk-2 { background: #064e3b; color: #6ee7b7; }
+.ce-risk-3, .ce-risk-4 { background: #422006; color: #fbbf24; }
+.ce-risk-5             { background: #450a0a; color: #fca5a5; }
+
+.ce-files-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.7rem; }
+.ce-key { color: #94a3b8; font-weight: 600; min-width: 70px; }
+.ce-file { font-family: monospace; font-size: 0.68rem; color: #a78bfa; background: transparent; }
+.ce-branch { font-size: 0.68rem; color: #64748b; }
 
 .timestamps { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.7rem; color: #475569; margin-bottom: 0.6rem; }
 

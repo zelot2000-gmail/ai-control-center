@@ -9,6 +9,13 @@
       @saveReport="$emit('saveReport', $event)"
       @viewReport="$emit('viewReport', $event)"
       @viewTimeline="$emit('viewTimeline', $event)"
+      @copyAgentPrompt="$emit('copyAgentPrompt', $event)"
+      @saveAgentReport="$emit('saveAgentReport', $event)"
+      @approveAgentRun="$emit('approveAgentRun', $event)"
+      @applyCodeEdit="$emit('applyCodeEdit', $event)"
+      @commitCodeEdit="$emit('commitCodeEdit', $event)"
+      @rollbackCodeEdit="$emit('rollbackCodeEdit', $event)"
+      @viewCodeEditPatch="$emit('viewCodeEditPatch', $event)"
     />
     <div class="typing" v-if="isSending">
       <span></span><span></span><span></span>
@@ -23,7 +30,11 @@ const props = defineProps({
   messages: { type: Array, default: () => [] },
   isSending: { type: Boolean, default: false },
 })
-defineEmits(['viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline'])
+defineEmits([
+  'viewPrompt', 'runAgent', 'saveReport', 'viewReport', 'viewTimeline',
+  'copyAgentPrompt', 'saveAgentReport', 'approveAgentRun',
+  'applyCodeEdit', 'commitCodeEdit', 'rollbackCodeEdit', 'viewCodeEditPatch',
+])
 
 const el = ref(null)
 
