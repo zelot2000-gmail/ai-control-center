@@ -12,6 +12,7 @@ node_modules/
 .pnpm-store/
 apps/web/.nuxt/
 apps/web/.output/
+apps/web/dist/
 
 __pycache__/
 *.pyc
@@ -43,3 +44,5 @@ data/uploads-test*
 data/mock_*.py
 data/verify_*.sh
 data/check_*.sh
+data/provider-settings.local.json
+data/code-edits/

@@ -8,16 +8,7 @@ from typing import Callable, Optional
 
 import httpx
 
-from ..config import (
-    HERMES_API_KEY,
-    HERMES_API_URL,
-    HERMES_FALLBACK_MODE,
-    HERMES_MODEL,
-    HERMES_REQUEST_FORMAT,
-    HERMES_RETRY_ATTEMPTS,
-    HERMES_RETRY_BACKOFF_SECONDS,
-    HERMES_TIMEOUT_SECONDS,
-)
+from ..config import load_effective_provider_config
 from ..types import AgentRun, RunResult, RunStatus
 from . import hermes_manual, prompt_only
 
@@ -72,21 +63,52 @@ def _build_v1_payload(run: AgentRun, prompt: str, prompt_path: str) -> dict:
     }
 
 
-def _build_openai_payload(run: AgentRun, prompt: str) -> dict:
-    return {
-        "model": HERMES_MODEL,
+_SYSTEM_PROMPT = (
+    "You are Hermes Agent Runner inside AI Control Center. "
+    "Return a concise final report with Summary, Issues Found, Recommendations, "
+    "Next Actions, and Verification Status."
+)
+
+
+def _build_openai_payload(run: AgentRun, prompt: str, model: str, temperature) -> dict:
+    payload: dict = {
+        "model": model,
         "messages": [
-            {
-                "role": "system",
-                "content": "You are Hermes Agent Runner inside AI Control Center. Return final report only.",
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
+            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "user",   "content": prompt},
         ],
-        "temperature": 0.2,
     }
+    if temperature is not None:
+        payload["temperature"] = temperature
+    return payload
+
+
+def _is_temperature_error(resp: httpx.Response) -> bool:
+    """Return True if response indicates the model rejected the `temperature` param."""
+    if resp.status_code != 400:
+        return False
+    try:
+        body = resp.json()
+    except Exception:
+        body = None
+    if isinstance(body, dict):
+        err = body.get("error") or {}
+        if isinstance(err, dict):
+            if err.get("param") == "temperature":
+                return True
+            code = (err.get("code") or "").lower()
+            msg = (err.get("message") or "").lower()
+            if "temperature" in msg and (
+                code in ("unsupported_value", "unsupported_parameter")
+                or "unsupported" in msg
+                or "does not support" in msg
+                or "only the default" in msg
+            ):
+                return True
+    text = (resp.text or "").lower()
+    if "temperature" in text and ("unsupported" in text or "does not support" in text):
+        return True
+    return False
 
 
 def _detect_response_format(data: dict) -> str:
@@ -172,25 +194,33 @@ def _save_report_files(
     return {"report_md_path": str(report_md), "saved_at": now}
 
 
-async def _post_with_retry(url: str, payload: dict, headers: dict) -> httpx.Response:
+async def _post_with_retry(
+    url: str,
+    payload: dict,
+    headers: dict,
+    *,
+    timeout_seconds: float,
+    retry_attempts: int,
+    retry_backoff_seconds: float,
+) -> httpx.Response:
     """POST with retry on network errors, timeouts, 5xx, and 429.
     4xx (other than 429) are not retried.
     Raises on final failure.
     """
-    max_attempts = max(1, HERMES_RETRY_ATTEMPTS + 1)
+    max_attempts = max(1, retry_attempts + 1)
     last_exc: Optional[Exception] = None
     for attempt in range(max_attempts):
         is_last = attempt == max_attempts - 1
         try:
-            async with httpx.AsyncClient(timeout=HERMES_TIMEOUT_SECONDS) as client:
+            async with httpx.AsyncClient(timeout=timeout_seconds) as client:
                 resp = await client.post(url, json=payload, headers=headers)
             should_retry = resp.status_code == 429 or resp.status_code >= 500
             if should_retry and not is_last:
                 logger.warning(
                     "hermes_http: HTTP %d, retrying (%d/%d) in %.1fs",
-                    resp.status_code, attempt + 2, max_attempts, HERMES_RETRY_BACKOFF_SECONDS,
+                    resp.status_code, attempt + 2, max_attempts, retry_backoff_seconds,
                 )
-                await asyncio.sleep(HERMES_RETRY_BACKOFF_SECONDS)
+                await asyncio.sleep(retry_backoff_seconds)
                 continue
             return resp
         except (httpx.TimeoutException, httpx.ConnectError, httpx.NetworkError) as exc:
@@ -198,9 +228,9 @@ async def _post_with_retry(url: str, payload: dict, headers: dict) -> httpx.Resp
             if not is_last:
                 logger.warning(
                     "hermes_http: %s, retrying (%d/%d) in %.1fs",
-                    exc, attempt + 2, max_attempts, HERMES_RETRY_BACKOFF_SECONDS,
+                    exc, attempt + 2, max_attempts, retry_backoff_seconds,
                 )
-                await asyncio.sleep(HERMES_RETRY_BACKOFF_SECONDS)
+                await asyncio.sleep(retry_backoff_seconds)
                 continue
     if last_exc:
         raise last_exc
@@ -212,10 +242,14 @@ async def _do_fallback(
     prompt: str,
     artifact_dir: str,
     push_event: Optional[Callable],
+    *,
+    fallback_mode: str,
     error: str = "",
+    provider: str = "",
+    request_format: str = "",
 ) -> RunResult:
-    fallback = HERMES_FALLBACK_MODE
-    fallback_reason = error[:200] if error else "hermes_http fallback"
+    fallback = fallback_mode or "hermes_manual"
+    fallback_reason = error[:500] if error else "hermes_http fallback (reason unset)"
     if push_event:
         try:
             await push_event(
@@ -233,9 +267,41 @@ async def _do_fallback(
 
     result.fallback_mode = fallback
     result.fallback_reason = fallback_reason
+    result.hermes_provider = provider
+    result.hermes_request_format = request_format
     if not result.error_message and error:
-        result.error_message = f"Hermes failed: {error[:120]} → fallback {fallback}"
+        result.error_message = f"Hermes failed: {error[:200]} → fallback {fallback}"
     return result
+
+
+def _human_http_reason(status: int, body_text: str) -> str:
+    """Build a clear fallback_reason from an upstream HTTP failure."""
+    body = (body_text or "").strip()
+    try:
+        j = json.loads(body) if body else None
+    except Exception:
+        j = None
+    detail = ""
+    if isinstance(j, dict):
+        err = j.get("error")
+        if isinstance(err, dict):
+            detail = (err.get("message") or err.get("code") or "")[:200]
+    if not detail:
+        detail = body[:200]
+
+    if status == 400:
+        return f"OpenAI HTTP 400: {detail or 'bad request'}"
+    if status == 401:
+        return f"OpenAI HTTP 401: invalid API key{(' — ' + detail) if detail else ''}"
+    if status == 403:
+        return f"OpenAI HTTP 403: forbidden{(' — ' + detail) if detail else ''}"
+    if status == 404:
+        return f"OpenAI HTTP 404: model not found{(' — ' + detail) if detail else ''}"
+    if status == 429:
+        return f"OpenAI HTTP 429: quota/rate limit{(' — ' + detail) if detail else ''}"
+    if status >= 500:
+        return f"OpenAI HTTP {status}: upstream error{(' — ' + detail) if detail else ''}"
+    return f"OpenAI HTTP {status}{(': ' + detail) if detail else ''}"
 
 
 async def run(
@@ -244,10 +310,29 @@ async def run(
     artifact_dir: str,
     push_event: Optional[Callable] = None,
 ) -> RunResult:
+    # ── Load effective config at runtime (respects Save from /settings) ──────
+    cfg = load_effective_provider_config()
+    api_url        = cfg["hermes_api_url"]
+    api_key        = cfg["hermes_api_key"]
+    model          = cfg["hermes_model"]
+    request_format = cfg["hermes_request_format"]
+    fallback_mode  = cfg["hermes_fallback_mode"]
+    timeout_s      = cfg["hermes_timeout_seconds"]
+    retry_attempts = cfg["hermes_retry_attempts"]
+    retry_backoff  = cfg["hermes_retry_backoff_seconds"]
+    temperature    = cfg["hermes_temperature"]
+    provider       = cfg["hermes_provider"]
+
+    logger.info(
+        "hermes_http: cfg provider=%s format=%s url=%s model=%s api_key_set=%s key_len=%d temp=%s source=%s",
+        provider, request_format, _mask_endpoint_url(api_url), model,
+        bool(api_key), len(api_key or ""), temperature, cfg["runtime_config_source"],
+    )
+
     art = Path(artifact_dir)
     art.mkdir(parents=True, exist_ok=True)
 
-    masked_endpoint = _mask_endpoint_url(HERMES_API_URL)
+    masked_endpoint = _mask_endpoint_url(api_url)
 
     prompt_path = art / f"{run.id}.prompt.md"
     prompt_path.write_text(prompt, encoding="utf-8")
@@ -259,19 +344,25 @@ async def run(
             except Exception:
                 pass
 
-    # ── No URL → immediate fallback ──────────────────────────────────────────
-    if not HERMES_API_URL:
-        logger.warning("hermes_http: HERMES_API_URL not set → fallback to %s", HERMES_FALLBACK_MODE)
-        return await _do_fallback(run, prompt, artifact_dir, push_event, error="HERMES_API_URL not configured")
+    # ── No URL → immediate fallback with clear reason ────────────────────────
+    if not api_url:
+        reason = "HERMES_API_URL not configured (set in /settings or .env)"
+        logger.warning("hermes_http: %s → fallback to %s", reason, fallback_mode)
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=reason,
+        )
+        result.hermes_endpoint = masked_endpoint
+        return result
 
     # ── Build payload and select endpoint ────────────────────────────────────
-    if HERMES_REQUEST_FORMAT == "openai_compatible":
-        payload = _build_openai_payload(run, prompt)
-        post_url = HERMES_API_URL
+    if request_format == "openai_compatible":
+        payload = _build_openai_payload(run, prompt, model, temperature)
+        post_url = api_url
         post_label = masked_endpoint
     else:  # native
         payload = _build_v1_payload(run, prompt, str(prompt_path))
-        post_url = f"{HERMES_API_URL}/run"
+        post_url = f"{api_url.rstrip('/')}/run"
         post_label = f"{masked_endpoint}/run"
 
     # ── Save payload ──────────────────────────────────────────────────────────
@@ -280,42 +371,108 @@ async def run(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
-    await _push("hermes_http_payload_saved", f"Payload saved format={HERMES_REQUEST_FORMAT} run_id={run.id}")
+    await _push("hermes_http_payload_saved", f"Payload saved format={request_format} run_id={run.id}")
 
     # NOTE: API key is never logged — only used in Authorization header
     headers = {"Content-Type": "application/json"}
-    if HERMES_API_KEY:
-        headers["Authorization"] = f"Bearer {HERMES_API_KEY}"
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
 
-    await _push("hermes_http_requested", f"POST {post_label} format={HERMES_REQUEST_FORMAT} run_id={run.id}")
-    logger.info("hermes_http: POST %s format=%s run_id=%s", post_label, HERMES_REQUEST_FORMAT, run.id)
+    await _push(
+        "hermes_http_requested",
+        f"POST {post_label} format={request_format} provider={provider} run_id={run.id}",
+    )
+
+    post_kwargs = dict(
+        timeout_seconds=timeout_s,
+        retry_attempts=retry_attempts,
+        retry_backoff_seconds=retry_backoff,
+    )
 
     # ── HTTP request (with retry) ─────────────────────────────────────────────
     try:
-        resp = await _post_with_retry(post_url, payload, headers)
+        resp = await _post_with_retry(post_url, payload, headers, **post_kwargs)
     except httpx.TimeoutException:
-        err = f"Timeout after {HERMES_TIMEOUT_SECONDS}s (attempts={max(1, HERMES_RETRY_ATTEMPTS + 1)})"
+        err = f"Connection timeout after {timeout_s}s (attempts={max(1, retry_attempts + 1)})"
         logger.error("hermes_http: %s", err)
         await _push("hermes_http_failed", err)
-        result = await _do_fallback(run, prompt, artifact_dir, push_event, error=err)
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=err,
+            provider=provider, request_format=request_format,
+        )
         result.hermes_endpoint = masked_endpoint
         return result
     except Exception as e:
         err = f"Connection error: {type(e).__name__}: {e}"
         logger.error("hermes_http: %s", err)
         await _push("hermes_http_failed", err)
-        result = await _do_fallback(run, prompt, artifact_dir, push_event, error=err)
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=err,
+            provider=provider, request_format=request_format,
+        )
         result.hermes_endpoint = masked_endpoint
         return result
 
     http_status = resp.status_code
     await _push("hermes_http_payload_sent", f"HTTP {http_status}")
 
+    # ── Temperature-unsupported retry ────────────────────────────────────────
+    if (
+        request_format == "openai_compatible"
+        and "temperature" in payload
+        and _is_temperature_error(resp)
+    ):
+        logger.warning(
+            "hermes_http: model rejected temperature, retrying without (run=%s)", run.id,
+        )
+        await _push(
+            "hermes_http_temperature_retry",
+            "Model rejected temperature; retrying without it",
+        )
+        payload.pop("temperature", None)
+        payload_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        try:
+            resp = await _post_with_retry(post_url, payload, headers, **post_kwargs)
+        except httpx.TimeoutException:
+            err = f"Connection timeout after {timeout_s}s on temperature-retry"
+            logger.error("hermes_http: %s", err)
+            await _push("hermes_http_failed", err)
+            result = await _do_fallback(
+                run, prompt, artifact_dir, push_event,
+                fallback_mode=fallback_mode, error=err,
+            )
+            result.hermes_endpoint = masked_endpoint
+            return result
+        except Exception as e:
+            err = f"Connection error on temperature-retry: {type(e).__name__}: {e}"
+            logger.error("hermes_http: %s", err)
+            await _push("hermes_http_failed", err)
+            result = await _do_fallback(
+                run, prompt, artifact_dir, push_event,
+                fallback_mode=fallback_mode, error=err,
+            )
+            result.hermes_endpoint = masked_endpoint
+            return result
+        http_status = resp.status_code
+        await _push(
+            "hermes_http_payload_sent",
+            f"HTTP {http_status} (after temperature-retry)",
+        )
+
     if http_status not in (200, 201, 202):
-        err = f"HTTP {http_status}: {resp.text[:200]}"
-        logger.error("hermes_http: unexpected status %s", err)
-        await _push("hermes_http_failed", err)
-        result = await _do_fallback(run, prompt, artifact_dir, push_event, error=err)
+        reason = _human_http_reason(http_status, resp.text or "")
+        logger.error("hermes_http: %s", reason)
+        await _push("hermes_http_failed", reason)
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=reason,
+            provider=provider, request_format=request_format,
+        )
         result.hermes_endpoint = masked_endpoint
         result.hermes_http_status = http_status
         return result
@@ -327,7 +484,6 @@ async def run(
     try:
         data = resp.json()
     except Exception:
-        # Non-JSON response
         response_path.write_text(
             json.dumps(
                 {
@@ -347,7 +503,12 @@ async def run(
             f"Non-JSON response (HTTP {http_status}) — saved as hermes-response.json",
         )
         logger.warning("hermes_http: non-JSON response for run %s", run.id)
-        result = await _do_fallback(run, prompt, artifact_dir, push_event, error=f"Non-JSON response HTTP {http_status}")
+        reason = f"Non-JSON response from provider (HTTP {http_status})"
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=reason,
+            provider=provider, request_format=request_format,
+        )
         result.hermes_endpoint = masked_endpoint
         result.hermes_http_status = http_status
         result.hermes_response_format = "non_json"
@@ -357,7 +518,6 @@ async def run(
 
     fmt = _detect_response_format(data)
 
-    # ── Save hermes-response.json ─────────────────────────────────────────────
     response_path.write_text(
         json.dumps(
             {
@@ -379,12 +539,15 @@ async def run(
     await _push("hermes_http_response_saved", f"Response saved format={fmt}")
     logger.info("hermes_http: response format=%s run=%s", fmt, run.id)
 
-    # ── Unrecognized format ───────────────────────────────────────────────────
     if fmt == "unrecognized":
-        err = f"Response format unrecognized (HTTP {http_status})"
-        logger.warning("hermes_http: %s for run %s", err, run.id)
-        await _push("hermes_http_failed", err)
-        result = await _do_fallback(run, prompt, artifact_dir, push_event, error=err)
+        reason = f"Provider response format unrecognized (HTTP {http_status})"
+        logger.warning("hermes_http: %s for run %s", reason, run.id)
+        await _push("hermes_http_failed", reason)
+        result = await _do_fallback(
+            run, prompt, artifact_dir, push_event,
+            fallback_mode=fallback_mode, error=reason,
+            provider=provider, request_format=request_format,
+        )
         result.hermes_endpoint = masked_endpoint
         result.hermes_http_status = http_status
         result.hermes_response_format = fmt
@@ -394,7 +557,6 @@ async def run(
 
     final_report, summary, vstat = _extract_report(data)
 
-    # ── Auto-save report ──────────────────────────────────────────────────────
     if final_report:
         report_info = _save_report_files(art, run.id, final_report, summary, vstat)
         await _push("hermes_report_saved", f"Report saved verification={vstat}")
@@ -411,9 +573,10 @@ async def run(
             hermes_http_status=http_status,
             hermes_response_format=fmt,
             response_received_at=response_received_at,
+            hermes_provider=provider,
+            hermes_request_format=request_format,
         )
 
-    # ── 202 / queued — no report yet ─────────────────────────────────────────
     logger.info(
         "hermes_http: run %s submitted (HTTP %d), no report in response — waiting",
         run.id, http_status,
@@ -429,4 +592,6 @@ async def run(
         hermes_http_status=http_status,
         hermes_response_format=fmt,
         response_received_at=response_received_at,
+        hermes_provider=provider,
+        hermes_request_format=request_format,
     )

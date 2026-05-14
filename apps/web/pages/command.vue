@@ -2,7 +2,15 @@
   <div class="page">
     <div class="card">
       <div class="header">
-        <span class="header-title">🚀 AI Command Center</span>
+        <div class="header-title-block">
+          <span class="header-title">🤖 AI Assistant</span>
+          <span class="header-subtitle">สั่งงานและคุยกับระบบ AI ของคุณ</span>
+        </div>
+        <div class="header-right">
+          <span class="header-status">● Online</span>
+          <a class="header-link" href="/jobs" title="ดูรายละเอียดทางเทคนิคและสถานะงาน">Jobs ↗</a>
+          <a class="header-link" href="/settings" title="ตั้งค่า Provider">⚙️</a>
+        </div>
       </div>
       <ModeChips v-model="selectedMode" />
       <CommandChat
@@ -17,6 +25,10 @@
         @copyAgentPrompt="copyAgentPrompt"
         @saveAgentReport="openAgentReport"
         @approveAgentRun="openApproveModal"
+        @applyCodeEdit="applyCodeEdit"
+        @commitCodeEdit="commitCodeEdit"
+        @rollbackCodeEdit="rollbackCodeEdit"
+        @viewCodeEditPatch="viewCodeEditPatch"
       />
       <QuickActions @action="handleQuickAction" />
       <CommandInput
@@ -325,14 +337,14 @@ function statusToProgress(status) {
 function statusToStep(status) {
   return {
     pending: 'รับคำสั่งแล้ว',
-    running: 'กำลังประมวลผล...',
-    exporting: 'กำลังสร้าง Prompt...',
-    exported: 'Prompt พร้อมแล้ว — รอส่งให้ Agent',
-    agent_running: 'กำลังให้ Agent ประมวลผล',
-    completed: 'Agent ทำงานเสร็จแล้ว — มี Final Report',
-    failed: 'เกิดข้อผิดพลาด',
-    blocked: 'รอการอนุมัติ',
-    waiting_approval: 'รอการอนุมัติ',
+    running: 'กำลังวิเคราะห์...',
+    exporting: 'กำลังเตรียมข้อมูล...',
+    exported: 'เตรียมข้อมูลเรียบร้อย — กำลังให้ AI ประมวลผล',
+    agent_running: 'AI กำลังประมวลผล',
+    completed: 'งานเสร็จแล้ว',
+    failed: 'งานนี้มีปัญหา',
+    blocked: 'ต้องยืนยันก่อนดำเนินการ',
+    waiting_approval: 'ต้องยืนยันก่อนดำเนินการ',
   }[status] ?? status
 }
 
@@ -374,6 +386,15 @@ function buildTaskMeta(task) {
     approval_required: task.result?.approval_required || false,
     approval_phrase: task.result?.approval_phrase || task.accountability?.approval_phrase || null,
     agent_approval_reason: task.result?.agent_approval_reason || null,
+    // Hermes HTTP fields
+    hermes_http_status: task.result?.hermes_http_status || null,
+    hermes_response_format: task.result?.hermes_response_format || null,
+    fallback_mode: task.result?.fallback_mode || null,
+    fallback_reason: task.result?.fallback_reason || null,
+    hermes_endpoint: task.result?.hermes_endpoint || null,
+    response_received_at: task.result?.response_received_at || null,
+    report_path: task.result?.report_path || null,
+    report_saved_at: task.result?.report_saved_at || null,
   }
 }
 
@@ -500,7 +521,7 @@ async function sendCommand(payload) {
 
     // 3. Create task bubble
     const isBlocked = data.approval_required || selectedMode.value === 'production'
-    const bubbleId = addMessage('system', 'รับคำสั่งแล้วครับ', {
+    const bubbleId = addMessage('system', 'รับคำสั่งแล้วครับ ผมกำลังเตรียมงานให้', {
       type: 'task',
       task_id: data.task_id,
       status: isBlocked ? 'blocked' : 'pending',
@@ -521,6 +542,18 @@ async function sendCommand(payload) {
     // 4. Auto-process (skip if blocked)
     if (!isBlocked) {
       startAutoProcess(data.task_id, bubbleId)
+    }
+
+    // 4b. If the message looks like a code-edit instruction, run /code-edit/plan in parallel
+    if (detectCodeEdit(text)) {
+      planCodeEdit(text, bubbleId, data.task_id).catch((e) => {
+        updateMessage(bubbleId, {
+          meta: {
+            ...getMessageMeta(bubbleId),
+            code_edit: { status: 'error', message: e.message },
+          },
+        })
+      })
     }
   } catch (e) {
     addMessage('system', `ส่งคำสั่งไม่สำเร็จ: ไม่สามารถเชื่อมต่อ API (${e.message})`)
@@ -592,7 +625,7 @@ async function runAgent({ taskId, bubbleId }) {
         ...getMessageMeta(bubbleId),
         status: 'agent_running',
         progress: 10,
-        current_step: 'กำลังเตรียมส่ง Prompt ให้ Agent',
+        current_step: 'กำลังให้ AI ประมวลผล...',
       },
     })
   } catch (e) {
@@ -673,6 +706,131 @@ async function submitSaveReport() {
 }
 
 function closeSaveModal() { saveModal.value.open = false }
+
+// ── Self-Modify Code Workflow ─────────────────────────────────────────────
+const CODE_EDIT_KEYWORDS = [
+  'แก้', 'ปรับ', 'เพิ่ม', 'ลบ', 'refactor', 'fix bug', 'แก้ bug',
+  'ui', 'component', 'endpoint', 'page', '.vue', 'docker', 'nginx',
+  'workflow', 'settings page', 'command page', 'jobs page',
+  'apps/web', 'services/worker', 'services/mobile-gateway',
+]
+function detectCodeEdit(text) {
+  if (!text) return false
+  const t = String(text).toLowerCase()
+  return CODE_EDIT_KEYWORDS.some((kw) => t.includes(kw.toLowerCase()))
+}
+
+async function planCodeEdit(instruction, bubbleId, taskId) {
+  updateMessage(bubbleId, {
+    meta: {
+      ...getMessageMeta(bubbleId),
+      code_edit: { status: 'planning', message: 'กำลังให้ AI วางแผนการแก้ไข...' },
+    },
+  })
+  const res = await fetch(`${WORKER}/code-edit/plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task_id: taskId, instruction, files: [] }),
+  })
+  const data = await res.json()
+  updateMessage(bubbleId, {
+    meta: { ...getMessageMeta(bubbleId), code_edit: data },
+  })
+}
+
+async function applyCodeEdit({ taskId, bubbleId }) {
+  const meta = getMessageMeta(bubbleId) || {}
+  const required = meta.code_edit?.required_apply_phrase
+  let phrase = ''
+  if (required) {
+    phrase = prompt(`Approval phrase required to apply patch:\n${required}`) || ''
+    if (phrase.trim() !== required) {
+      addMessage('system', `⚠️ ยกเลิก — ต้องพิมพ์วลี: ${required}`)
+      return
+    }
+  }
+  const res = await fetch(`${WORKER}/code-edit/apply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task_id: taskId, approval_phrase: phrase }),
+  })
+  const data = await res.json()
+  updateMessage(bubbleId, {
+    meta: { ...getMessageMeta(bubbleId), code_edit_apply: data },
+  })
+  if (data.status === 'verification_passed' || data.status === 'waiting_commit_approval') {
+    addMessage('system', '✅ Apply สำเร็จ — ตรวจสอบ verification ก่อน Commit')
+  } else {
+    addMessage('system', `⚠️ Apply: ${data.message || data.status}`)
+  }
+}
+
+async function commitCodeEdit({ taskId, bubbleId }) {
+  const meta = getMessageMeta(bubbleId) || {}
+  const required = meta.code_edit?.required_commit_phrase
+  let phrase = ''
+  if (required) {
+    phrase = prompt(`Approval phrase required to commit:\n${required}`) || ''
+    if (phrase.trim() !== required) {
+      addMessage('system', `⚠️ ยกเลิก — ต้องพิมพ์วลี: ${required}`)
+      return
+    }
+  }
+  const commitMessage = prompt('Commit message (เว้นว่างเพื่อใช้ default):') || ''
+  const res = await fetch(`${WORKER}/code-edit/commit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      task_id: taskId,
+      approval_phrase: phrase,
+      commit_message: commitMessage,
+    }),
+  })
+  const data = await res.json()
+  updateMessage(bubbleId, {
+    meta: { ...getMessageMeta(bubbleId), code_edit_commit: data },
+  })
+  if (data.status === 'committed') {
+    addMessage('system', `✅ Commit สำเร็จ — ${data.commit_hash} บน ${data.branch}`)
+  } else {
+    addMessage('system', `⚠️ Commit: ${data.message || data.status}`)
+  }
+}
+
+async function rollbackCodeEdit({ taskId, bubbleId }) {
+  const phrase = prompt('Approval phrase required to rollback:\nROLLBACK PATCH') || ''
+  if (phrase.trim() !== 'ROLLBACK PATCH') {
+    addMessage('system', '⚠️ ยกเลิก rollback')
+    return
+  }
+  const res = await fetch(`${WORKER}/code-edit/rollback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task_id: taskId, approval_phrase: phrase }),
+  })
+  const data = await res.json()
+  updateMessage(bubbleId, {
+    meta: { ...getMessageMeta(bubbleId), code_edit_rollback: data },
+  })
+  addMessage('system', data.status === 'rolled_back'
+    ? '✅ Rollback สำเร็จ'
+    : `⚠️ Rollback: ${data.message || data.status}`)
+}
+
+async function viewCodeEditPatch({ taskId }) {
+  const res = await fetch(`${WORKER}/code-edit/${taskId}/patch?kind=forward`)
+  if (!res.ok) {
+    addMessage('system', `⚠️ ไม่พบ patch สำหรับ task ${taskId}`)
+    return
+  }
+  const data = await res.json()
+  try {
+    await navigator.clipboard.writeText(data.content || '')
+    addMessage('system', '📋 Copied patch to clipboard')
+  } catch {
+    addMessage('system', `📄 Patch:\n${(data.content || '').slice(0, 400)}…`)
+  }
+}
 
 // ── Agent Runner: Copy Prompt ─────────────────────────────────────────────
 async function copyAgentPrompt({ runId }) {
@@ -834,7 +992,7 @@ async function copyPrompt() {
 
 .page {
   min-height: 100vh;
-  background: #eef0f4;
+  background: #080c14;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -848,34 +1006,57 @@ async function copyPrompt() {
 
 .card {
   width: 100%;
-  max-width: 560px;
+  max-width: 580px;
   min-height: 100vh;
-  background: #fff;
+  background: #0f172a;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-left: 1px solid #1e293b;
+  border-right: 1px solid #1e293b;
 }
 
 @media (min-width: 600px) {
   .card {
-    min-height: 680px;
-    max-height: 840px;
+    min-height: 700px;
+    max-height: 860px;
     border-radius: 16px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.13);
+    box-shadow: 0 8px 48px rgba(0,0,0,0.7);
+    border: 1px solid #1e293b;
   }
 }
 
 .header {
-  background: #1d6fe8;
-  color: #fff;
-  text-align: center;
-  padding: 18px 16px;
+  background: #0a1628;
+  color: #e2e8f0;
+  padding: 14px 18px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1e293b;
 }
 
 @media (min-width: 600px) { .header { border-radius: 16px 16px 0 0; } }
 
-.header-title { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.01em; }
+.header-title-block { display: flex; flex-direction: column; gap: 1px; }
+.header-title {
+  font-size: 1rem; font-weight: 700; letter-spacing: 0.01em; color: #f1f5f9;
+  display: flex; align-items: center; gap: 8px;
+}
+.header-subtitle { font-size: 0.72rem; color: #94a3b8; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.header-status {
+  font-size: 0.66rem; font-weight: 700; color: #22c55e;
+  letter-spacing: 0.04em; animation: pulse-status 2.5s infinite;
+}
+.header-link {
+  font-size: 0.72rem; color: #93c5fd; text-decoration: none;
+  padding: 3px 8px; border: 1px solid #1e3a5f; border-radius: 6px;
+  background: #0f172a;
+}
+.header-link:hover { background: #1e3a5f; }
+@keyframes pulse-status { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 
 /* ── Modal ── */
 .modal-overlay {

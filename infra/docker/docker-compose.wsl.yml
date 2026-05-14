@@ -194,12 +194,17 @@ services:
       - HERMES_PROVIDER=${HERMES_PROVIDER:-openai_compatible}
       - HERMES_REQUEST_FORMAT=${HERMES_REQUEST_FORMAT:-native}
       - HERMES_MODEL=${HERMES_MODEL:-}
+      - HERMES_TEMPERATURE=${HERMES_TEMPERATURE:-}
       - AGENT_RUNNER_ARTIFACT_DIR=${AGENT_RUNNER_ARTIFACT_DIR:-/app/data/agent-runs}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ../../data:/app/data
       - ../../core:/app/core:ro
       - ../../AGENTS.md:/app/AGENTS.md:ro
+      # Self-modify workflow workspace (DEV ONLY — RW access to project root).
+      # Allowlist + blocklist in services/worker/app/code_edit/policy.py
+      # provide the actual safety boundary, not this mount.
+      - ../..:/workspace:rw
     ports:
       - "127.0.0.1:8095:8095"
     healthcheck:

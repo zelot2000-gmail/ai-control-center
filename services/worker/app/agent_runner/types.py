@@ -60,6 +60,8 @@ class RunResult:
     hermes_http_status: int = 0
     hermes_response_format: str = ""
     response_received_at: Optional[str] = None
+    hermes_provider: str = ""
+    hermes_request_format: str = ""
 
 
 @dataclass
@@ -89,6 +91,8 @@ class AgentRun:
     hermes_http_status: int = 0
     hermes_response_format: str = ""
     response_received_at: Optional[str] = None
+    hermes_provider: str = ""
+    hermes_request_format: str = ""
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

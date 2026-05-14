@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Awaitable, Callable, List, Optional
 
 from .adapters import hermes_http, hermes_manual, prompt_only
-from .config import AGENT_RUNNER_ARTIFACT_DIR, AGENT_RUNNER_MODE
+from .config import AGENT_RUNNER_ARTIFACT_DIR, load_effective_provider_config
 from .prompt_builder import build_agent_prompt
 from .storage import save_run, update_run
 from .types import AgentRun, RunnerMode, RunStatus
@@ -32,7 +32,10 @@ async def run_agent(
     final_report/verification_status/output_summary/report_path when
     hermes_http auto-saves a report.
     """
-    mode = AGENT_RUNNER_MODE
+    # Read latest effective config (env + override file) so Save on /settings
+    # takes effect on the very next run without restart.
+    _cfg = load_effective_provider_config()
+    mode = _cfg["agent_runner_mode"]
     run = AgentRun.new(
         job_id=task.get("job_id", ""),
         task=task,
@@ -119,6 +122,10 @@ async def run_agent(
             update_kwargs["hermes_response_format"] = result.hermes_response_format
         if result.response_received_at:
             update_kwargs["response_received_at"] = result.response_received_at
+        if result.hermes_provider:
+            update_kwargs["hermes_provider"] = result.hermes_provider
+        if result.hermes_request_format:
+            update_kwargs["hermes_request_format"] = result.hermes_request_format
         update_run(run.id, **update_kwargs)
 
         # Status-specific push events
@@ -166,4 +173,6 @@ async def run_agent(
         "hermes_http_status": (result.hermes_http_status if result else 0),
         "hermes_response_format": (result.hermes_response_format if result else ""),
         "response_received_at": (result.response_received_at if result else None),
+        "hermes_provider": (result.hermes_provider if result else ""),
+        "hermes_request_format": (result.hermes_request_format if result else ""),
     }

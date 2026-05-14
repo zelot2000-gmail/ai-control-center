@@ -38,6 +38,13 @@
           <div class="nav-desc">System & Agent Logs</div>
         </div>
       </a>
+      <a href="/settings" class="nav-card nav-card-settings">
+        <span class="nav-icon">⚙️</span>
+        <div>
+          <div class="nav-title">Provider Settings</div>
+          <div class="nav-desc">Hermes / 9Router / OpenAI-compatible</div>
+        </div>
+      </a>
     </div>
 
     <div class="api-links">
@@ -78,6 +85,18 @@ h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; }
 }
 
 .nav-card:hover { background: #eff6ff; border-color: #93c5fd; }
+
+.nav-card-settings {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #e2e8f0;
+}
+.nav-card-settings .nav-title { color: #f1f5f9; }
+.nav-card-settings .nav-desc  { color: #94a3b8; }
+.nav-card-settings:hover {
+  background: #0f172a;
+  border-color: #3b82f6;
+}
 
 .nav-icon { font-size: 1.5rem; flex-shrink: 0; }
 .nav-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
