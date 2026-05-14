@@ -227,6 +227,79 @@
         <span class="src-badge src-manual">Manual</span>
       </div>
     </section>
+
+    <!-- ── SECTION H: WORKSPACE ── -->
+    <section class="card">
+      <div class="card-title">H. Workspace Settings</div>
+      <div v-if="wsLoading" class="loading-box">⏳ Loading workspace…</div>
+      <div v-if="wsError" class="error-box">⚠️ {{ wsError }}</div>
+      <div v-if="ws" class="ws-grid">
+        <div class="ws-row">
+          <span class="ws-label">Workspace Name</span>
+          <span class="ws-val">{{ ws.name }}</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-label">Root</span>
+          <code class="ws-code">{{ ws.root }}</code>
+          <span class="ws-chip" :class="ws.root_exists ? 'chip-ok' : 'chip-err'">{{ ws.root_exists ? 'mounted' : 'missing' }}</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-label">Branch</span>
+          <code class="ws-code">{{ ws.git_branch || '—' }}</code>
+        </div>
+        <div class="ws-row">
+          <span class="ws-label">Default Mode</span>
+          <span class="ws-val">{{ ws.default_mode }}</span>
+        </div>
+        <div class="ws-row ws-paths">
+          <span class="ws-label">Allowed Paths</span>
+          <div class="ws-path-list">
+            <code v-for="p in ws.allowed_paths" :key="p" class="ws-path">{{ p }}</code>
+          </div>
+        </div>
+        <div class="ws-row ws-paths">
+          <span class="ws-label">Blocked Paths</span>
+          <div class="ws-path-list">
+            <code v-for="p in ws.blocked_paths" :key="p" class="ws-path ws-path-blocked">{{ p }}</code>
+          </div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top:0.75rem">
+        <button class="btn btn-primary" :disabled="wsLoading || wsTesting" @click="testWorkspace">
+          {{ wsTesting ? '⏳ Testing…' : '🔍 Test Workspace' }}
+        </button>
+      </div>
+      <div v-if="wsHealth" class="ws-health" :class="wsHealth.healthy ? 'tr-ok' : 'tr-err'">
+        <div class="tr-row">
+          <span class="tr-label">Healthy</span>
+          <span class="tr-val">{{ wsHealth.healthy ? '✅ yes' : '❌ no' }}</span>
+        </div>
+        <div class="tr-row">
+          <span class="tr-label">Root</span>
+          <span class="tr-val">{{ wsHealth.root_exists ? '✅' : '❌' }} exists</span>
+        </div>
+        <div class="tr-row">
+          <span class="tr-label">Git</span>
+          <span class="tr-val">{{ wsHealth.git_available ? '✅' : '❌' }} {{ wsHealth.git_branch || '' }}</span>
+        </div>
+        <div class="tr-row" v-if="wsHealth.allowed_paths">
+          <span class="tr-label">Allowed</span>
+          <span class="tr-val">
+            <span v-for="(exists, p) in wsHealth.allowed_paths" :key="p" class="ws-check">
+              {{ exists ? '✅' : '⚠️' }} {{ p }}
+            </span>
+          </span>
+        </div>
+        <div class="tr-row" v-if="wsHealth.blocked_paths">
+          <span class="tr-label">Blocked</span>
+          <span class="tr-val">
+            <span v-for="(exists, p) in wsHealth.blocked_paths" :key="p" class="ws-check">
+              {{ exists ? '🔒' : '—' }} {{ p }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -511,7 +584,42 @@ async function copyEnv() {
   }
 }
 
-onMounted(loadCurrent)
+// ── Workspace ─────────────────────────────────────────────────────────────
+const ws        = ref(null)
+const wsLoading = ref(false)
+const wsError   = ref('')
+const wsTesting = ref(false)
+const wsHealth  = ref(null)
+
+async function loadWorkspace() {
+  wsLoading.value = true
+  wsError.value   = ''
+  try {
+    const res = await fetch(`${WORKER}/workspace`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    ws.value = await res.json()
+  } catch (e) {
+    wsError.value = `Cannot load workspace (${WORKER}): ${e.message}`
+  } finally {
+    wsLoading.value = false
+  }
+}
+
+async function testWorkspace() {
+  wsTesting.value = true
+  wsHealth.value  = null
+  try {
+    const res = await fetch(`${WORKER}/workspace/health`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    wsHealth.value = await res.json()
+  } catch (e) {
+    wsHealth.value = { healthy: false, error: e.message }
+  } finally {
+    wsTesting.value = false
+  }
+}
+
+onMounted(() => { loadCurrent(); loadWorkspace() })
 </script>
 
 <style scoped>
@@ -703,4 +811,20 @@ select.input { cursor: pointer; }
   .grid { grid-template-columns: 1fr; }
   .field-full { grid-column: 1; }
 }
+
+/* Workspace section */
+.ws-grid { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem; }
+.ws-row { display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; font-size: 0.82rem; }
+.ws-label { min-width: 110px; color: #94a3b8; font-weight: 600; flex-shrink: 0; }
+.ws-val { color: #e2e8f0; }
+.ws-code { background: #0f172a; border: 1px solid #334155; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.78rem; color: #cbd5e1; }
+.ws-chip { font-size: 0.7rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+.chip-ok  { background: #064e3b; color: #6ee7b7; }
+.chip-err { background: #7f1d1d; color: #fca5a5; }
+.ws-paths { align-items: flex-start; }
+.ws-path-list { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.ws-path { background: #0f172a; border: 1px solid #334155; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.72rem; color: #a7f3d0; }
+.ws-path-blocked { color: #fca5a5; border-color: #7f1d1d; }
+.ws-health { margin-top: 0.75rem; padding: 0.65rem 0.85rem; border-radius: 8px; font-size: 0.82rem; border: 1px solid; }
+.ws-check { display: block; font-size: 0.72rem; margin-top: 2px; }
 </style>

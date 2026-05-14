@@ -8,13 +8,14 @@ Single source of truth for:
 """
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Iterable, List
 
-# Project root inside the worker container — see docker-compose volume mount
-WORKSPACE_ROOT = "/workspace"
+# Project root inside the worker container — driven by AICC_WORKSPACE_ROOT env var
+WORKSPACE_ROOT = os.getenv("AICC_WORKSPACE_ROOT", "/workspace")
 
 # ── Allowlist (relative to WORKSPACE_ROOT) ─────────────────────────────────
 ALLOWLIST_PREFIXES: tuple[str, ...] = (

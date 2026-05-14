@@ -14,6 +14,16 @@
       </div>
     </div>
 
+    <!-- Workspace info bar -->
+    <div class="ws-bar" v-if="wsInfo">
+      <span class="ws-bar-item">🗂 <strong>{{ wsInfo.name }}</strong></span>
+      <span class="ws-bar-sep">·</span>
+      <span class="ws-bar-item"><code class="ws-bar-code">{{ wsInfo.root }}</code></span>
+      <span class="ws-bar-sep">·</span>
+      <span class="ws-bar-item ws-bar-branch" v-if="wsInfo.git_branch">⎇ {{ wsInfo.git_branch }}</span>
+      <span class="ws-bar-item ws-bar-mode">{{ wsInfo.default_mode }}</span>
+    </div>
+
     <!-- Summary bar -->
     <div class="summary" v-if="!loading && tasks.length">
       <span class="chip chip-total">{{ tasks.length }} total</span>
@@ -615,6 +625,7 @@ const WORKER = config.public.workerBase
 
 const tasks      = ref([])
 const codeEdits  = ref({})   // task_id → code-edit state (loaded lazily on refresh)
+const wsInfo     = ref(null)
 const loading    = ref(false)
 const fetchError = ref('')
 const processing = ref({})
@@ -1034,7 +1045,13 @@ async function submitAgentApprove() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
-onMounted(loadTasks)
+onMounted(async () => {
+  await loadTasks()
+  try {
+    const res = await fetch(`${WORKER}/workspace`)
+    if (res.ok) wsInfo.value = await res.json()
+  } catch { /* non-critical */ }
+})
 </script>
 
 <style scoped>
@@ -1063,6 +1080,19 @@ onMounted(loadTasks)
 .header-right { display: flex; align-items: center; gap: 0.5rem; }
 .title  { font-size: 1.15rem; font-weight: 800; color: #f1f5f9; margin: 0; letter-spacing: 0.01em; }
 .title-sub { font-size: 0.68rem; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* Workspace bar */
+.ws-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+  background: #0a1628; border: 1px solid #1e3a5f; border-radius: 8px;
+  padding: 0.4rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.72rem;
+}
+.ws-bar-item { color: #94a3b8; }
+.ws-bar-item strong { color: #7dd3fc; }
+.ws-bar-sep  { color: #334155; }
+.ws-bar-code { background: #0f172a; border: 1px solid #334155; border-radius: 4px; padding: 1px 5px; font-size: 0.68rem; color: #cbd5e1; font-family: monospace; }
+.ws-bar-branch { color: #6ee7b7; font-family: monospace; }
+.ws-bar-mode { background: #1e1b4b; color: #a78bfa; padding: 1px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
 
 /* Summary */
 .summary { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }

@@ -37,6 +37,27 @@ HERMES_CLI_PATH = os.getenv("HERMES_CLI_PATH", "")
 AGENTUNIVERSE_CLI_PATH = os.getenv("AGENTUNIVERSE_CLI_PATH", "")
 MOBILE_GATEWAY_URL = os.getenv("MOBILE_GATEWAY_URL", "http://mobile-gateway:8088")
 RAG_API_URL = os.getenv("RAG_API_URL", "http://rag-api:8090")
+
+# ── Workspace config ──────────────────────────────────────────────────────
+AICC_WORKSPACE_ID   = os.getenv("AICC_WORKSPACE_ID", "ai-control-center")
+AICC_WORKSPACE_NAME = os.getenv("AICC_WORKSPACE_NAME", "AI Control Center")
+AICC_WORKSPACE_ROOT = os.getenv("AICC_WORKSPACE_ROOT", "/workspace")
+AICC_WORKSPACE_DEFAULT_MODE = os.getenv("AICC_WORKSPACE_DEFAULT_MODE", "plan-only")
+AICC_WORKSPACE_ALLOWED_PATHS: List[str] = [
+    p.strip() for p in os.getenv(
+        "AICC_WORKSPACE_ALLOWED_PATHS",
+        "apps/web/pages,apps/web/components,services/worker/app,"
+        "services/mobile-gateway/app,core/workflows,docs/wiki,"
+        "docs/releases,infra/docker,.env.example,.gitignore",
+    ).split(",") if p.strip()
+]
+AICC_WORKSPACE_BLOCKED_PATHS: List[str] = [
+    p.strip() for p in os.getenv(
+        "AICC_WORKSPACE_BLOCKED_PATHS",
+        ".env,data,.git,node_modules,apps/web/dist,apps/web/.output,"
+        ".claude/settings.local.json",
+    ).split(",") if p.strip()
+]
 EXPORTS_DIR = Path("/app/data/exports")
 AGENTS_MD_PATH = Path("/app/AGENTS.md")
 
@@ -1987,4 +2008,87 @@ async def code_edit_policy_info():
         "dirty_paths": dirty[:10] if not clean else [],
         "current_branch": _ce_git.current_branch() if workspace_ok else "",
         "head_commit": _ce_git.head_commit() if workspace_ok else "",
+    }
+
+
+# ── Workspace endpoints ───────────────────────────────────────────────────
+
+@app.get("/workspace")
+async def workspace_info():
+    """Return current workspace configuration and git state."""
+    import subprocess
+    from app.code_edit import git_ops as _ce_git
+
+    root = Path(AICC_WORKSPACE_ROOT)
+    root_exists = root.exists()
+
+    git_branch = ""
+    git_status_short = ""
+    if root_exists:
+        try:
+            git_branch = _ce_git.current_branch()
+        except Exception:
+            pass
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(root), "status", "--short"],
+                capture_output=True, text=True, timeout=5,
+            )
+            git_status_short = result.stdout.strip() if result.returncode == 0 else ""
+        except Exception:
+            pass
+
+    return {
+        "id": AICC_WORKSPACE_ID,
+        "name": AICC_WORKSPACE_NAME,
+        "root": AICC_WORKSPACE_ROOT,
+        "root_exists": root_exists,
+        "git_branch": git_branch,
+        "git_status_short": git_status_short,
+        "allowed_paths": AICC_WORKSPACE_ALLOWED_PATHS,
+        "blocked_paths": AICC_WORKSPACE_BLOCKED_PATHS,
+        "default_mode": AICC_WORKSPACE_DEFAULT_MODE,
+    }
+
+
+@app.get("/workspace/health")
+async def workspace_health():
+    """Health check for workspace: root, git, allowed/blocked paths."""
+    import subprocess
+
+    root = Path(AICC_WORKSPACE_ROOT)
+    root_exists = root.exists()
+    git_dir_exists = (root / ".git").exists() if root_exists else False
+
+    git_available = False
+    git_branch = ""
+    if root_exists:
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                git_available = True
+                git_branch = result.stdout.strip()
+        except Exception:
+            pass
+
+    allowed_check: dict = {}
+    for p in AICC_WORKSPACE_ALLOWED_PATHS:
+        allowed_check[p] = (root / p).exists() if root_exists else False
+
+    blocked_check: dict = {}
+    for p in AICC_WORKSPACE_BLOCKED_PATHS:
+        blocked_check[p] = (root / p).exists() if root_exists else False
+
+    healthy = root_exists and git_available
+    return {
+        "healthy": healthy,
+        "root_exists": root_exists,
+        "git_dir_exists": git_dir_exists,
+        "git_available": git_available,
+        "git_branch": git_branch,
+        "allowed_paths": allowed_check,
+        "blocked_paths": blocked_check,
     }

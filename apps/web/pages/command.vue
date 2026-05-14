@@ -5,6 +5,12 @@
         <div class="header-title-block">
           <span class="header-title">🤖 AI Assistant</span>
           <span class="header-subtitle">สั่งงานและคุยกับระบบ AI ของคุณ</span>
+          <span v-if="wsInfo" class="ws-meta">
+            <span class="ws-name">{{ wsInfo.name }}</span>
+            <span class="ws-sep">·</span>
+            <span class="ws-mode">{{ wsInfo.default_mode }}</span>
+            <span v-if="wsInfo.git_branch" class="ws-branch">{{ wsInfo.git_branch }}</span>
+          </span>
         </div>
         <div class="header-right">
           <span class="header-status">● Online</span>
@@ -274,6 +280,7 @@ const messages     = ref([])
 const inputText    = ref('')
 const isSending    = ref(false)
 const selectedMode = ref('plan-only')
+const wsInfo       = ref(null)
 
 const promptModal   = ref({ open: false, taskId: '', loading: false, error: '', content: '' })
 const saveModal     = ref({ open: false, taskId: '', bubbleId: '', report: '', report_source: 'claude', report_summary: '', verification_status: '', loading: false, error: '' })
@@ -291,11 +298,15 @@ const MODE_MAP = {
   'production': { mode: 'plan-only', environment: 'production' },
 }
 
-onMounted(() => {
+onMounted(async () => {
   addMessage('system',
     'ระบบออนไลน์: ยินดีต้อนรับครับบอส ลองพิมพ์คำสั่งดูได้เลยครับ' +
     '\nเช่น "@Designer ออกแบบหน้าจอ POSFood ให้หน่อย"'
   )
+  try {
+    const res = await fetch(`${WORKER}/workspace`)
+    if (res.ok) wsInfo.value = await res.json()
+  } catch { /* non-critical */ }
 })
 
 onUnmounted(() => {
@@ -1045,6 +1056,11 @@ async function copyPrompt() {
   display: flex; align-items: center; gap: 8px;
 }
 .header-subtitle { font-size: 0.72rem; color: #94a3b8; }
+.ws-meta { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.ws-name { font-size: 0.65rem; font-weight: 600; color: #7dd3fc; }
+.ws-sep  { font-size: 0.65rem; color: #475569; }
+.ws-mode { font-size: 0.62rem; color: #a78bfa; background: #1e1b4b; padding: 1px 5px; border-radius: 4px; }
+.ws-branch { font-size: 0.62rem; color: #6ee7b7; background: #064e3b; padding: 1px 5px; border-radius: 4px; font-family: monospace; }
 .header-right { display: flex; align-items: center; gap: 12px; }
 .header-status {
   font-size: 0.66rem; font-weight: 700; color: #22c55e;
