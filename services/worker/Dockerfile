@@ -19,3 +19,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8095
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8095"]
+
+# Trust mounted project workspace for git operations
+RUN git config --system --add safe.directory /workspace
