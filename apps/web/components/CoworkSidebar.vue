@@ -80,7 +80,11 @@
     <div class="sb-ws-card" v-if="wsInfo">
       <div class="sb-ws-header">
         <span class="sb-ws-name">{{ wsInfo.name }}</span>
-        <span class="sb-ws-health" title="Healthy">●</span>
+        <span
+          class="sb-ws-health"
+          :class="(wsInfo.health === 'ok' || wsInfo.healthy === true) ? 'sb-ws-health--ok' : 'sb-ws-health--unknown'"
+          :title="(wsInfo.health === 'ok' || wsInfo.healthy === true) ? 'Healthy' : 'Unknown'"
+        >●</span>
       </div>
       <div class="sb-ws-meta">
         <code class="sb-ws-branch">{{ wsInfo.git_branch || 'main' }}</code>
@@ -298,7 +302,9 @@ const TABS = [
   margin-bottom: 5px;
 }
 .sb-ws-name { font-size: 0.76rem; font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
-.sb-ws-health { color: #22c55e; font-size: 0.55rem; flex-shrink: 0; }
+.sb-ws-health          { font-size: 0.55rem; flex-shrink: 0; }
+.sb-ws-health--ok      { color: #22c55e; }
+.sb-ws-health--unknown { color: #475569; }
 .sb-ws-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 9px; flex-wrap: wrap; }
 .sb-ws-branch {
   font-size: 0.62rem;

@@ -39,9 +39,9 @@
               <span class="wp-item-name">{{ ws.name }}</span>
               <span
                 class="wp-item-health"
-                :class="ws.health === 'ok' ? 'health--ok' : 'health--unknown'"
+                :class="(ws.health === 'ok' || ws.healthy === true) ? 'health--ok' : 'health--unknown'"
               >
-                ● {{ ws.health === 'ok' ? 'Healthy' : 'Unknown' }}
+                ● {{ (ws.health === 'ok' || ws.healthy === true) ? 'Healthy' : 'Unknown' }}
               </span>
             </div>
 

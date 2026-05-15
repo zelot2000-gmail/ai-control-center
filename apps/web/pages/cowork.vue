@@ -354,16 +354,35 @@ onUnmounted(() => {
 
 async function loadWorkspace() {
   try {
-    const res = await fetch(`${WORKER}/workspace`)
-    if (res.ok) {
-      wsInfo.value = await res.json()
-      if (wsInfo.value?.name) {
-        // Update recent list with active workspace
-        const idx = recentItems.value.findIndex(r => r.name === wsInfo.value.name)
-        if (idx >= 0) {
-          recentItems.value[idx].active = true
-          recentItems.value[idx].health = 'ok'
-        }
+    const [wsRes, healthRes] = await Promise.allSettled([
+      fetch(`${WORKER}/workspace`),
+      fetch(`${WORKER}/workspace/health`),
+    ])
+
+    if (wsRes.status === 'fulfilled' && wsRes.value.ok) {
+      wsInfo.value = await wsRes.value.json()
+    }
+
+    if (healthRes.status === 'fulfilled' && healthRes.value.ok) {
+      const h = await healthRes.value.json()
+      // Normalize: merge health fields, prefer git_branch from health if wsInfo doesn't have it
+      wsInfo.value = {
+        ...wsInfo.value,
+        health: h.healthy ? 'ok' : (h.root_exists ? 'warning' : 'error'),
+        healthy: h.healthy,
+        git_available: h.git_available,
+        root_exists: h.root_exists,
+        git_branch: wsInfo.value?.git_branch || h.git_branch || null,
+        health_error: h.error || null,
+      }
+    }
+
+    if (wsInfo.value?.name) {
+      const healthStatus = wsInfo.value.health || 'unknown'
+      const idx = recentItems.value.findIndex(r => r.name === wsInfo.value.name)
+      if (idx >= 0) {
+        recentItems.value[idx].active = true
+        recentItems.value[idx].health = healthStatus === 'ok' ? 'ok' : 'unknown'
       }
     }
   } catch { /* non-critical */ }

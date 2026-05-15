@@ -71,9 +71,12 @@
           <span class="ci-kv-key">Root</span>
           <span class="ci-kv-path">{{ wsInfo.root }}</span>
         </div>
-        <div class="ci-health-line" :class="wsInfo.health === 'ok' ? 'health--ok' : 'health--warn'">
+        <div class="ci-health-line" :class="`health--${wsHealthStatus}`">
           <span>●</span>
-          {{ wsInfo.health === 'ok' ? 'Healthy' : 'Status unknown' }}
+          {{ wsHealthLabel }}
+        </div>
+        <div class="ci-error-chip" v-if="wsInfo.health_error && wsHealthStatus !== 'ok'">
+          {{ wsInfo.health_error }}
         </div>
       </div>
 
@@ -190,6 +193,23 @@ const props = defineProps({
 defineEmits(['close'])
 
 const showDevInfo = ref(false)
+
+// Normalize health: handles both health='ok' (string) and healthy=true (bool from /workspace/health)
+const wsHealthStatus = computed(() => {
+  const ws = props.wsInfo
+  if (!ws) return 'unknown'
+  if (ws.health === 'ok' || ws.healthy === true) return 'ok'
+  if (ws.health === 'warning') return 'warning'
+  if (ws.health === 'error' || ws.healthy === false) return 'error'
+  return 'unknown'
+})
+
+const wsHealthLabel = computed(() => ({
+  ok: 'Healthy',
+  warning: 'Warning',
+  error: 'Failed',
+  unknown: 'Status unknown',
+})[wsHealthStatus.value] ?? 'Status unknown')
 
 const STEP_ORDER = ['plan', 'patch', 'apply', 'verify', 'commit']
 const STATUS_TO_STEP = {
@@ -398,8 +418,11 @@ function basename(path) {
   font-weight: 600;
   margin-top: 6px;
 }
-.health--ok { color: #22c55e; }
-.health--warn { color: #f59e0b; }
+.health--ok      { color: #22c55e; }
+.health--warning { color: #f59e0b; }
+.health--warn    { color: #f59e0b; }
+.health--error   { color: #f87171; }
+.health--unknown { color: #475569; }
 
 /* Files */
 .ci-file-row {
